@@ -1,0 +1,27 @@
+# Local development database for SecondChance.
+# Host port 5433 is used to avoid colliding with a system Postgres on 5432.
+services:
+  db:
+    image: postgres:16
+    container_name: secondchance-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: secondchance
+      POSTGRES_PASSWORD: secondchance
+      POSTGRES_DB: secondchance
+      # Deterministic initdb settings so local behaves like CI.
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U secondchance -d secondchance"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+volumes:
+  pgdata:
+    name: secondchance-pgdata
