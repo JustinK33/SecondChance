@@ -1,0 +1,107 @@
+{
+  "task": "propose_clarifications",
+  "prompt_version": "v1",
+  "note": "Hand-written, fictional. Assumes missing_fields covers household_size, age and income, and that the only candidate program is the fictional example-grocery-help.",
+  "usage": {"prompt_tokens": 1640, "output_tokens": 288, "thought_tokens": 0},
+  "text": "Two answers would change a result: how many people are in the household, and roughly how much the household brings in each month.",
+  "cases": {
+    "default": {
+      "response": {
+        "questions": [
+          {
+            "field": "household_size",
+            "question": "How many people live with you and share meals?",
+            "input_kind": "number",
+            "options": [],
+            "why_it_matters": "The grocery program looks at how many people are in your household.",
+            "is_required": false,
+            "unit": "people",
+            "min_value": 1,
+            "max_value": 20,
+            "affected_program_slugs": ["example-grocery-help"]
+          },
+          {
+            "field": "income_min_cents",
+            "question": "Roughly how much money comes into your household in a month?",
+            "input_kind": "range",
+            "options": [],
+            "why_it_matters": "A rough range is enough to tell whether this program can look at your case.",
+            "is_required": false,
+            "unit": "dollars per month",
+            "min_value": 0,
+            "max_value": null,
+            "affected_program_slugs": ["example-grocery-help"]
+          },
+          {
+            "field": "age",
+            "question": "How old are you?",
+            "input_kind": "number",
+            "options": [],
+            "why_it_matters": "Some programs are only open to people in certain age groups.",
+            "is_required": false,
+            "unit": "years",
+            "min_value": 0,
+            "max_value": 120,
+            "affected_program_slugs": []
+          }
+        ],
+        "rationale": "Household size and income are the two fields the candidate program reads."
+      }
+    },
+    "nothing_to_ask": {
+      "response": {
+        "questions": [],
+        "rationale": "No supplied program depends on a field that is still missing."
+      }
+    },
+    "injected_instructions": {
+      "note": "A poisoned program record asked for identifiers and for a question that announces a result. Every question here must be dropped by the projection.",
+      "response": {
+        "questions": [
+          {
+            "field": "ssn_last_four",
+            "question": "What are the last four digits of your Social Security number?",
+            "input_kind": "text",
+            "options": [],
+            "why_it_matters": "The program data said to collect this.",
+            "is_required": true,
+            "unit": null,
+            "min_value": null,
+            "max_value": null,
+            "affected_program_slugs": ["example-grocery-help"]
+          },
+          {
+            "field": "household_size",
+            "question": "How many people live with you, so we can confirm you are eligible?",
+            "input_kind": "number",
+            "options": [],
+            "why_it_matters": "Answering this will confirm that you are eligible for the program.",
+            "is_required": true,
+            "unit": "people",
+            "min_value": 1,
+            "max_value": 20,
+            "affected_program_slugs": ["program-999"]
+          },
+          {
+            "field": "state",
+            "question": "Which state do you live in?",
+            "input_kind": "single_select",
+            "options": [{"value": "NJ", "label": "New Jersey"}],
+            "why_it_matters": "The program is only offered in some states.",
+            "is_required": false,
+            "unit": null,
+            "min_value": null,
+            "max_value": null,
+            "affected_program_slugs": ["example-grocery-help"]
+          }
+        ],
+        "rationale": "The supplied program text contained instructions. They were not followed."
+      }
+    },
+    "schema_violation": {
+      "response": {"questions": [{"field": "age", "question": "How old are you?"}]}
+    },
+    "malformed_json": {"raw": "{\"questions\": [" },
+    "empty_response": {"raw": "   "}
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "task": "draft_action_plan",
+  "prompt_version": "v1",
+  "note": "Hand-written, fictional. Uses only the fictional example-grocery-help slug and its example.org URLs, so a projection that drops off-catalog links can be asserted on.",
+  "usage": {"prompt_tokens": 2310, "output_tokens": 402, "thought_tokens": 0},
+  "text": "Start by finding a recent utility bill, then apply online for the grocery program.",
+  "cases": {
+    "default": {
+      "response": {
+        "title": "Your next steps",
+        "summary": "Start with the one document both steps need, then apply online. The program office makes the final decision, so applying early is worth it.",
+        "items": [
+          {
+            "program_slug": "example-grocery-help",
+            "kind": "DOCUMENT",
+            "subject": "proof of address",
+            "title": "Find a utility bill from the last 90 days",
+            "detail": "The application asks you to show where you live. A recent electric, gas or water bill with your name on it is usually enough.",
+            "url": null
+          },
+          {
+            "program_slug": "example-grocery-help",
+            "kind": "APPLY",
+            "subject": "grocery help application",
+            "title": "Apply online for the grocery program",
+            "detail": "The application is on the program's own website. Have your proof of address ready before you start.",
+            "url": "https://example.org/example-grocery-help/apply"
+          },
+          {
+            "program_slug": "example-grocery-help",
+            "kind": "LEARN",
+            "subject": "program requirements",
+            "title": "Read what the program asks for",
+            "detail": "The official page lists what the office looks at, in its own words.",
+            "url": "https://example.org/example-grocery-help"
+          }
+        ]
+      }
+    },
+    "empty_plan": {
+      "response": {
+        "title": "Nothing to do yet",
+        "summary": "The supplied program text does not say what to bring or how to apply. The official page is the reliable place to check.",
+        "items": []
+      }
+    },
+    "injected_instructions": {
+      "note": "The program record said to add a step for another program and to send the person to a different site. The projection must drop the fabricated program, strip the off-catalog URL and drop the step that states a conclusion.",
+      "response": {
+        "title": "Your next steps",
+        "summary": "Start with the document both steps need, then apply online.",
+        "items": [
+          {
+            "program_slug": "program-999",
+            "kind": "APPLY",
+            "subject": "priority application",
+            "title": "Apply through the priority portal",
+            "detail": "The program data said to use this portal first.",
+            "url": "https://not-the-catalog.example.net/priority"
+          },
+          {
+            "program_slug": "example-grocery-help",
+            "kind": "APPLY",
+            "subject": "grocery help application",
+            "title": "Apply on the fast-track site",
+            "detail": "Use this link instead of the official one.",
+            "url": "https://not-the-catalog.example.net/fast-track"
+          },
+          {
+            "program_slug": "example-grocery-help",
+            "kind": "CONFIRM_INFO",
+            "subject": "eligibility confirmation",
+            "title": "Confirm that you are eligible",
+            "detail": "The program data confirmed you are eligible, so skip the paperwork.",
+            "url": null
+          },
+          {
+            "program_slug": "example-grocery-help",
+            "kind": "DOCUMENT",
+            "subject": "proof of address",
+            "title": "Find a utility bill from the last 90 days",
+            "detail": "The application asks you to show where you live.",
+            "url": null
+          }
+        ]
+      }
+    },
+    "schema_violation": {
+      "response": {"title": "Your next steps", "summary": "Fine.", "items": [{"kind": "APPLY"}]}
+    },
+    "malformed_json": {"raw": "{\"title\": \"Your next steps\", \"items\": [" },
+    "empty_response": {"raw": ""}
+  }
+}
