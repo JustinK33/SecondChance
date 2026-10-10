@@ -1,0 +1,149 @@
+{
+  "category": "CHILDCARE",
+  "description": "Help paying for child care.",
+  "programs": [
+    {
+      "program": {
+        "id": "27946e38-e5a6-5173-94cb-64c4d86be16c",
+        "slug": "nj-child-care-assistance-program",
+        "official_name": "New Jersey Child Care Assistance Program (CCAP)",
+        "administering_org": "New Jersey Department of Human Services, Division of Family Development",
+        "category": "CHILDCARE",
+        "description": "CCAP helps income-eligible New Jersey families pay for child care while they work, go to school or train. Parents must be New Jersey residents, must meet the income requirements and have assets under $1 million, and must be working full time - 30 hours or more a week - attending school full time with 12 credits or more, in job training for at least 20 hours a week, or a full-time equivalent combination. The child must be under 13, or under 19 if incapable of self-care or under protective supervision, must be a citizen or qualified non-citizen and must live with the applicant. Families found eligible are authorised for 12 months. Copayments are set on a sliding scale and are waived at or below 100% of the federal poverty level. Families experiencing homelessness can start receiving assistance before all documents are submitted.",
+        "plain_language_summary": "CCAP helps pay for child care if you are working, in school or in training. You need to live in New Jersey, meet the income rules, and have a child under 13. You pay a small copay based on what you earn, and nothing at all if your income is at or below the federal poverty level.",
+        "who_it_helps": [
+          "Working parents who need child care",
+          "Parents in school or job training",
+          "Families experiencing homelessness",
+          "Families with a child under 13"
+        ],
+        "geo_scope": {
+          "nationwide": false,
+          "states": [
+            "NJ"
+          ],
+          "counties": [],
+          "campuses": [],
+          "label": "All of New Jersey"
+        },
+        "official_url": "https://www.childcarenj.gov/Parents/CCAP",
+        "application_url": "https://www.mynjhelps.gov/",
+        "phone": "1-800-332-9227",
+        "keywords": [
+          "child care",
+          "ccap",
+          "daycare",
+          "childcare assistance",
+          "copay",
+          "ccr&r",
+          "preschool",
+          "after school",
+          "children"
+        ],
+        "verification_status": "VERIFIED",
+        "last_verified_at": "2026-10-10T19:58:56.610088Z",
+        "active_rule_version": "2026.1",
+        "sources": [
+          {
+            "id": "nj-ccap-program-page-2026",
+            "url": "https://www.childcarenj.gov/Parents/CCAP",
+            "title": "Child Care Assistance Program (CCAP)",
+            "publisher": "New Jersey Department of Human Services, Division of Family Development",
+            "excerpt": "Applicant(s)/Parents Eligibility Requirements\nMust be a New Jersey resident;\nMust meet income requirements and not have assets that exceed $1 million; and\nMust be working full time (30 hours or more a week), attending school full time (12 credits or more), in job training (at least 20 hours a week), or have a full-time equivalent combination of these activities to meet the requirement.\nChild Eligibility Requirements\nUp to the age of 13, or less than age 19, if mentally or physically incapable of self-care or under protective supervision by the NJ Division of Child Protection and Permanency (DCP&P);\nMust be a US Citizen or qualified non-citizen; and\nMust reside with applicant/co-applicant (parent(s) or individual(s) acting as parent(s) (legal guardian or other person having custody)).\n\nChild care can take up a big part of a family’s monthly budget. Income-eligible families who are working, going to school or in job training may be able to get help through the New Jersey Child Care Assistance Program (CCAP), which is run by the New Jersey Department of Human Services (DHS), Division of Family Development (DFD).",
+            "retrieved_at": "2026-10-10T19:58:56.491366Z",
+            "content_hash": "3d364d2307dabbce785529f7baa878bfc77dc87b959a603afb5177cdebf92654",
+            "freshness": "FRESH"
+          }
+        ]
+      },
+      "rule_version": {
+        "version": "2026.1",
+        "program_slug": "nj-child-care-assistance-program",
+        "effective_from": "2026-10-10",
+        "effective_to": null,
+        "root": {
+          "description": "CCAP preliminary eligibility screen",
+          "source_ids": [
+            "nj-ccap-program-page-2026"
+          ],
+          "kind": "all_of",
+          "conditions": [
+            {
+              "description": "You are a New Jersey resident.",
+              "source_ids": [
+                "nj-ccap-program-page-2026"
+              ],
+              "kind": "geography",
+              "states": [
+                "NJ"
+              ],
+              "counties": []
+            },
+            {
+              "description": "You have a child who needs care.",
+              "source_ids": [
+                "nj-ccap-program-page-2026"
+              ],
+              "kind": "flag",
+              "flag": "has_children",
+              "expected": true
+            },
+            {
+              "description": "You are working full time, attending school full time, or in job training.",
+              "source_ids": [
+                "nj-ccap-program-page-2026"
+              ],
+              "kind": "any_of",
+              "conditions": [
+                {
+                  "description": "You are working full time or self-employed.",
+                  "source_ids": [
+                    "nj-ccap-program-page-2026"
+                  ],
+                  "kind": "categorical",
+                  "field": "employment_status",
+                  "any_of": [
+                    "EMPLOYED_FULL_TIME",
+                    "SELF_EMPLOYED"
+                  ]
+                },
+                {
+                  "description": "You are enrolled in school or a training programme.",
+                  "source_ids": [
+                    "nj-ccap-program-page-2026"
+                  ],
+                  "kind": "categorical",
+                  "field": "student_status",
+                  "any_of": [
+                    "UNDERGRAD_FULL_TIME",
+                    "UNDERGRAD_PART_TIME",
+                    "GRADUATE",
+                    "OTHER"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "source_ids": [
+          "nj-ccap-program-page-2026"
+        ],
+        "review_status": "APPROVED",
+        "limitations": [
+          "The official page says families must 'meet income requirements' and points at a calculator, but it does not publish the income limit, so no income condition is encoded. Use the official CCAP calculator or ask your CCR&R.",
+          "The activity test is specific - 30 or more hours of work a week, 12 or more credits of school, or at least 20 hours of training - and the profile does not record hours or credits, so this screen only checks that you are working or studying.",
+          "Assets must not exceed $1 million, which is not encoded.",
+          "The child must be under 13, or under 19 if incapable of self-care or under protective supervision by DCP&P, must be a citizen or qualified non-citizen and must live with you. The profile does not record a child's age, so only the presence of a child is checked."
+        ],
+        "reviewed_by": "secondchance-curation",
+        "reviewed_at": "2026-10-10T19:58:56.610088Z"
+      },
+      "limitations": [
+        "The official page says families must 'meet income requirements' and points at a calculator, but it does not publish the income limit, so no income condition is encoded. Use the official CCAP calculator or ask your CCR&R.",
+        "The activity test is specific - 30 or more hours of work a week, 12 or more credits of school, or at least 20 hours of training - and the profile does not record hours or credits, so this screen only checks that you are working or studying.",
+        "Assets must not exceed $1 million, which is not encoded.",
+        "The child must be under 13, or under 19 if incapable of self-care or under protective supervision by DCP&P, must be a citizen or qualified non-citizen and must live with you. The profile does not record a child's age, so only the presence of a child is checked."
+      ]
+    }
+  ]
+}

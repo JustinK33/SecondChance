@@ -1,0 +1,870 @@
+{
+  "category": "FOOD",
+  "description": "Food, grocery and meal assistance in New Jersey and at Rutgers.",
+  "programs": [
+    {
+      "program": {
+        "id": "6002ad00-b2b8-5b37-8168-2b729659e835",
+        "slug": "nj-snap",
+        "official_name": "NJ SNAP (Supplemental Nutrition Assistance Program)",
+        "administering_org": "New Jersey Department of Human Services, Division of Family Development",
+        "category": "FOOD",
+        "description": "New Jersey's Supplemental Nutrition Assistance Program pays monthly food benefits onto a Families First card that can be used to buy groceries. Eligibility depends on household size, gross monthly income and resources; New Jersey publishes a gross monthly income eligibility standard set at 185% of the federal poverty level. Applications are processed by County Social Service Agencies.",
+        "plain_language_summary": "NJ SNAP puts money on a card each month that you can use to buy groceries. Most households qualify if they earn up to 185% of the federal poverty level for their size. College students can qualify too, but they have to meet one extra rule, such as working or caring for a young child.",
+        "who_it_helps": [
+          "Households with low or moderate income",
+          "Working families and individuals",
+          "College students who meet one of the student rules",
+          "Households that include someone aged 60 or older or with a disability"
+        ],
+        "geo_scope": {
+          "nationwide": false,
+          "states": [
+            "NJ"
+          ],
+          "counties": [],
+          "campuses": [],
+          "label": "All of New Jersey"
+        },
+        "official_url": "https://www.nj.gov/humanservices/njsnap/apply/eligibility/",
+        "application_url": "https://www.mynjhelps.gov/",
+        "phone": null,
+        "keywords": [
+          "snap",
+          "food stamps",
+          "groceries",
+          "ebt",
+          "families first card",
+          "food assistance",
+          "nutrition",
+          "student snap",
+          "hungry"
+        ],
+        "verification_status": "VERIFIED",
+        "last_verified_at": "2026-10-10T19:58:56.610088Z",
+        "active_rule_version": "2026.1",
+        "sources": [
+          {
+            "id": "nj-snap-eligibility-page-2026",
+            "url": "https://www.nj.gov/humanservices/njsnap/apply/eligibility/",
+            "title": "NJ SNAP - Who is Eligible for SNAP?",
+            "publisher": "New Jersey Department of Human Services, Division of Family Development",
+            "excerpt": "Your household must meet certain requirements to be eligible for SNAP and receive benefits, including meeting the maximum allowable income listed below. A SNAP household is anyone who lives and eats together.\nGross Monthly Income Eligibility Standard\n(185% of FPL)\nFigures Valid October 2026 - September 2027\nHousehold Size\nMax. Allowable Income\n1\n$2,461\n2\n$3,337\n3\n$4,212\n4\n$5,088\n5\n$5,964\n6\n$6,839\n7\n$7,715\n8\n$8,591\nEach Additional Member\n+ $876\n\nAre you a student, age 18 to 49 enrolled at least half-time in a college, university, community college, or business, technical, trade, or vocational school that requires a high school diploma?\nIf so, you may be eligible for food assistance through New Jersey’s Supplemental Nutrition Assistance Program (SNAP). SNAP is a federal program that can help individuals and families with low incomes buy the groceries they need to eat healthy. Eligibility depends on several factors like income, household size, resources, etc.\nIn addition to income eligibility factors, students also must fit at least ONE of the following requirements:\nBe enrolled in an approved Career and Technical Education Program at a New Jersey community college;\nBe employed at least 20 hours per week AND paid for such work;\nBe participating in a federal work study program during the school year;\nBe participating in an on-the-job training program;\nBe responsible for the care of a member of your household who is a dependent under the age of six years-old;\nBe a single parent enrolled full-time AND responsible for a dependent under the age 12 years-old;\nBe unable to work due to a physical or mental disability; or\nBe receiving Work First New Jersey (WFNJ) Temporary Assistance for Needy Families (TANF) benefits (cash assistance).\n\nHouseholds that include a senior (aged 60 and older) or people with a disability may be eligible even if their gross income exceeds the amounts in the chart above.",
+            "retrieved_at": "2026-10-10T19:58:55.441969Z",
+            "content_hash": "43668858a6ecc90970b32c382b146350d5aa3ce286270fc207f114ca9fb4abae",
+            "freshness": "FRESH"
+          },
+          {
+            "id": "nj-snap-ways-to-apply-2026",
+            "url": "https://www.nj.gov/humanservices/njsnap/apply/ways/",
+            "title": "NJ SNAP - Ways to Apply",
+            "publisher": "New Jersey Department of Human Services, Division of Family Development",
+            "excerpt": "Screening takes about 5-10 minutes to complete, and you will need to provide monthly income information.\nCheck Now\nApply Online\nIt takes about 20-45 minutes to complete an application. You will need to provide details about your household income, resources and personal information.\nApply\nApply in Person or by Mail\nTo apply in person download and complete application and bring, mail or fax to your County Social Service Agency.",
+            "retrieved_at": "2026-10-10T19:58:55.376397Z",
+            "content_hash": "d0416d3b4812b6ccc3c5694ee39e0e5c8614a1499673e30f3db34f061e310e8a",
+            "freshness": "FRESH"
+          }
+        ]
+      },
+      "rule_version": {
+        "version": "2026.1",
+        "program_slug": "nj-snap",
+        "effective_from": "2026-10-01",
+        "effective_to": "2027-10-01",
+        "root": {
+          "description": "NJ SNAP preliminary eligibility screen",
+          "source_ids": [
+            "nj-snap-eligibility-page-2026",
+            "nj-snap-ways-to-apply-2026"
+          ],
+          "kind": "all_of",
+          "conditions": [
+            {
+              "description": "You live in New Jersey and apply through a County Social Service Agency.",
+              "source_ids": [
+                "nj-snap-ways-to-apply-2026"
+              ],
+              "kind": "geography",
+              "states": [
+                "NJ"
+              ],
+              "counties": []
+            },
+            {
+              "description": "Your household's income before taxes is at or below 185% of the federal poverty level for its size, or your household includes someone aged 60 or older or someone with a disability.",
+              "source_ids": [
+                "nj-snap-eligibility-page-2026"
+              ],
+              "kind": "any_of",
+              "conditions": [
+                {
+                  "description": "Your household's income before taxes is at or below 185% of the federal poverty level for its size.",
+                  "source_ids": [
+                    "nj-snap-eligibility-page-2026"
+                  ],
+                  "kind": "income_fpl",
+                  "max_pct_fpl": 185.0,
+                  "fpl_year": 2026,
+                  "household_definition": "A SNAP household is anyone who lives and eats together."
+                },
+                {
+                  "description": "You are 60 or older.",
+                  "source_ids": [
+                    "nj-snap-eligibility-page-2026"
+                  ],
+                  "kind": "age",
+                  "min": 60,
+                  "max": null
+                },
+                {
+                  "description": "Someone in your household has a disability.",
+                  "source_ids": [
+                    "nj-snap-eligibility-page-2026"
+                  ],
+                  "kind": "flag",
+                  "flag": "is_disabled",
+                  "expected": true
+                }
+              ]
+            },
+            {
+              "description": "If you are a college student aged 18 to 49 enrolled at least half time, you also meet one of the student rules - for example you are paid for your work, you care for a young child in your household, you cannot work because of a disability, or you receive Work First New Jersey cash assistance.",
+              "source_ids": [
+                "nj-snap-eligibility-page-2026"
+              ],
+              "kind": "any_of",
+              "conditions": [
+                {
+                  "description": "You are not enrolled in college.",
+                  "source_ids": [
+                    "nj-snap-eligibility-page-2026"
+                  ],
+                  "kind": "categorical",
+                  "field": "student_status",
+                  "any_of": [
+                    "NOT_A_STUDENT"
+                  ]
+                },
+                {
+                  "description": "You are employed and paid for your work.",
+                  "source_ids": [
+                    "nj-snap-eligibility-page-2026"
+                  ],
+                  "kind": "categorical",
+                  "field": "employment_status",
+                  "any_of": [
+                    "EMPLOYED_FULL_TIME",
+                    "EMPLOYED_PART_TIME",
+                    "SELF_EMPLOYED"
+                  ]
+                },
+                {
+                  "description": "You care for a child in your household.",
+                  "source_ids": [
+                    "nj-snap-eligibility-page-2026"
+                  ],
+                  "kind": "flag",
+                  "flag": "has_children",
+                  "expected": true
+                },
+                {
+                  "description": "You cannot work because of a disability.",
+                  "source_ids": [
+                    "nj-snap-eligibility-page-2026"
+                  ],
+                  "kind": "flag",
+                  "flag": "is_disabled",
+                  "expected": true
+                },
+                {
+                  "description": "You receive Work First New Jersey TANF cash assistance.",
+                  "source_ids": [
+                    "nj-snap-eligibility-page-2026"
+                  ],
+                  "kind": "flag",
+                  "flag": "receives_tanf",
+                  "expected": true
+                }
+              ]
+            }
+          ]
+        },
+        "source_ids": [
+          "nj-snap-eligibility-page-2026",
+          "nj-snap-ways-to-apply-2026"
+        ],
+        "review_status": "APPROVED",
+        "limitations": [
+          "Resource and asset limits are part of the official rules but are not encoded here, so this screen can only ever be preliminary.",
+          "The student rules also include working at least 20 hours a week, federal work study, on-the-job training, a New Jersey community college Career and Technical Education programme, and being a full-time single parent of a child under 12. The profile does not capture hours or programme enrolment, so those routes are not checked.",
+          "Citizenship and immigration requirements, and the ABAWD work rules and time limits, are not encoded."
+        ],
+        "reviewed_by": "secondchance-curation",
+        "reviewed_at": "2026-10-10T19:58:56.610088Z"
+      },
+      "limitations": [
+        "Resource and asset limits are part of the official rules but are not encoded here, so this screen can only ever be preliminary.",
+        "The student rules also include working at least 20 hours a week, federal work study, on-the-job training, a New Jersey community college Career and Technical Education programme, and being a full-time single parent of a child under 12. The profile does not capture hours or programme enrolment, so those routes are not checked.",
+        "Citizenship and immigration requirements, and the ABAWD work rules and time limits, are not encoded."
+      ]
+    },
+    {
+      "program": {
+        "id": "8a77900a-3f38-5302-a336-5e3f2c4ef198",
+        "slug": "nj-wic",
+        "official_name": "New Jersey Supplemental Nutrition Program for Women Infants and Children (WIC)",
+        "administering_org": "New Jersey Department of Health",
+        "category": "FOOD",
+        "description": "New Jersey WIC provides supplemental foods, nutrition education and health care referrals to income eligible pregnant and postpartum women, infants and children under five years old. Applicants must live in New Jersey, provide proof of residency, meet income guidelines, and have a medical condition or limited access to nutrition that places their health at risk. Applications are made through a local WIC agency or clinic.",
+        "plain_language_summary": "WIC gives free healthy food, nutrition advice and health referrals to pregnant people, new parents, babies and children under five. You apply through a local WIC office in New Jersey, and you will need proof of where you live and what you earn.",
+        "who_it_helps": [
+          "Pregnant people",
+          "People who gave birth in the last six months",
+          "People breastfeeding a baby under a year old",
+          "Infants and children under five years old"
+        ],
+        "geo_scope": {
+          "nationwide": false,
+          "states": [
+            "NJ"
+          ],
+          "counties": [],
+          "campuses": [],
+          "label": "All of New Jersey"
+        },
+        "official_url": "https://www.nj.gov/health/fhs/wic/participants/apply-wic/",
+        "application_url": "https://wic.nj.gov/ParticipantPortal/",
+        "phone": null,
+        "keywords": [
+          "wic",
+          "pregnant",
+          "baby",
+          "formula",
+          "infant",
+          "nutrition",
+          "children",
+          "breastfeeding",
+          "food"
+        ],
+        "verification_status": "VERIFIED",
+        "last_verified_at": "2026-10-10T19:58:56.610088Z",
+        "active_rule_version": "2026.1",
+        "sources": [
+          {
+            "id": "nj-wic-who-is-eligible-2026",
+            "url": "https://www.nj.gov/health/fhs/wic/participants/apply-wic/",
+            "title": "How to Apply for WIC",
+            "publisher": "New Jersey Department of Health",
+            "excerpt": "New Jersey WIC Services are available to low and no income families as well as families experiencing unemployment, military deployment and other interim family financial hardships.\nHow to Apply for and Receive WIC Benefits and Services\nYou may apply for New Jersey WIC by contacting your local WIC agency or WIC clinic office and scheduling an appointment.\nWho is Eligible to Apply for and Receive WIC Benefits?\nPregnant women\nWomen who have delivered a child within the last six months\nBreastfeeding women who have delivered a child within the last year\nInfants and children under five years old\nTo be eligible, people in these categories must:\nHave a medical condition or limited access to nutrition that places their health at risk\nLive in New Jersey and provide proof of residency\nMeet income guidelines",
+            "retrieved_at": "2026-10-10T19:58:55.437585Z",
+            "content_hash": "cab9c67f25a02c52d2e380f66865e8c6b9ca94a4069d952c402a2e0c0192ae6e",
+            "freshness": "FRESH"
+          },
+          {
+            "id": "nj-wic-program-overview-2026",
+            "url": "https://www.nj.gov/health/fhs/wic/",
+            "title": "New Jersey WIC Services",
+            "publisher": "New Jersey Department of Health",
+            "excerpt": "The New Jersey Supplemental Nutrition Program for Women Infants and Children is commonly known as WIC. WIC is a successful public health nutrition program that provides wholesome food, nutrition education and community support for income eligible women who are pregnant and post-partum, infants and children up to five years old.",
+            "retrieved_at": "2026-10-10T19:58:55.389460Z",
+            "content_hash": "c5d835df2dc39682b42981d2bfce6f30202e3351c46c75b3de0acbea4cbb6fcd",
+            "freshness": "FRESH"
+          }
+        ]
+      },
+      "rule_version": {
+        "version": "2026.1",
+        "program_slug": "nj-wic",
+        "effective_from": "2026-10-10",
+        "effective_to": null,
+        "root": {
+          "description": "NJ WIC preliminary eligibility screen",
+          "source_ids": [
+            "nj-wic-who-is-eligible-2026"
+          ],
+          "kind": "all_of",
+          "conditions": [
+            {
+              "description": "You live in New Jersey and can provide proof of residency.",
+              "source_ids": [
+                "nj-wic-who-is-eligible-2026"
+              ],
+              "kind": "geography",
+              "states": [
+                "NJ"
+              ],
+              "counties": []
+            },
+            {
+              "description": "You are pregnant, gave birth in the last six months, are breastfeeding a baby under a year old, or you have an infant or a child under five years old.",
+              "source_ids": [
+                "nj-wic-who-is-eligible-2026"
+              ],
+              "kind": "any_of",
+              "conditions": [
+                {
+                  "description": "You are pregnant.",
+                  "source_ids": [
+                    "nj-wic-who-is-eligible-2026"
+                  ],
+                  "kind": "flag",
+                  "flag": "is_pregnant",
+                  "expected": true
+                },
+                {
+                  "description": "You have a child - WIC covers infants and children under five years old.",
+                  "source_ids": [
+                    "nj-wic-who-is-eligible-2026"
+                  ],
+                  "kind": "flag",
+                  "flag": "has_children",
+                  "expected": true
+                }
+              ]
+            }
+          ]
+        },
+        "source_ids": [
+          "nj-wic-who-is-eligible-2026"
+        ],
+        "review_status": "APPROVED",
+        "limitations": [
+          "The official pages state that applicants must 'meet income guidelines' but do not publish the figures or the percentage of the federal poverty level, so no income condition is encoded. Ask your local WIC agency for the current guidelines.",
+          "WIC also requires a medical condition or limited access to nutrition that places health at risk. That is assessed at the WIC clinic and cannot be screened here.",
+          "The postpartum and breastfeeding time windows (six months and one year) are not encoded, because the profile does not record a birth date."
+        ],
+        "reviewed_by": "secondchance-curation",
+        "reviewed_at": "2026-10-10T19:58:56.610088Z"
+      },
+      "limitations": [
+        "The official pages state that applicants must 'meet income guidelines' but do not publish the figures or the percentage of the federal poverty level, so no income condition is encoded. Ask your local WIC agency for the current guidelines.",
+        "WIC also requires a medical condition or limited access to nutrition that places health at risk. That is assessed at the WIC clinic and cannot be screened here.",
+        "The postpartum and breastfeeding time windows (six months and one year) are not encoded, because the profile does not record a birth date."
+      ]
+    },
+    {
+      "program": {
+        "id": "722bf7cb-de71-51ec-9ec7-8ac49d074acb",
+        "slug": "nj-school-nutrition-programs",
+        "official_name": "School Nutrition Programs (National School Lunch Program and School Breakfast Program)",
+        "administering_org": "New Jersey Department of Agriculture, Division of Food and Nutrition",
+        "category": "FOOD",
+        "description": "The USDA school nutrition programs are administered in New Jersey by the New Jersey Department of Agriculture. Participating public schools, non-profit private schools and residential child care institutions serve nutritionally balanced low-cost or free breakfasts and lunches to children each school day. Whether an individual child pays nothing, a reduced price or the full price is determined by the school food authority, and districts with a high identified student percentage may serve all students at no cost under the Community Eligibility Provision.",
+        "plain_language_summary": "Most New Jersey schools serve breakfast and lunch that is free or low cost. Your child's school decides who pays nothing, who pays a reduced price and who pays full price, and some schools feed every student for free. Ask the school office or the district's food service department how to apply.",
+        "who_it_helps": [
+          "Families with school-age children",
+          "Children at schools that take part in the federal meal programmes"
+        ],
+        "geo_scope": {
+          "nationwide": false,
+          "states": [
+            "NJ"
+          ],
+          "counties": [],
+          "campuses": [],
+          "label": "All of New Jersey"
+        },
+        "official_url": "https://www.nj.gov/agriculture/divisions/fn/childadult/school.shtml",
+        "application_url": null,
+        "phone": "609-984-0693",
+        "keywords": [
+          "school lunch",
+          "school breakfast",
+          "free lunch",
+          "reduced price meals",
+          "nslp",
+          "sbp",
+          "children",
+          "food"
+        ],
+        "verification_status": "NEEDS_REVIEW",
+        "last_verified_at": "2026-10-10T19:58:56.610088Z",
+        "active_rule_version": null,
+        "sources": [
+          {
+            "id": "nj-school-nutrition-programs-2026",
+            "url": "https://www.nj.gov/agriculture/divisions/fn/childadult/school.shtml",
+            "title": "School Nutrition Programs",
+            "publisher": "New Jersey Department of Agriculture, Division of Food and Nutrition",
+            "excerpt": "The United States Department of Agriculture’s (USDA) school nutrition programs are administered through the New Jersey Department of Agriculture (NJDA). Eligible public schools, non-profit private schools, and residential child care institutions (RCCI) enter into written agreements with NJDA to operate local programs that provide nutritionally balanced meals to children each day.\nThe programs available with the School Nutrition Programs include: National School Lunch Program (NSLP), School Breakfast Program (SBP), After School Snack Program (ASSP), Fresh Fruit and Vegetable Program (FFVP), Special Milk Program (SMP), and Seamless Summer Option (SSO).",
+            "retrieved_at": "2026-10-10T19:58:55.464181Z",
+            "content_hash": "b16ff58162b1ce3330862ee09f3c358078d53e89bae067ad06b990df4285df80",
+            "freshness": "FRESH"
+          }
+        ]
+      },
+      "rule_version": {
+        "version": "2026.1",
+        "program_slug": "nj-school-nutrition-programs",
+        "effective_from": "2026-10-10",
+        "effective_to": null,
+        "root": {
+          "description": "School meal programmes - informational screen only",
+          "source_ids": [
+            "nj-school-nutrition-programs-2026"
+          ],
+          "kind": "all_of",
+          "conditions": [
+            {
+              "description": "Your child attends a school in New Jersey.",
+              "source_ids": [
+                "nj-school-nutrition-programs-2026"
+              ],
+              "kind": "geography",
+              "states": [
+                "NJ"
+              ],
+              "counties": []
+            },
+            {
+              "description": "You have a school-age child.",
+              "source_ids": [
+                "nj-school-nutrition-programs-2026"
+              ],
+              "kind": "flag",
+              "flag": "has_children",
+              "expected": true
+            }
+          ]
+        },
+        "source_ids": [
+          "nj-school-nutrition-programs-2026"
+        ],
+        "review_status": "PENDING_REVIEW",
+        "limitations": [
+          "The official state page is written for school sponsors, not families: it does not state the household income limits for free or reduced price meals, so none are encoded and this record must not be used to assess anybody.",
+          "Whether meals are free depends on the individual school's participation and, where it applies, on the Community Eligibility Provision. Applications are made through the school district, not the state."
+        ],
+        "reviewed_by": null,
+        "reviewed_at": null
+      },
+      "limitations": [
+        "The official state page is written for school sponsors, not families: it does not state the household income limits for free or reduced price meals, so none are encoded and this record must not be used to assess anybody.",
+        "Whether meals are free depends on the individual school's participation and, where it applies, on the Community Eligibility Provision. Applications are made through the school district, not the state."
+      ]
+    },
+    {
+      "program": {
+        "id": "c11e35d3-3bdc-518d-a549-247156d3ec86",
+        "slug": "nj-summer-food-service-program",
+        "official_name": "Summer Food Service Program (SFSP)",
+        "administering_org": "New Jersey Department of Agriculture, Division of Food and Nutrition",
+        "category": "FOOD",
+        "description": "The Summer Food Service Program provides free nutritious meals and snacks to children during the summer months when school is out. Approved sponsors - school districts, local government agencies, camps and private nonprofit organisations - serve the meals at central sites such as schools and community centres. At an open site, which operates where at least half of the children come from families with incomes at or below 185 percent of the federal poverty level, meals are served free to any child.",
+        "plain_language_summary": "In the summer, kids 18 and under can get free meals and snacks at schools, community centres and other sites around New Jersey. At most sites there is no application and no income check - any child can eat.",
+        "who_it_helps": [
+          "Children 18 and younger",
+          "Families with children during school breaks",
+          "People over 18 with disabilities who are in school programmes"
+        ],
+        "geo_scope": {
+          "nationwide": false,
+          "states": [
+            "NJ"
+          ],
+          "counties": [],
+          "campuses": [],
+          "label": "All of New Jersey"
+        },
+        "official_url": "https://www.nj.gov/agriculture/divisions/fn/childadult/summer_food.shtml",
+        "application_url": null,
+        "phone": null,
+        "keywords": [
+          "summer meals",
+          "free meals",
+          "children",
+          "sfsp",
+          "summer food",
+          "snacks",
+          "food"
+        ],
+        "verification_status": "VERIFIED",
+        "last_verified_at": "2026-10-10T19:58:56.610088Z",
+        "active_rule_version": "2026.1",
+        "sources": [
+          {
+            "id": "nj-sfsp-program-page-2026",
+            "url": "https://www.nj.gov/agriculture/divisions/fn/childadult/summer_food.shtml",
+            "title": "Summer Food Service Program",
+            "publisher": "New Jersey Department of Agriculture, Division of Food and Nutrition",
+            "excerpt": "Children 18 and younger may receive free meals and snacks through SFSP. Meals and snacks are also available to persons with disabilities, over age 18, who participate in school programs for people who are mentally or physically disabled.\n\nOpen sites operate in low-income areas where at least half of the children come from families with incomes at or below 185 percent of the Federal poverty level, making them eligible for free and reduced price school meals. Meals are served free to any child at the open site.",
+            "retrieved_at": "2026-10-10T19:58:55.434573Z",
+            "content_hash": "0d71a091d0b202b2c34220f593b031ae3898cb6cccfee296b6b81a874ff51d41",
+            "freshness": "FRESH"
+          }
+        ]
+      },
+      "rule_version": {
+        "version": "2026.1",
+        "program_slug": "nj-summer-food-service-program",
+        "effective_from": "2026-10-10",
+        "effective_to": null,
+        "root": {
+          "description": "Summer Food Service Program screen",
+          "source_ids": [
+            "nj-sfsp-program-page-2026"
+          ],
+          "kind": "all_of",
+          "conditions": [
+            {
+              "description": "You are in New Jersey, where the summer meal sites operate.",
+              "source_ids": [
+                "nj-sfsp-program-page-2026"
+              ],
+              "kind": "geography",
+              "states": [
+                "NJ"
+              ],
+              "counties": []
+            },
+            {
+              "description": "You have a child aged 18 or younger.",
+              "source_ids": [
+                "nj-sfsp-program-page-2026"
+              ],
+              "kind": "flag",
+              "flag": "has_children",
+              "expected": true
+            }
+          ]
+        },
+        "source_ids": [
+          "nj-sfsp-program-page-2026"
+        ],
+        "review_status": "APPROVED",
+        "limitations": [
+          "There is no individual income test at an open site: meals are served free to any child who shows up. The 185 percent figure on the official page describes which neighbourhoods a site may operate in, not who may eat, so it is deliberately not encoded as an income rule.",
+          "The programme only runs during the summer and only where a local sponsor operates a site, so availability is seasonal and local."
+        ],
+        "reviewed_by": "secondchance-curation",
+        "reviewed_at": "2026-10-10T19:58:56.610088Z"
+      },
+      "limitations": [
+        "There is no individual income test at an open site: meals are served free to any child who shows up. The 185 percent figure on the official page describes which neighbourhoods a site may operate in, not who may eat, so it is deliberately not encoded as an income rule.",
+        "The programme only runs during the summer and only where a local sponsor operates a site, so availability is seasonal and local."
+      ]
+    },
+    {
+      "program": {
+        "id": "bcb9de6f-2246-5071-b503-15eaacc3e2da",
+        "slug": "rutgers-student-food-pantry",
+        "official_name": "Rutgers Student Food Pantry",
+        "administering_org": "Rutgers University-New Brunswick, Off-Campus Living & Community Initiatives",
+        "category": "FOOD",
+        "description": "The Rutgers Student Food Pantry provides groceries, personal care items and household supplies to Rutgers-New Brunswick students at the College Avenue Student Center, through the Knight's Pantry Basic Needs Box lockers at four student centres, and through a mobile pantry that visits the Douglass, Busch and Livingston campuses. Students register in PantrySoft and may use one pantry method once per week.",
+        "plain_language_summary": "If you are a Rutgers-New Brunswick student, you can pick up free groceries and personal care items once a week. Make a PantrySoft account first, then book a time or come during walk-in hours at the College Avenue Student Center.",
+        "who_it_helps": [
+          "Rutgers-New Brunswick students",
+          "Students who are short on food money",
+          "Students who need personal care or household basics"
+        ],
+        "geo_scope": {
+          "nationwide": false,
+          "states": [
+            "NJ"
+          ],
+          "counties": [
+            "Middlesex"
+          ],
+          "campuses": [
+            "Rutgers University-New Brunswick"
+          ],
+          "label": "Rutgers University-New Brunswick students"
+        },
+        "official_url": "https://ruoffcampus.rutgers.edu/basic-needs/food-assistance/food-and-mobile-pantry",
+        "application_url": "https://app.pantrysoft.com/login/rutgersnb",
+        "phone": "848-932-5500",
+        "keywords": [
+          "food pantry",
+          "rutgers",
+          "groceries",
+          "student",
+          "knights pantry",
+          "mobile pantry",
+          "pantrysoft",
+          "basic needs",
+          "food"
+        ],
+        "verification_status": "VERIFIED",
+        "last_verified_at": "2026-10-10T19:58:56.610088Z",
+        "active_rule_version": "2026.1",
+        "sources": [
+          {
+            "id": "rutgers-food-pantry-access-2026",
+            "url": "https://ruoffcampus.rutgers.edu/basic-needs/food-assistance/food-and-mobile-pantry",
+            "title": "Food & Mobile Pantry",
+            "publisher": "Rutgers University-New Brunswick, Off-Campus Living & Community Initiatives",
+            "excerpt": "ATTENTION!!! - Create an account on PantrySoft prior to stopping by the food pantry. If you need assistance, we also have tablets available to register on in the pantry. Students are able to use only one of the following food pantry methods once per week.\nRutgers Student Food Pantry\nCollege Avenue Student Center, 126 College Ave, New Brunswick, NJ 08901 Room 112\nAll students must make an appointment in the PantrySoft system ahead of time if they wish to visit between the hours of 12pm-4pm (M-F), unless they are a first-time visitor. Appointments can be made for the current week starting on Sundays at noon. From 4pm-5 or 4pm-7pm we will have open walk-in hours available. Students may visit the pantry, lockers, or the mobile pantry once per week. Access to the Knights Pantry is contingent on the building hours of the student center.",
+            "retrieved_at": "2026-10-10T19:58:55.507784Z",
+            "content_hash": "2f615e0f8135c485b549e5cc7a98a6323c3926622954a8d4d1ec3b4661bd1e7b",
+            "freshness": "FRESH"
+          }
+        ]
+      },
+      "rule_version": {
+        "version": "2026.1",
+        "program_slug": "rutgers-student-food-pantry",
+        "effective_from": "2026-10-10",
+        "effective_to": null,
+        "root": {
+          "description": "Rutgers Student Food Pantry access screen",
+          "source_ids": [
+            "rutgers-food-pantry-access-2026"
+          ],
+          "kind": "all_of",
+          "conditions": [
+            {
+              "description": "You are a Rutgers student or staff member.",
+              "source_ids": [
+                "rutgers-food-pantry-access-2026"
+              ],
+              "kind": "flag",
+              "flag": "is_rutgers_affiliated",
+              "expected": true
+            },
+            {
+              "description": "You are a currently enrolled student.",
+              "source_ids": [
+                "rutgers-food-pantry-access-2026"
+              ],
+              "kind": "categorical",
+              "field": "student_status",
+              "any_of": [
+                "UNDERGRAD_FULL_TIME",
+                "UNDERGRAD_PART_TIME",
+                "GRADUATE",
+                "OTHER"
+              ]
+            }
+          ]
+        },
+        "source_ids": [
+          "rutgers-food-pantry-access-2026"
+        ],
+        "review_status": "APPROVED",
+        "limitations": [
+          "The pantry publishes no income test; the stated requirements are being a Rutgers student, registering in PantrySoft and using one pantry method per week.",
+          "Locations are on the Rutgers-New Brunswick and Piscataway campuses, so this is not useful to someone who cannot get there.",
+          "Hours change by semester. Check the official page before travelling."
+        ],
+        "reviewed_by": "secondchance-curation",
+        "reviewed_at": "2026-10-10T19:58:56.610088Z"
+      },
+      "limitations": [
+        "The pantry publishes no income test; the stated requirements are being a Rutgers student, registering in PantrySoft and using one pantry method per week.",
+        "Locations are on the Rutgers-New Brunswick and Piscataway campuses, so this is not useful to someone who cannot get there.",
+        "Hours change by semester. Check the official page before travelling."
+      ]
+    },
+    {
+      "program": {
+        "id": "a3b4ad8c-8d4b-578e-87a5-1a4efd252ec5",
+        "slug": "community-foodbank-of-new-jersey",
+        "official_name": "Community FoodBank of New Jersey",
+        "administering_org": "Community FoodBank of New Jersey",
+        "category": "FOOD",
+        "description": "The Community FoodBank of New Jersey supplies and coordinates a network of more than 800 partner agencies across eleven New Jersey counties, including food pantries, soup kitchens and shelters. Its Find Food tool maps nearby partner locations, and its staff also help residents apply for or recertify SNAP benefits. Residents of other counties are served by neighbouring food banks.",
+        "plain_language_summary": "The Community FoodBank of New Jersey helps you find a free food pantry, soup kitchen or shelter near you in eleven counties, and can help you apply for SNAP. Use the Find Food search on their site or call the food assistance line.",
+        "who_it_helps": [
+          "Anyone who needs food right away",
+          "People who want help applying for SNAP or WIC",
+          "Residents of the eleven counties the network covers"
+        ],
+        "geo_scope": {
+          "nationwide": false,
+          "states": [
+            "NJ"
+          ],
+          "counties": [
+            "Atlantic",
+            "Bergen",
+            "Cape May",
+            "Cumberland",
+            "Essex",
+            "Hudson",
+            "Middlesex",
+            "Morris",
+            "Passaic",
+            "Somerset",
+            "Union"
+          ],
+          "campuses": [],
+          "label": "Eleven New Jersey counties served by the CFBNJ network"
+        },
+        "official_url": "https://cfbnj.org/find-foods-services/",
+        "application_url": null,
+        "phone": "908-838-4831",
+        "keywords": [
+          "food bank",
+          "food pantry",
+          "soup kitchen",
+          "free food",
+          "emergency food",
+          "snap help",
+          "food"
+        ],
+        "verification_status": "VERIFIED",
+        "last_verified_at": "2026-10-10T19:58:56.610088Z",
+        "active_rule_version": "2026.1",
+        "sources": [
+          {
+            "id": "cfbnj-partner-network-2026",
+            "url": "https://cfbnj.org/find-foods-services/",
+            "title": "Find Food And Services",
+            "publisher": "Community FoodBank of New Jersey",
+            "excerpt": "The Community FoodBank of New Jersey can help connect you with resources for free food and other services. We partner directly with over 800 partner agencies across 11 counties that provide food and other services to neighbors in their communities. We can also help you apply or get recertified for SNAP benefits.\nFind Food\nFind Food Near You\nTo locate CFBNJ partner food pantries, soup kitchens and shelters in Atlantic, Bergen, Cape May, Cumberland, Essex, Hudson, Middlesex, Morris, Passaic, Somerset or Union County:",
+            "retrieved_at": "2026-10-10T19:58:55.599145Z",
+            "content_hash": "750a9b959d19d8a2907b35c69d63a4b10728a119bf5daafe2460417cf87440a0",
+            "freshness": "FRESH"
+          }
+        ]
+      },
+      "rule_version": {
+        "version": "2026.1",
+        "program_slug": "community-foodbank-of-new-jersey",
+        "effective_from": "2026-10-10",
+        "effective_to": null,
+        "root": {
+          "description": "CFBNJ partner network coverage",
+          "source_ids": [
+            "cfbnj-partner-network-2026"
+          ],
+          "kind": "all_of",
+          "conditions": [
+            {
+              "description": "You live in one of the eleven counties the network covers: Atlantic, Bergen, Cape May, Cumberland, Essex, Hudson, Middlesex, Morris, Passaic, Somerset or Union.",
+              "source_ids": [
+                "cfbnj-partner-network-2026"
+              ],
+              "kind": "geography",
+              "states": [
+                "NJ"
+              ],
+              "counties": [
+                "Atlantic",
+                "Bergen",
+                "Cape May",
+                "Cumberland",
+                "Essex",
+                "Hudson",
+                "Middlesex",
+                "Morris",
+                "Passaic",
+                "Somerset",
+                "Union"
+              ]
+            }
+          ]
+        },
+        "source_ids": [
+          "cfbnj-partner-network-2026"
+        ],
+        "review_status": "APPROVED",
+        "limitations": [
+          "The food bank does not publish an income test. Individual partner pantries set their own hours, service areas and intake requirements, so confirm with the pantry.",
+          "Residents of the ten New Jersey counties outside this network are served by other food banks, which this record does not cover."
+        ],
+        "reviewed_by": "secondchance-curation",
+        "reviewed_at": "2026-10-10T19:58:56.610088Z"
+      },
+      "limitations": [
+        "The food bank does not publish an income test. Individual partner pantries set their own hours, service areas and intake requirements, so confirm with the pantry.",
+        "Residents of the ten New Jersey counties outside this network are served by other food banks, which this record does not cover."
+      ]
+    },
+    {
+      "program": {
+        "id": "9c903681-1c87-5f4f-952c-644fed668c1f",
+        "slug": "elijahs-promise-meal-services",
+        "official_name": "Elijah's Promise Meal Services",
+        "administering_org": "Elijah's Promise",
+        "category": "FOOD",
+        "description": "Elijah's Promise serves more than 35,000 meals a year through its community soup kitchen at 18 Neilson Street in New Brunswick and through the Elijah's Promise on Wheels mobile meal programme, which serves designated locations during the week. Meals are provided to all who visit, currently in a to-go format, and the organisation also runs social support programmes.",
+        "plain_language_summary": "Elijah's Promise serves free hot meals in New Brunswick, with no application and no paperwork. Walk up to the soup kitchen at 18 Neilson Street during serving hours, or find the mobile meal van on its weekly schedule.",
+        "who_it_helps": [
+          "Anyone who needs a meal today",
+          "People in and around New Brunswick",
+          "People who cannot cook or store food where they are staying"
+        ],
+        "geo_scope": {
+          "nationwide": false,
+          "states": [
+            "NJ"
+          ],
+          "counties": [
+            "Middlesex"
+          ],
+          "campuses": [],
+          "label": "New Brunswick and surrounding Middlesex County"
+        },
+        "official_url": "https://elijahspromise.org/promise-programs/community-kitchen-meal-services/",
+        "application_url": null,
+        "phone": "732-545-9002",
+        "keywords": [
+          "soup kitchen",
+          "free meal",
+          "hot meal",
+          "new brunswick",
+          "mobile meals",
+          "elijahs promise",
+          "food"
+        ],
+        "verification_status": "VERIFIED",
+        "last_verified_at": "2026-10-10T19:58:56.610088Z",
+        "active_rule_version": "2026.1",
+        "sources": [
+          {
+            "id": "elijahs-promise-meal-services-2026",
+            "url": "https://elijahspromise.org/promise-programs/community-kitchen-meal-services/",
+            "title": "Elijah's Promise Meal Services",
+            "publisher": "Elijah's Promise",
+            "excerpt": "Elijah’s Promise harnesses the power of food to support individuals and community food systems. We serve over 35,000 meals per year through our community soup kitchen located at 18 Neilson St, and through our mobile meal program which serves at designated locations throughout the week.\nVIEW MOBILE MEALS SCHEDULE\nCommunity Soup Kitchen\nLast year we served over 409,000 free meals. We take pride in providing delicious and healthy meals to all who visit at our Soup Kitchen and mobile locations.",
+            "retrieved_at": "2026-10-10T19:58:56.610088Z",
+            "content_hash": "ebb68e3eb396dff36db61b68f79634a9105a346721a2604c57363579cd71e703",
+            "freshness": "FRESH"
+          }
+        ]
+      },
+      "rule_version": {
+        "version": "2026.1",
+        "program_slug": "elijahs-promise-meal-services",
+        "effective_from": "2026-10-10",
+        "effective_to": null,
+        "root": {
+          "description": "Elijah's Promise meal service reach",
+          "source_ids": [
+            "elijahs-promise-meal-services-2026"
+          ],
+          "kind": "all_of",
+          "conditions": [
+            {
+              "description": "You are in New Jersey and can get to New Brunswick, where the meals are served.",
+              "source_ids": [
+                "elijahs-promise-meal-services-2026"
+              ],
+              "kind": "geography",
+              "states": [
+                "NJ"
+              ],
+              "counties": []
+            }
+          ]
+        },
+        "source_ids": [
+          "elijahs-promise-meal-services-2026"
+        ],
+        "review_status": "APPROVED",
+        "limitations": [
+          "Elijah's Promise publishes no eligibility test - meals are served to all who visit - so the only practical requirement is being able to reach a serving location.",
+          "Serving hours and mobile meal stops change. Check the official schedule before travelling."
+        ],
+        "reviewed_by": "secondchance-curation",
+        "reviewed_at": "2026-10-10T19:58:56.610088Z"
+      },
+      "limitations": [
+        "Elijah's Promise publishes no eligibility test - meals are served to all who visit - so the only practical requirement is being able to reach a serving location.",
+        "Serving hours and mobile meal stops change. Check the official schedule before travelling."
+      ]
+    }
+  ]
+}

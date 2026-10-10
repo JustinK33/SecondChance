@@ -1,0 +1,1428 @@
+{
+  "category": "UTILITIES",
+  "description": "Help with gas, electric, water and sewer bills, and protection from shut-off.",
+  "programs": [
+    {
+      "program": {
+        "id": "0c19d7e8-47a5-533d-8706-2665721b9350",
+        "slug": "nj-universal-service-fund",
+        "official_name": "Universal Service Fund (USF)",
+        "administering_org": "New Jersey Department of Community Affairs, Division of Housing and Community Resources",
+        "category": "UTILITIES",
+        "description": "The Universal Service Fund places a monthly credit on a household's natural gas and/or electric bill. Credit amounts are based mainly on how much of the household's income goes to energy; every income eligible participant receives at least $20 a month, up to a maximum of $200 for gas and electric combined. USF shares one application with LIHEAP and can be applied for year round. Eligible customers with overdue balances of $60 or more are automatically enrolled in USF-Fresh Start arrears forgiveness.",
+        "plain_language_summary": "USF takes money off your gas and electric bill every month - at least $20 and up to $200 combined. You apply once online and the same form also applies for LIHEAP. If you owe your utility $60 or more, enrolling can also get that old balance forgiven a little each month.",
+        "who_it_helps": [
+          "Households struggling with gas or electric bills",
+          "Renters as well as homeowners",
+          "Households with overdue utility balances"
+        ],
+        "geo_scope": {
+          "nationwide": false,
+          "states": [
+            "NJ"
+          ],
+          "counties": [],
+          "campuses": [],
+          "label": "All of New Jersey"
+        },
+        "official_url": "https://www.nj.gov/dca/dhcr/offices/usf.shtml",
+        "application_url": "https://dcaid.dca.nj.gov/en-US/",
+        "phone": "(800) 510-3102",
+        "keywords": [
+          "usf",
+          "universal service fund",
+          "electric bill",
+          "gas bill",
+          "utility",
+          "credit",
+          "fresh start",
+          "arrears",
+          "shut off"
+        ],
+        "verification_status": "VERIFIED",
+        "last_verified_at": "2026-10-10T19:58:56.610088Z",
+        "active_rule_version": "2026.1",
+        "sources": [
+          {
+            "id": "njbpu-usf-page-2026",
+            "url": "https://www.nj.gov/bpu/assistance/programs/",
+            "title": "Utility Assistance Programs - income limits and Universal Service Fund",
+            "publisher": "New Jersey Board of Public Utilities",
+            "excerpt": "If you are having trouble affording your utility bills, help is available. New Jersey offers a diverse portfolio of utility assistance and energy efficiency programs for low- and moderate-income households. See income limits and program information below:\nHousehold Size\nPAGE*\nUSF/LIHEAP\nLifeline **\nComfort Partners\n1\n$85,455\n$51,273\n$54,943\n$39,900\n2\n$111,749\n$67,049\n$62,390\n$54,100\n3\n$138,043\n$82,825\n$68,300\n4\n$164,337\n$98,602\n$82,500\n5\n$190,631\n$114,378\n$96,700\n6\n$216,925\n$130,154\n$110,900\n7\n$221,855\n$133,112\n$125,100\n8\n$226,785\n$136,070\n$139,300\n*If you are income eligible for USF/LIHEAP, apply for those programs first. Then, if still in need, seek additional assistance from the PAGE program.\n**Lifeline determines income in terms of married or single only and is for seniors and the disabled.\n\nThe Universal Service Fund (USF) provides monthly credits on electric and gas bills to help make bills more affordable. Credit amounts are primarily based on the amount you spend on energy over a certain percentage of income. All income eligible participants receive a minimum monthly credit of $20 on their gas and/or electric bill. The maximum monthly credit is $200 for gas and electric combined.",
+            "retrieved_at": "2026-10-10T19:58:55.800008Z",
+            "content_hash": "b56ad38ea47476a47acfa89af24687092df1ba62b8df67a8ebc4b24dc15a4052",
+            "freshness": "FRESH"
+          },
+          {
+            "id": "njdca-usf-how-to-apply-2026",
+            "url": "https://www.nj.gov/dca/dhcr/offices/usf.shtml",
+            "title": "Universal Service Fund (USF)",
+            "publisher": "New Jersey Department of Community Affairs, Division of Housing and Community Resources",
+            "excerpt": "Description: Provides a monthly credit on eligible customer’s natural gas and/or electric bills. USF shares an application with the federal Low Income Home Energy Assistance Program .\nAssistance Provided To: Low and Moderate Income Households .\nType of Assistance: Credit on natural gas or electricity.\nFunding Source: A surcharge on natural gas and electric bills.\nProcedure for Applying: Apply year round online or print and mail to a local application agency .",
+            "retrieved_at": "2026-10-10T19:58:55.679076Z",
+            "content_hash": "8f4fac315befa656e1d242f628fc40aa69e74d5e4e0b6fb5898eacd2bace5e72",
+            "freshness": "FRESH"
+          }
+        ]
+      },
+      "rule_version": {
+        "version": "2026.1",
+        "program_slug": "nj-universal-service-fund",
+        "effective_from": "2026-10-10",
+        "effective_to": null,
+        "root": {
+          "description": "Universal Service Fund preliminary eligibility screen",
+          "source_ids": [
+            "njbpu-usf-page-2026",
+            "njdca-usf-how-to-apply-2026"
+          ],
+          "kind": "all_of",
+          "conditions": [
+            {
+              "description": "You live in New Jersey and have a gas or electric account, or pay for heat in your rent.",
+              "source_ids": [
+                "njdca-usf-how-to-apply-2026"
+              ],
+              "kind": "geography",
+              "states": [
+                "NJ"
+              ],
+              "counties": []
+            },
+            {
+              "description": "Your yearly household income is at or below the USF/LIHEAP limit published for your household size.",
+              "source_ids": [
+                "njbpu-usf-page-2026"
+              ],
+              "kind": "any_of",
+              "conditions": [
+                {
+                  "description": "Your household has 1 person and a yearly income of $51,273 or less.",
+                  "source_ids": [
+                    "njbpu-usf-page-2026"
+                  ],
+                  "kind": "all_of",
+                  "conditions": [
+                    {
+                      "description": "Your household has 1 person.",
+                      "source_ids": [
+                        "njbpu-usf-page-2026"
+                      ],
+                      "kind": "household_size",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "description": "Your household earns $51,273 a year or less.",
+                      "source_ids": [
+                        "njbpu-usf-page-2026"
+                      ],
+                      "kind": "income_absolute",
+                      "max_monthly_cents": null,
+                      "max_annual_cents": 5127300
+                    }
+                  ]
+                },
+                {
+                  "description": "Your household has 2 people and a yearly income of $67,049 or less.",
+                  "source_ids": [
+                    "njbpu-usf-page-2026"
+                  ],
+                  "kind": "all_of",
+                  "conditions": [
+                    {
+                      "description": "Your household has 2 people.",
+                      "source_ids": [
+                        "njbpu-usf-page-2026"
+                      ],
+                      "kind": "household_size",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "description": "Your household earns $67,049 a year or less.",
+                      "source_ids": [
+                        "njbpu-usf-page-2026"
+                      ],
+                      "kind": "income_absolute",
+                      "max_monthly_cents": null,
+                      "max_annual_cents": 6704900
+                    }
+                  ]
+                },
+                {
+                  "description": "Your household has 3 people and a yearly income of $82,825 or less.",
+                  "source_ids": [
+                    "njbpu-usf-page-2026"
+                  ],
+                  "kind": "all_of",
+                  "conditions": [
+                    {
+                      "description": "Your household has 3 people.",
+                      "source_ids": [
+                        "njbpu-usf-page-2026"
+                      ],
+                      "kind": "household_size",
+                      "min": 3,
+                      "max": 3
+                    },
+                    {
+                      "description": "Your household earns $82,825 a year or less.",
+                      "source_ids": [
+                        "njbpu-usf-page-2026"
+                      ],
+                      "kind": "income_absolute",
+                      "max_monthly_cents": null,
+                      "max_annual_cents": 8282500
+                    }
+                  ]
+                },
+                {
+                  "description": "Your household has 4 people and a yearly income of $98,602 or less.",
+                  "source_ids": [
+                    "njbpu-usf-page-2026"
+                  ],
+                  "kind": "all_of",
+                  "conditions": [
+                    {
+                      "description": "Your household has 4 people.",
+                      "source_ids": [
+                        "njbpu-usf-page-2026"
+                      ],
+                      "kind": "household_size",
+                      "min": 4,
+                      "max": 4
+                    },
+                    {
+                      "description": "Your household earns $98,602 a year or less.",
+                      "source_ids": [
+                        "njbpu-usf-page-2026"
+                      ],
+                      "kind": "income_absolute",
+                      "max_monthly_cents": null,
+                      "max_annual_cents": 9860200
+                    }
+                  ]
+                },
+                {
+                  "description": "Your household has 5 people and a yearly income of $114,378 or less.",
+                  "source_ids": [
+                    "njbpu-usf-page-2026"
+                  ],
+                  "kind": "all_of",
+                  "conditions": [
+                    {
+                      "description": "Your household has 5 people.",
+                      "source_ids": [
+                        "njbpu-usf-page-2026"
+                      ],
+                      "kind": "household_size",
+                      "min": 5,
+                      "max": 5
+                    },
+                    {
+                      "description": "Your household earns $114,378 a year or less.",
+                      "source_ids": [
+                        "njbpu-usf-page-2026"
+                      ],
+                      "kind": "income_absolute",
+                      "max_monthly_cents": null,
+                      "max_annual_cents": 11437800
+                    }
+                  ]
+                },
+                {
+                  "description": "Your household has 6 people and a yearly income of $130,154 or less.",
+                  "source_ids": [
+                    "njbpu-usf-page-2026"
+                  ],
+                  "kind": "all_of",
+                  "conditions": [
+                    {
+                      "description": "Your household has 6 people.",
+                      "source_ids": [
+                        "njbpu-usf-page-2026"
+                      ],
+                      "kind": "household_size",
+                      "min": 6,
+                      "max": 6
+                    },
+                    {
+                      "description": "Your household earns $130,154 a year or less.",
+                      "source_ids": [
+                        "njbpu-usf-page-2026"
+                      ],
+                      "kind": "income_absolute",
+                      "max_monthly_cents": null,
+                      "max_annual_cents": 13015400
+                    }
+                  ]
+                },
+                {
+                  "description": "Your household has 7 people and a yearly income of $133,112 or less.",
+                  "source_ids": [
+                    "njbpu-usf-page-2026"
+                  ],
+                  "kind": "all_of",
+                  "conditions": [
+                    {
+                      "description": "Your household has 7 people.",
+                      "source_ids": [
+                        "njbpu-usf-page-2026"
+                      ],
+                      "kind": "household_size",
+                      "min": 7,
+                      "max": 7
+                    },
+                    {
+                      "description": "Your household earns $133,112 a year or less.",
+                      "source_ids": [
+                        "njbpu-usf-page-2026"
+                      ],
+                      "kind": "income_absolute",
+                      "max_monthly_cents": null,
+                      "max_annual_cents": 13311200
+                    }
+                  ]
+                },
+                {
+                  "description": "Your household has 8 people and a yearly income of $136,070 or less.",
+                  "source_ids": [
+                    "njbpu-usf-page-2026"
+                  ],
+                  "kind": "all_of",
+                  "conditions": [
+                    {
+                      "description": "Your household has 8 people.",
+                      "source_ids": [
+                        "njbpu-usf-page-2026"
+                      ],
+                      "kind": "household_size",
+                      "min": 8,
+                      "max": 8
+                    },
+                    {
+                      "description": "Your household earns $136,070 a year or less.",
+                      "source_ids": [
+                        "njbpu-usf-page-2026"
+                      ],
+                      "kind": "income_absolute",
+                      "max_monthly_cents": null,
+                      "max_annual_cents": 13607000
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "source_ids": [
+          "njbpu-usf-page-2026",
+          "njdca-usf-how-to-apply-2026"
+        ],
+        "review_status": "APPROVED",
+        "limitations": [
+          "The published income table stops at eight people in a household. Larger households are eligible but their limit is not printed, so this screen cannot assess them.",
+          "The credit amount depends on how much of your income goes to energy, so being income eligible does not tell you what you will receive.",
+          "A household with an undocumented member may apply; a Social Security number is not required for USF."
+        ],
+        "reviewed_by": "secondchance-curation",
+        "reviewed_at": "2026-10-10T19:58:56.610088Z"
+      },
+      "limitations": [
+        "The published income table stops at eight people in a household. Larger households are eligible but their limit is not printed, so this screen cannot assess them.",
+        "The credit amount depends on how much of your income goes to energy, so being income eligible does not tell you what you will receive.",
+        "A household with an undocumented member may apply; a Social Security number is not required for USF."
+      ]
+    },
+    {
+      "program": {
+        "id": "26728a37-5526-574e-827e-ec92352f3c86",
+        "slug": "nj-liheap",
+        "official_name": "Low Income Home Energy Assistance Program (LIHEAP/HEAP)",
+        "administering_org": "New Jersey Department of Community Affairs, Division of Housing and Community Resources",
+        "category": "UTILITIES",
+        "description": "LIHEAP helps New Jersey households pay heating costs and medically necessary cooling expenses, and provides emergency funds and qualifying heater repair or replacement. It covers gas, electric and deliverable fuels. Renters whose heating costs are included in their rent may also qualify. Applications are accepted from October 1 through June 30 while funds last, on the same form as the Universal Service Fund.",
+        "plain_language_summary": "LIHEAP helps pay your heating bill, and cooling costs if a doctor says you need them. It can also cover emergency fuel or a broken heater. You can apply between October 1 and June 30, and the same form also applies for USF.",
+        "who_it_helps": [
+          "Households that cannot keep up with heating bills",
+          "Renters whose heat is included in the rent",
+          "Households facing a heating emergency or a broken furnace"
+        ],
+        "geo_scope": {
+          "nationwide": false,
+          "states": [
+            "NJ"
+          ],
+          "counties": [],
+          "campuses": [],
+          "label": "All of New Jersey"
+        },
+        "official_url": "https://www.nj.gov/dca/dhcr/offices/hea.shtml",
+        "application_url": "https://dcaid.dca.nj.gov/en-US/",
+        "phone": "(800) 510-3102",
+        "keywords": [
+          "liheap",
+          "heap",
+          "heating",
+          "home energy assistance",
+          "furnace",
+          "cooling",
+          "oil",
+          "propane",
+          "utility",
+          "emergency fuel"
+        ],
+        "verification_status": "VERIFIED",
+        "last_verified_at": "2026-10-10T19:58:56.610088Z",
+        "active_rule_version": "2026.1",
+        "sources": [
+          {
+            "id": "njbpu-liheap-page-2026",
+            "url": "https://www.nj.gov/bpu/assistance/programs/",
+            "title": "Utility Assistance Programs - income limits and LIHEAP",
+            "publisher": "New Jersey Board of Public Utilities",
+            "excerpt": "If you are having trouble affording your utility bills, help is available. New Jersey offers a diverse portfolio of utility assistance and energy efficiency programs for low- and moderate-income households. See income limits and program information below:\nHousehold Size\nPAGE*\nUSF/LIHEAP\nLifeline **\nComfort Partners\n1\n$85,455\n$51,273\n$54,943\n$39,900\n2\n$111,749\n$67,049\n$62,390\n$54,100\n3\n$138,043\n$82,825\n$68,300\n4\n$164,337\n$98,602\n$82,500\n5\n$190,631\n$114,378\n$96,700\n6\n$216,925\n$130,154\n$110,900\n7\n$221,855\n$133,112\n$125,100\n8\n$226,785\n$136,070\n$139,300\n*If you are income eligible for USF/LIHEAP, apply for those programs first. Then, if still in need, seek additional assistance from the PAGE program.\n**Lifeline determines income in terms of married or single only and is for seniors and the disabled.\n\nThe Low Income Home Energy Assistance Program (LIHEAP/HEAP) helps New Jersey households pay for heating costs, medically-necessary cooling expenses and emergency funds. Renters who have their heating costs included in their rent may also qualify. LIHEAP provides help for gas, electric, deliverable fuels and qualifying heater repairs and replacements. Applications for LIHEAP are accepted from October 1 through June 30 while funds last .",
+            "retrieved_at": "2026-10-10T19:58:55.800008Z",
+            "content_hash": "b56ad38ea47476a47acfa89af24687092df1ba62b8df67a8ebc4b24dc15a4052",
+            "freshness": "FRESH"
+          },
+          {
+            "id": "njdca-liheap-how-to-apply-2026",
+            "url": "https://www.nj.gov/dca/dhcr/offices/hea.shtml",
+            "title": "Low Income Home Energy Assistance (LIHEAP)",
+            "publisher": "New Jersey Department of Community Affairs, Division of Housing and Community Resources",
+            "excerpt": "The Home Energy Assistance Program helps very low-income residents with their heating and cooling bills, and makes provisions for emergency heating system services and emergency fuel assistance within the Home Energy Assistance Program.\nHow to Apply for Home Energy Assistance :\n1. Find out if you are eligible for the program\nReview the Energy Assistance Program Fact Sheet and Income Guidelines - English\n2. If you are eligible, fill out an application\nDownload, print and complete the Home Energy/USF/Weatherization Program Application [pdf 389kB ]\n3. Submit a completed application to your Local Community Action Agency\nChoose from the list of Local Application Agency's contact information\n(en Español: Lista de agencias de acción comunitaria local )\nFor more information or to locate your nearest application agency, please call our toll-free hotline at 1-800-510-3102\nFor written instructions on how to complete the application, click on the link below:\nUAP Application Written Instructions\nHome Energy Assistance - Quick Facts :\nAssistance Provided To: Very low-income persons.",
+            "retrieved_at": "2026-10-10T19:58:55.765361Z",
+            "content_hash": "d0e7e798568d7f5deea3349043284f2704e1896b1bb32273d218b6f21530d479",
+            "freshness": "FRESH"
+          }
+        ]
+      },
+      "rule_version": {
+        "version": "2026.1",
+        "program_slug": "nj-liheap",
+        "effective_from": "2026-10-10",
+        "effective_to": null,
+        "root": {
+          "description": "LIHEAP preliminary eligibility screen",
+          "source_ids": [
+            "njbpu-liheap-page-2026",
+            "njdca-liheap-how-to-apply-2026"
+          ],
+          "kind": "all_of",
+          "conditions": [
+            {
+              "description": "You live in New Jersey and pay for heating, either directly or through your rent.",
+              "source_ids": [
+                "njbpu-liheap-page-2026"
+              ],
+              "kind": "geography",
+              "states": [
+                "NJ"
+              ],
+              "counties": []
+            },
+            {
+              "description": "Your yearly household income is at or below the USF/LIHEAP limit published for your household size.",
+              "source_ids": [
+                "njbpu-liheap-page-2026"
+              ],
+              "kind": "any_of",
+              "conditions": [
+                {
+                  "description": "Your household has 1 person and a yearly income of $51,273 or less.",
+                  "source_ids": [
+                    "njbpu-liheap-page-2026"
+                  ],
+                  "kind": "all_of",
+                  "conditions": [
+                    {
+                      "description": "Your household has 1 person.",
+                      "source_ids": [
+                        "njbpu-liheap-page-2026"
+                      ],
+                      "kind": "household_size",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "description": "Your household earns $51,273 a year or less.",
+                      "source_ids": [
+                        "njbpu-liheap-page-2026"
+                      ],
+                      "kind": "income_absolute",
+                      "max_monthly_cents": null,
+                      "max_annual_cents": 5127300
+                    }
+                  ]
+                },
+                {
+                  "description": "Your household has 2 people and a yearly income of $67,049 or less.",
+                  "source_ids": [
+                    "njbpu-liheap-page-2026"
+                  ],
+                  "kind": "all_of",
+                  "conditions": [
+                    {
+                      "description": "Your household has 2 people.",
+                      "source_ids": [
+                        "njbpu-liheap-page-2026"
+                      ],
+                      "kind": "household_size",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "description": "Your household earns $67,049 a year or less.",
+                      "source_ids": [
+                        "njbpu-liheap-page-2026"
+                      ],
+                      "kind": "income_absolute",
+                      "max_monthly_cents": null,
+                      "max_annual_cents": 6704900
+                    }
+                  ]
+                },
+                {
+                  "description": "Your household has 3 people and a yearly income of $82,825 or less.",
+                  "source_ids": [
+                    "njbpu-liheap-page-2026"
+                  ],
+                  "kind": "all_of",
+                  "conditions": [
+                    {
+                      "description": "Your household has 3 people.",
+                      "source_ids": [
+                        "njbpu-liheap-page-2026"
+                      ],
+                      "kind": "household_size",
+                      "min": 3,
+                      "max": 3
+                    },
+                    {
+                      "description": "Your household earns $82,825 a year or less.",
+                      "source_ids": [
+                        "njbpu-liheap-page-2026"
+                      ],
+                      "kind": "income_absolute",
+                      "max_monthly_cents": null,
+                      "max_annual_cents": 8282500
+                    }
+                  ]
+                },
+                {
+                  "description": "Your household has 4 people and a yearly income of $98,602 or less.",
+                  "source_ids": [
+                    "njbpu-liheap-page-2026"
+                  ],
+                  "kind": "all_of",
+                  "conditions": [
+                    {
+                      "description": "Your household has 4 people.",
+                      "source_ids": [
+                        "njbpu-liheap-page-2026"
+                      ],
+                      "kind": "household_size",
+                      "min": 4,
+                      "max": 4
+                    },
+                    {
+                      "description": "Your household earns $98,602 a year or less.",
+                      "source_ids": [
+                        "njbpu-liheap-page-2026"
+                      ],
+                      "kind": "income_absolute",
+                      "max_monthly_cents": null,
+                      "max_annual_cents": 9860200
+                    }
+                  ]
+                },
+                {
+                  "description": "Your household has 5 people and a yearly income of $114,378 or less.",
+                  "source_ids": [
+                    "njbpu-liheap-page-2026"
+                  ],
+                  "kind": "all_of",
+                  "conditions": [
+                    {
+                      "description": "Your household has 5 people.",
+                      "source_ids": [
+                        "njbpu-liheap-page-2026"
+                      ],
+                      "kind": "household_size",
+                      "min": 5,
+                      "max": 5
+                    },
+                    {
+                      "description": "Your household earns $114,378 a year or less.",
+                      "source_ids": [
+                        "njbpu-liheap-page-2026"
+                      ],
+                      "kind": "income_absolute",
+                      "max_monthly_cents": null,
+                      "max_annual_cents": 11437800
+                    }
+                  ]
+                },
+                {
+                  "description": "Your household has 6 people and a yearly income of $130,154 or less.",
+                  "source_ids": [
+                    "njbpu-liheap-page-2026"
+                  ],
+                  "kind": "all_of",
+                  "conditions": [
+                    {
+                      "description": "Your household has 6 people.",
+                      "source_ids": [
+                        "njbpu-liheap-page-2026"
+                      ],
+                      "kind": "household_size",
+                      "min": 6,
+                      "max": 6
+                    },
+                    {
+                      "description": "Your household earns $130,154 a year or less.",
+                      "source_ids": [
+                        "njbpu-liheap-page-2026"
+                      ],
+                      "kind": "income_absolute",
+                      "max_monthly_cents": null,
+                      "max_annual_cents": 13015400
+                    }
+                  ]
+                },
+                {
+                  "description": "Your household has 7 people and a yearly income of $133,112 or less.",
+                  "source_ids": [
+                    "njbpu-liheap-page-2026"
+                  ],
+                  "kind": "all_of",
+                  "conditions": [
+                    {
+                      "description": "Your household has 7 people.",
+                      "source_ids": [
+                        "njbpu-liheap-page-2026"
+                      ],
+                      "kind": "household_size",
+                      "min": 7,
+                      "max": 7
+                    },
+                    {
+                      "description": "Your household earns $133,112 a year or less.",
+                      "source_ids": [
+                        "njbpu-liheap-page-2026"
+                      ],
+                      "kind": "income_absolute",
+                      "max_monthly_cents": null,
+                      "max_annual_cents": 13311200
+                    }
+                  ]
+                },
+                {
+                  "description": "Your household has 8 people and a yearly income of $136,070 or less.",
+                  "source_ids": [
+                    "njbpu-liheap-page-2026"
+                  ],
+                  "kind": "all_of",
+                  "conditions": [
+                    {
+                      "description": "Your household has 8 people.",
+                      "source_ids": [
+                        "njbpu-liheap-page-2026"
+                      ],
+                      "kind": "household_size",
+                      "min": 8,
+                      "max": 8
+                    },
+                    {
+                      "description": "Your household earns $136,070 a year or less.",
+                      "source_ids": [
+                        "njbpu-liheap-page-2026"
+                      ],
+                      "kind": "income_absolute",
+                      "max_monthly_cents": null,
+                      "max_annual_cents": 13607000
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "source_ids": [
+          "njbpu-liheap-page-2026",
+          "njdca-liheap-how-to-apply-2026"
+        ],
+        "review_status": "APPROVED",
+        "limitations": [
+          "Applications are only accepted from October 1 through June 30, and only while funds last. The season is not encoded as a rule.",
+          "LIHEAP requires at least one household member to have a Social Security number. USF and PAGE do not.",
+          "The published income table stops at eight people in a household, so larger households cannot be screened here."
+        ],
+        "reviewed_by": "secondchance-curation",
+        "reviewed_at": "2026-10-10T19:58:56.610088Z"
+      },
+      "limitations": [
+        "Applications are only accepted from October 1 through June 30, and only while funds last. The season is not encoded as a rule.",
+        "LIHEAP requires at least one household member to have a Social Security number. USF and PAGE do not.",
+        "The published income table stops at eight people in a household, so larger households cannot be screened here."
+      ]
+    },
+    {
+      "program": {
+        "id": "47b02278-82e1-5384-b979-ad32984efd7e",
+        "slug": "nj-page",
+        "official_name": "Payment Assistance for Gas and Electric (PAGE) Program",
+        "administering_org": "SHARES Nation, Inc., for the New Jersey Board of Public Utilities",
+        "category": "UTILITIES",
+        "description": "The PAGE programme provides relief on gas and electric bills for low to moderate income New Jersey households that are in a temporary financial crisis. Its income limits are considerably higher than those for USF and LIHEAP, and households that are income eligible for USF are told to apply for that first and come to PAGE for supplemental help. PAGE is administered by SHARES Nation, Inc., is made possible by the New Jersey Department of the Treasury and is subject to the availability of funds.",
+        "plain_language_summary": "PAGE helps pay gas and electric bills for households that hit a rough patch, and its income limits are much higher than other utility programmes - up to $85,455 for one person. Apply for USF first if you qualify for it, then come to PAGE if you still need help.",
+        "who_it_helps": [
+          "Households in a temporary financial crisis",
+          "Moderate income households that earn too much for USF or LIHEAP",
+          "Households that already got other help and still owe money"
+        ],
+        "geo_scope": {
+          "nationwide": false,
+          "states": [
+            "NJ"
+          ],
+          "counties": [],
+          "campuses": [],
+          "label": "All of New Jersey"
+        },
+        "official_url": "https://www.nj.gov/bpu/assistance/programs/",
+        "application_url": "https://sharesnation.org/",
+        "phone": "1-866-657-4273",
+        "keywords": [
+          "page",
+          "gas bill",
+          "electric bill",
+          "utility",
+          "shut off",
+          "arrears",
+          "payment assistance",
+          "shares"
+        ],
+        "verification_status": "VERIFIED",
+        "last_verified_at": "2026-10-10T19:58:56.610088Z",
+        "active_rule_version": "2026.1",
+        "sources": [
+          {
+            "id": "njbpu-page-program-page-2026",
+            "url": "https://www.nj.gov/bpu/assistance/programs/",
+            "title": "Utility Assistance Programs - income limits and PAGE",
+            "publisher": "New Jersey Board of Public Utilities",
+            "excerpt": "If you are having trouble affording your utility bills, help is available. New Jersey offers a diverse portfolio of utility assistance and energy efficiency programs for low- and moderate-income households. See income limits and program information below:\nHousehold Size\nPAGE*\nUSF/LIHEAP\nLifeline **\nComfort Partners\n1\n$85,455\n$51,273\n$54,943\n$39,900\n2\n$111,749\n$67,049\n$62,390\n$54,100\n3\n$138,043\n$82,825\n$68,300\n4\n$164,337\n$98,602\n$82,500\n5\n$190,631\n$114,378\n$96,700\n6\n$216,925\n$130,154\n$110,900\n7\n$221,855\n$133,112\n$125,100\n8\n$226,785\n$136,070\n$139,300\n*If you are income eligible for USF/LIHEAP, apply for those programs first. Then, if still in need, seek additional assistance from the PAGE program.\n**Lifeline determines income in terms of married or single only and is for seniors and the disabled.\n\nThe Payment Assistance for Gas and Electric (PAGE) Program provides relief on gas and electric bills for low- to moderate-income New Jersey households (see income limits above). Those who are income-eligible for USF should apply for that program first before seeking supplemental assistance from PAGE. To self-screen for program eligibility, apply online, or print an application, please visit www.sharesnation.org or call 1-866-657-4273 .\nPAGE administered by SHARES Nation, Inc. but is made possible by the New Jersey Department of the Treasury and is subject to availability of funds.",
+            "retrieved_at": "2026-10-10T19:58:55.800008Z",
+            "content_hash": "b56ad38ea47476a47acfa89af24687092df1ba62b8df67a8ebc4b24dc15a4052",
+            "freshness": "FRESH"
+          }
+        ]
+      },
+      "rule_version": {
+        "version": "2026.1",
+        "program_slug": "nj-page",
+        "effective_from": "2026-10-10",
+        "effective_to": null,
+        "root": {
+          "description": "PAGE preliminary eligibility screen",
+          "source_ids": [
+            "njbpu-page-program-page-2026"
+          ],
+          "kind": "all_of",
+          "conditions": [
+            {
+              "description": "You live in New Jersey and have a gas or electric bill you cannot pay.",
+              "source_ids": [
+                "njbpu-page-program-page-2026"
+              ],
+              "kind": "geography",
+              "states": [
+                "NJ"
+              ],
+              "counties": []
+            },
+            {
+              "description": "Your yearly household income is at or below the PAGE limit published for your household size.",
+              "source_ids": [
+                "njbpu-page-program-page-2026"
+              ],
+              "kind": "any_of",
+              "conditions": [
+                {
+                  "description": "Your household has 1 person and a yearly income of $85,455 or less.",
+                  "source_ids": [
+                    "njbpu-page-program-page-2026"
+                  ],
+                  "kind": "all_of",
+                  "conditions": [
+                    {
+                      "description": "Your household has 1 person.",
+                      "source_ids": [
+                        "njbpu-page-program-page-2026"
+                      ],
+                      "kind": "household_size",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "description": "Your household earns $85,455 a year or less.",
+                      "source_ids": [
+                        "njbpu-page-program-page-2026"
+                      ],
+                      "kind": "income_absolute",
+                      "max_monthly_cents": null,
+                      "max_annual_cents": 8545500
+                    }
+                  ]
+                },
+                {
+                  "description": "Your household has 2 people and a yearly income of $111,749 or less.",
+                  "source_ids": [
+                    "njbpu-page-program-page-2026"
+                  ],
+                  "kind": "all_of",
+                  "conditions": [
+                    {
+                      "description": "Your household has 2 people.",
+                      "source_ids": [
+                        "njbpu-page-program-page-2026"
+                      ],
+                      "kind": "household_size",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "description": "Your household earns $111,749 a year or less.",
+                      "source_ids": [
+                        "njbpu-page-program-page-2026"
+                      ],
+                      "kind": "income_absolute",
+                      "max_monthly_cents": null,
+                      "max_annual_cents": 11174900
+                    }
+                  ]
+                },
+                {
+                  "description": "Your household has 3 people and a yearly income of $138,043 or less.",
+                  "source_ids": [
+                    "njbpu-page-program-page-2026"
+                  ],
+                  "kind": "all_of",
+                  "conditions": [
+                    {
+                      "description": "Your household has 3 people.",
+                      "source_ids": [
+                        "njbpu-page-program-page-2026"
+                      ],
+                      "kind": "household_size",
+                      "min": 3,
+                      "max": 3
+                    },
+                    {
+                      "description": "Your household earns $138,043 a year or less.",
+                      "source_ids": [
+                        "njbpu-page-program-page-2026"
+                      ],
+                      "kind": "income_absolute",
+                      "max_monthly_cents": null,
+                      "max_annual_cents": 13804300
+                    }
+                  ]
+                },
+                {
+                  "description": "Your household has 4 people and a yearly income of $164,337 or less.",
+                  "source_ids": [
+                    "njbpu-page-program-page-2026"
+                  ],
+                  "kind": "all_of",
+                  "conditions": [
+                    {
+                      "description": "Your household has 4 people.",
+                      "source_ids": [
+                        "njbpu-page-program-page-2026"
+                      ],
+                      "kind": "household_size",
+                      "min": 4,
+                      "max": 4
+                    },
+                    {
+                      "description": "Your household earns $164,337 a year or less.",
+                      "source_ids": [
+                        "njbpu-page-program-page-2026"
+                      ],
+                      "kind": "income_absolute",
+                      "max_monthly_cents": null,
+                      "max_annual_cents": 16433700
+                    }
+                  ]
+                },
+                {
+                  "description": "Your household has 5 people and a yearly income of $190,631 or less.",
+                  "source_ids": [
+                    "njbpu-page-program-page-2026"
+                  ],
+                  "kind": "all_of",
+                  "conditions": [
+                    {
+                      "description": "Your household has 5 people.",
+                      "source_ids": [
+                        "njbpu-page-program-page-2026"
+                      ],
+                      "kind": "household_size",
+                      "min": 5,
+                      "max": 5
+                    },
+                    {
+                      "description": "Your household earns $190,631 a year or less.",
+                      "source_ids": [
+                        "njbpu-page-program-page-2026"
+                      ],
+                      "kind": "income_absolute",
+                      "max_monthly_cents": null,
+                      "max_annual_cents": 19063100
+                    }
+                  ]
+                },
+                {
+                  "description": "Your household has 6 people and a yearly income of $216,925 or less.",
+                  "source_ids": [
+                    "njbpu-page-program-page-2026"
+                  ],
+                  "kind": "all_of",
+                  "conditions": [
+                    {
+                      "description": "Your household has 6 people.",
+                      "source_ids": [
+                        "njbpu-page-program-page-2026"
+                      ],
+                      "kind": "household_size",
+                      "min": 6,
+                      "max": 6
+                    },
+                    {
+                      "description": "Your household earns $216,925 a year or less.",
+                      "source_ids": [
+                        "njbpu-page-program-page-2026"
+                      ],
+                      "kind": "income_absolute",
+                      "max_monthly_cents": null,
+                      "max_annual_cents": 21692500
+                    }
+                  ]
+                },
+                {
+                  "description": "Your household has 7 people and a yearly income of $221,855 or less.",
+                  "source_ids": [
+                    "njbpu-page-program-page-2026"
+                  ],
+                  "kind": "all_of",
+                  "conditions": [
+                    {
+                      "description": "Your household has 7 people.",
+                      "source_ids": [
+                        "njbpu-page-program-page-2026"
+                      ],
+                      "kind": "household_size",
+                      "min": 7,
+                      "max": 7
+                    },
+                    {
+                      "description": "Your household earns $221,855 a year or less.",
+                      "source_ids": [
+                        "njbpu-page-program-page-2026"
+                      ],
+                      "kind": "income_absolute",
+                      "max_monthly_cents": null,
+                      "max_annual_cents": 22185500
+                    }
+                  ]
+                },
+                {
+                  "description": "Your household has 8 people and a yearly income of $226,785 or less.",
+                  "source_ids": [
+                    "njbpu-page-program-page-2026"
+                  ],
+                  "kind": "all_of",
+                  "conditions": [
+                    {
+                      "description": "Your household has 8 people.",
+                      "source_ids": [
+                        "njbpu-page-program-page-2026"
+                      ],
+                      "kind": "household_size",
+                      "min": 8,
+                      "max": 8
+                    },
+                    {
+                      "description": "Your household earns $226,785 a year or less.",
+                      "source_ids": [
+                        "njbpu-page-program-page-2026"
+                      ],
+                      "kind": "income_absolute",
+                      "max_monthly_cents": null,
+                      "max_annual_cents": 22678500
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "source_ids": [
+          "njbpu-page-program-page-2026"
+        ],
+        "review_status": "APPROVED",
+        "limitations": [
+          "PAGE requires a temporary financial crisis. That is judged case by case and is not encoded here.",
+          "Households income eligible for USF or LIHEAP are expected to apply for those first.",
+          "Grants are subject to the availability of funds, so being income eligible does not guarantee a grant.",
+          "The published income table stops at eight people in a household."
+        ],
+        "reviewed_by": "secondchance-curation",
+        "reviewed_at": "2026-10-10T19:58:56.610088Z"
+      },
+      "limitations": [
+        "PAGE requires a temporary financial crisis. That is judged case by case and is not encoded here.",
+        "Households income eligible for USF or LIHEAP are expected to apply for those first.",
+        "Grants are subject to the availability of funds, so being income eligible does not guarantee a grant.",
+        "The published income table stops at eight people in a household."
+      ]
+    },
+    {
+      "program": {
+        "id": "b374526c-e11c-5b05-8003-24dde0a6f4b2",
+        "slug": "nj-lifeline-utility-credit",
+        "official_name": "Lifeline Utility Assistance",
+        "administering_org": "New Jersey Department of Human Services, Division of Aging Services",
+        "category": "UTILITIES",
+        "description": "Lifeline provides a $225 annual benefit towards electric and natural gas costs for older adults and people with disabilities. Utility customers receive it as a credit on the bill; tenants whose utilities are included in their rent receive a cheque. To qualify, a person must receive Pharmaceutical Assistance to the Aged and Disabled (PAAD) or meet the PAAD requirements - a New Jersey resident aged 65 or older, or aged 18 to 64 and receiving Social Security Disability, with income below $54,943 if single or $62,390 if married - or receive Medical Assistance to the Aged, Medical Assistance Only or New Jersey Care. Supplemental Security Income recipients get the benefit automatically and should not apply.",
+        "plain_language_summary": "Lifeline gives $225 a year towards your electric and gas costs if you are 65 or older, or 18 to 64 and getting Social Security Disability, and your income is under $54,943 single or $62,390 married. Renters whose utilities are in the rent get a cheque instead of a bill credit.",
+        "who_it_helps": [
+          "People aged 65 and older",
+          "People aged 18 to 64 receiving Social Security Disability",
+          "Renters whose utilities are included in the rent"
+        ],
+        "geo_scope": {
+          "nationwide": false,
+          "states": [
+            "NJ"
+          ],
+          "counties": [],
+          "campuses": [],
+          "label": "All of New Jersey"
+        },
+        "official_url": "https://www.nj.gov/humanservices/doas/services/l-p/lifeline-utility/",
+        "application_url": "https://www.aging.nj.gov/",
+        "phone": "1-800-792-9745",
+        "keywords": [
+          "lifeline",
+          "senior",
+          "disabled",
+          "electric",
+          "gas",
+          "utility credit",
+          "njsave",
+          "paad",
+          "older adults"
+        ],
+        "verification_status": "VERIFIED",
+        "last_verified_at": "2026-10-10T19:58:56.610088Z",
+        "active_rule_version": "2026.1",
+        "sources": [
+          {
+            "id": "nj-lifeline-eligibility-2026",
+            "url": "https://www.nj.gov/humanservices/doas/services/l-p/lifeline-utility/",
+            "title": "Lifeline Utility Assistance",
+            "publisher": "New Jersey Department of Human Services, Division of Aging Services",
+            "excerpt": "Lifeline is a utility assistance program for older adults and people with disabilities that offers a $225 annual benefit to persons who meet the PAAD eligibility requirements or who receive Supplemental Security Income (SSI). This includes utility customers as well as tenants whose utility bills are included in their rent.\nLifeline consists of three programs:\nThe Lifeline Credit Program provides a $225 annual benefit in the form of a credit on electric and gas utility bills for eligible beneficiaries.\nThe Tenants Lifeline Assistance Program provides a $225 annual benefit in the form of a check to eligible tenants who have the cost of gas and electric utilities included in their rent.\nThe Special Utility Supplement provides a supplement of up to $18.75 a month to recipients of Supplemental Security Income (SSI) in place of a Lifeline Utility credit or Tenants Lifeline Assistance payment.\nIn order to be eligible for Lifeline, beneficiaries must:\nBe a recipient of Pharmaceutical Assistance to the Aged and Disabled (PAAD) or meet the PAAD eligibility requirements; or\nBe a recipient of either Medical Assistance to the Aged (MAA), Medical Assistance Only (MAO) or New Jersey Care.\nFor 2026, in order to be eligible for PAAD, you must:\nBe a New Jersey resident;\nBe age 65 or older or between ages 18 and 64 and receiving Social Security Disability; and\nHave income less than $54,943 if single or less than $62,390 if married.",
+            "retrieved_at": "2026-10-10T19:58:55.741286Z",
+            "content_hash": "e4669b3f0c4215b3b81dfd4fdcc7627239a7e7ee0fbffba3400c901513cfe312",
+            "freshness": "FRESH"
+          },
+          {
+            "id": "njbpu-lifeline-income-limits-2026",
+            "url": "https://www.nj.gov/bpu/assistance/programs/",
+            "title": "Utility Assistance Programs - Income Limit Information",
+            "publisher": "New Jersey Board of Public Utilities",
+            "excerpt": "If you are having trouble affording your utility bills, help is available. New Jersey offers a diverse portfolio of utility assistance and energy efficiency programs for low- and moderate-income households. See income limits and program information below:\nHousehold Size\nPAGE*\nUSF/LIHEAP\nLifeline **\nComfort Partners\n1\n$85,455\n$51,273\n$54,943\n$39,900\n2\n$111,749\n$67,049\n$62,390\n$54,100\n3\n$138,043\n$82,825\n$68,300\n4\n$164,337\n$98,602\n$82,500\n5\n$190,631\n$114,378\n$96,700\n6\n$216,925\n$130,154\n$110,900\n7\n$221,855\n$133,112\n$125,100\n8\n$226,785\n$136,070\n$139,300\n*If you are income eligible for USF/LIHEAP, apply for those programs first. Then, if still in need, seek additional assistance from the PAGE program.\n**Lifeline determines income in terms of married or single only and is for seniors and the disabled.",
+            "retrieved_at": "2026-10-10T19:58:55.800008Z",
+            "content_hash": "b56ad38ea47476a47acfa89af24687092df1ba62b8df67a8ebc4b24dc15a4052",
+            "freshness": "FRESH"
+          }
+        ]
+      },
+      "rule_version": {
+        "version": "2026.1",
+        "program_slug": "nj-lifeline-utility-credit",
+        "effective_from": "2026-10-10",
+        "effective_to": null,
+        "root": {
+          "description": "Lifeline Utility Assistance preliminary eligibility screen",
+          "source_ids": [
+            "nj-lifeline-eligibility-2026",
+            "njbpu-lifeline-income-limits-2026"
+          ],
+          "kind": "all_of",
+          "conditions": [
+            {
+              "description": "You are a New Jersey resident and this is your primary home.",
+              "source_ids": [
+                "nj-lifeline-eligibility-2026"
+              ],
+              "kind": "geography",
+              "states": [
+                "NJ"
+              ],
+              "counties": []
+            },
+            {
+              "description": "You are 65 or older, or you are 18 to 64 and receive Social Security Disability.",
+              "source_ids": [
+                "nj-lifeline-eligibility-2026"
+              ],
+              "kind": "any_of",
+              "conditions": [
+                {
+                  "description": "You are 65 or older.",
+                  "source_ids": [
+                    "nj-lifeline-eligibility-2026"
+                  ],
+                  "kind": "age",
+                  "min": 65,
+                  "max": null
+                },
+                {
+                  "description": "You receive Social Security Disability.",
+                  "source_ids": [
+                    "nj-lifeline-eligibility-2026"
+                  ],
+                  "kind": "flag",
+                  "flag": "receives_ssdi",
+                  "expected": true
+                }
+              ]
+            },
+            {
+              "description": "Your income is under $54,943 if you are single or under $62,390 if you are married.",
+              "source_ids": [
+                "nj-lifeline-eligibility-2026",
+                "njbpu-lifeline-income-limits-2026"
+              ],
+              "kind": "any_of",
+              "conditions": [
+                {
+                  "description": "Your household has 1 person and a yearly income of $54,943 or less.",
+                  "source_ids": [
+                    "nj-lifeline-eligibility-2026",
+                    "njbpu-lifeline-income-limits-2026"
+                  ],
+                  "kind": "all_of",
+                  "conditions": [
+                    {
+                      "description": "Your household has 1 person.",
+                      "source_ids": [
+                        "nj-lifeline-eligibility-2026",
+                        "njbpu-lifeline-income-limits-2026"
+                      ],
+                      "kind": "household_size",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "description": "Your household earns $54,943 a year or less.",
+                      "source_ids": [
+                        "nj-lifeline-eligibility-2026",
+                        "njbpu-lifeline-income-limits-2026"
+                      ],
+                      "kind": "income_absolute",
+                      "max_monthly_cents": null,
+                      "max_annual_cents": 5494300
+                    }
+                  ]
+                },
+                {
+                  "description": "Your household has 2 people and a yearly income of $62,390 or less.",
+                  "source_ids": [
+                    "nj-lifeline-eligibility-2026",
+                    "njbpu-lifeline-income-limits-2026"
+                  ],
+                  "kind": "all_of",
+                  "conditions": [
+                    {
+                      "description": "Your household has 2 people.",
+                      "source_ids": [
+                        "nj-lifeline-eligibility-2026",
+                        "njbpu-lifeline-income-limits-2026"
+                      ],
+                      "kind": "household_size",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "description": "Your household earns $62,390 a year or less.",
+                      "source_ids": [
+                        "nj-lifeline-eligibility-2026",
+                        "njbpu-lifeline-income-limits-2026"
+                      ],
+                      "kind": "income_absolute",
+                      "max_monthly_cents": null,
+                      "max_annual_cents": 6239000
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "source_ids": [
+          "nj-lifeline-eligibility-2026",
+          "njbpu-lifeline-income-limits-2026"
+        ],
+        "review_status": "APPROVED",
+        "limitations": [
+          "The official wording is income 'less than' $54,943 single and $62,390 married; this screen compares at or below those amounts, so an income exactly at the limit is treated more generously here than the programme does.",
+          "Income is assessed as single or married rather than by household size. This screen maps a one-person household to the single figure and a two-person household to the married figure, which is how the Board of Public Utilities prints the same limits.",
+          "People who receive Medical Assistance to the Aged, Medical Assistance Only or New Jersey Care also qualify, and those recipients are sent an application automatically each August. Those routes are not encoded.",
+          "Supplemental Security Income recipients should not apply - the benefit is already included in the SSI payment.",
+          "Only one application per household is accepted, and only for a primary residence."
+        ],
+        "reviewed_by": "secondchance-curation",
+        "reviewed_at": "2026-10-10T19:58:56.610088Z"
+      },
+      "limitations": [
+        "The official wording is income 'less than' $54,943 single and $62,390 married; this screen compares at or below those amounts, so an income exactly at the limit is treated more generously here than the programme does.",
+        "Income is assessed as single or married rather than by household size. This screen maps a one-person household to the single figure and a two-person household to the married figure, which is how the Board of Public Utilities prints the same limits.",
+        "People who receive Medical Assistance to the Aged, Medical Assistance Only or New Jersey Care also qualify, and those recipients are sent an application automatically each August. Those routes are not encoded.",
+        "Supplemental Security Income recipients should not apply - the benefit is already included in the SSI payment.",
+        "Only one application per household is accepted, and only for a primary residence."
+      ]
+    },
+    {
+      "program": {
+        "id": "20834eed-9031-5aff-b15e-89adc48c9d02",
+        "slug": "nj-shares-energy-assistance",
+        "official_name": "NJ SHARES Energy Assistance Grant",
+        "administering_org": "SHARES Nation, Inc.",
+        "category": "UTILITIES",
+        "description": "The NJ SHARES Energy Assistance Grant provides up to $700 per utility towards natural gas and/or electric service for income qualified New Jersey households that are in a temporary financial crisis. SHARES Nation also runs a SMART utility grant for households that do not qualify for federal or state programmes or still need help after receiving them, a municipal utility grant covering electric, sewer and water, and water bill programmes with AQUA New Jersey and New Jersey American Water.",
+        "plain_language_summary": "NJ SHARES gives grants of up to $700 per utility to households that hit a temporary money crisis and cannot pay their gas or electric bill. There are also SHARES grants for water, sewer and municipal utility bills.",
+        "who_it_helps": [
+          "Households in a temporary financial crisis",
+          "Households that do not qualify for USF, LIHEAP or PAGE",
+          "Households that still owe money after other help",
+          "Customers with water or sewer bills they cannot pay"
+        ],
+        "geo_scope": {
+          "nationwide": false,
+          "states": [
+            "NJ"
+          ],
+          "counties": [],
+          "campuses": [],
+          "label": "All of New Jersey"
+        },
+        "official_url": "https://sharesnation.org/programs/",
+        "application_url": "https://sharesnation.org/",
+        "phone": "866-657-4273",
+        "keywords": [
+          "nj shares",
+          "shares nation",
+          "energy grant",
+          "water bill",
+          "sewer",
+          "utility",
+          "crisis",
+          "arrears"
+        ],
+        "verification_status": "NEEDS_REVIEW",
+        "last_verified_at": "2026-10-10T19:58:56.610088Z",
+        "active_rule_version": null,
+        "sources": [
+          {
+            "id": "shares-assistance-programs-2026",
+            "url": "https://sharesnation.org/programs/",
+            "title": "SHARES Assistance Programs",
+            "publisher": "SHARES Nation, Inc.",
+            "excerpt": "NJ SHARES Energy Assistance Grant\nEnergy\nUp to $700 per utility for natural gas and/or electric service\nAssisting income qualified New Jersey households who are in a temporary financial crisis and in need of electric and/or gas payment assistance",
+            "retrieved_at": "2026-10-10T19:58:55.926229Z",
+            "content_hash": "da57cab9b42c86d266a54f51faa0a1746a15fa66b8c55603600c0faa4fa78934",
+            "freshness": "FRESH"
+          }
+        ]
+      },
+      "rule_version": {
+        "version": "2026.1",
+        "program_slug": "nj-shares-energy-assistance",
+        "effective_from": "2026-10-10",
+        "effective_to": null,
+        "root": {
+          "description": "NJ SHARES coverage - informational screen only",
+          "source_ids": [
+            "shares-assistance-programs-2026"
+          ],
+          "kind": "all_of",
+          "conditions": [
+            {
+              "description": "You are a New Jersey household with a utility bill you cannot pay.",
+              "source_ids": [
+                "shares-assistance-programs-2026"
+              ],
+              "kind": "geography",
+              "states": [
+                "NJ"
+              ],
+              "counties": []
+            }
+          ]
+        },
+        "source_ids": [
+          "shares-assistance-programs-2026"
+        ],
+        "review_status": "PENDING_REVIEW",
+        "limitations": [
+          "The official programme table says grants go to 'income qualified' households but does not publish the income limits, and the 'temporary financial crisis' test is judged case by case. No income rule is encoded and this record must not be used to assess anybody - it is a referral only.",
+          "Each grant has its own rules and its own application. Call or use the self-screening tool on the official site."
+        ],
+        "reviewed_by": null,
+        "reviewed_at": null
+      },
+      "limitations": [
+        "The official programme table says grants go to 'income qualified' households but does not publish the income limits, and the 'temporary financial crisis' test is judged case by case. No income rule is encoded and this record must not be used to assess anybody - it is a referral only.",
+        "Each grant has its own rules and its own application. Call or use the self-screening tool on the official site."
+      ]
+    },
+    {
+      "program": {
+        "id": "545fc37a-bcd2-567b-b0dd-3d66db526ea2",
+        "slug": "nj-winter-termination-program",
+        "official_name": "Winter Termination Program",
+        "administering_org": "New Jersey Board of Public Utilities",
+        "category": "UTILITIES",
+        "description": "The Winter Termination Program protects specific categories of utility customers from having their water, wastewater, gas or electricity shut off between November 15 and March 15 each year. The protected categories include recipients of the Lifeline Credit Program, the federal Home Energy Assistance Program, TANF, Supplemental Security Income, Pharmaceutical Assistance to the Aged and Disabled, General Assistance and the Universal Service Fund, applicants to water assistance programmes, and residential customers who cannot pay because of circumstances beyond their control such as unemployment, illness, medical expenses or a recent death in the family. Customers must call their utility to request the protection and may self-certify an inability to pay.",
+        "plain_language_summary": "Between November 15 and March 15, your gas, electric, water or sewer service cannot be shut off if you are in one of the protected groups - including people who simply cannot pay because of something outside their control, like losing a job or getting sick. Call your utility and ask for Winter Termination Program protection.",
+        "who_it_helps": [
+          "Households facing a winter shut-off",
+          "People receiving TANF, SSI, General Assistance, USF, LIHEAP or Lifeline",
+          "People who cannot pay because of job loss, illness or a death in the family"
+        ],
+        "geo_scope": {
+          "nationwide": false,
+          "states": [
+            "NJ"
+          ],
+          "counties": [],
+          "campuses": [],
+          "label": "All of New Jersey"
+        },
+        "official_url": "https://www.nj.gov/bpu/assistance/programs/",
+        "application_url": null,
+        "phone": "(800) 624-0241",
+        "keywords": [
+          "winter termination",
+          "shut off",
+          "disconnection",
+          "moratorium",
+          "utility",
+          "protection",
+          "reconnect"
+        ],
+        "verification_status": "VERIFIED",
+        "last_verified_at": "2026-10-10T19:58:56.610088Z",
+        "active_rule_version": "2026.1",
+        "sources": [
+          {
+            "id": "njbpu-winter-termination-2026",
+            "url": "https://www.nj.gov/bpu/assistance/programs/",
+            "title": "Utility Assistance Programs - Winter Termination Program",
+            "publisher": "New Jersey Board of Public Utilities",
+            "excerpt": "The Winter Termination Program protects specific categories of customers from having their water, wastewater, gas or electricity shut off between November 15 and March 15 of each year.\nThese categories include:\n1. Recipients of benefits under the Lifeline Credit Program;\n2. Recipients of benefits under the Federal Home Energy Assistance Program (HEAP);\n3. Recipients of Temporary Assistance to Needy Families (TANF);\n4. Recipients of Federal Supplemental Security Income (SSI);\n5. Recipients of Pharmaceutical Assistance to the Aged and Disabled (PAAD);\n6. Recipients of General Assistance (GA) benefits;\n7. Recipients of the Universal Service Fund (USF);\n8. Applicants of the Low-Income Household Water Assistance Program or any other State, local, or utility program that provides assistance or discounted rates specifically to help eligible customers pay wastewater or water bills that may exist at that time; or\n9. Residential customers who are unable to pay their utility bills because of circumstances beyond their control. Such circumstances shall include, but shall not be limited to, unemployment, illness, medically related expenses, recent death of an immediate family member, and any other circumstances, which might cause financial hardship. These residential customers shall be permitted to self-certify to the utility or Division of Customer Assistance of the Board of an inability to pay their public utility bill.",
+            "retrieved_at": "2026-10-10T19:58:55.800008Z",
+            "content_hash": "b56ad38ea47476a47acfa89af24687092df1ba62b8df67a8ebc4b24dc15a4052",
+            "freshness": "FRESH"
+          }
+        ]
+      },
+      "rule_version": {
+        "version": "2026.1",
+        "program_slug": "nj-winter-termination-program",
+        "effective_from": "2026-10-10",
+        "effective_to": null,
+        "root": {
+          "description": "Winter Termination Program preliminary screen",
+          "source_ids": [
+            "njbpu-winter-termination-2026"
+          ],
+          "kind": "all_of",
+          "conditions": [
+            {
+              "description": "You are a residential utility customer in New Jersey.",
+              "source_ids": [
+                "njbpu-winter-termination-2026"
+              ],
+              "kind": "geography",
+              "states": [
+                "NJ"
+              ],
+              "counties": []
+            },
+            {
+              "description": "You receive TANF or Supplemental Security Income, or you cannot pay your utility bill because of circumstances beyond your control, such as unemployment or illness.",
+              "source_ids": [
+                "njbpu-winter-termination-2026"
+              ],
+              "kind": "any_of",
+              "conditions": [
+                {
+                  "description": "You receive TANF cash assistance.",
+                  "source_ids": [
+                    "njbpu-winter-termination-2026"
+                  ],
+                  "kind": "flag",
+                  "flag": "receives_tanf",
+                  "expected": true
+                },
+                {
+                  "description": "You receive Supplemental Security Income.",
+                  "source_ids": [
+                    "njbpu-winter-termination-2026"
+                  ],
+                  "kind": "flag",
+                  "flag": "receives_ssi",
+                  "expected": true
+                },
+                {
+                  "description": "You are out of work, which counts as a circumstance beyond your control.",
+                  "source_ids": [
+                    "njbpu-winter-termination-2026"
+                  ],
+                  "kind": "flag",
+                  "flag": "receives_unemployment",
+                  "expected": true
+                }
+              ]
+            }
+          ]
+        },
+        "source_ids": [
+          "njbpu-winter-termination-2026"
+        ],
+        "review_status": "APPROVED",
+        "limitations": [
+          "Recipients of the Lifeline Credit Program, LIHEAP, Pharmaceutical Assistance to the Aged and Disabled, General Assistance and the Universal Service Fund also qualify, but the profile does not record those benefits, so only TANF, SSI and an inability to pay caused by circumstances beyond your control are screened here.",
+          "The protection only runs from November 15 to March 15, and it is not automatic: you must call your utility company to request it.",
+          "Protection stops a shut-off; it does not cancel the bill."
+        ],
+        "reviewed_by": "secondchance-curation",
+        "reviewed_at": "2026-10-10T19:58:56.610088Z"
+      },
+      "limitations": [
+        "Recipients of the Lifeline Credit Program, LIHEAP, Pharmaceutical Assistance to the Aged and Disabled, General Assistance and the Universal Service Fund also qualify, but the profile does not record those benefits, so only TANF, SSI and an inability to pay caused by circumstances beyond your control are screened here.",
+        "The protection only runs from November 15 to March 15, and it is not automatic: you must call your utility company to request it.",
+        "Protection stops a shut-off; it does not cancel the bill."
+      ]
+    }
+  ]
+}

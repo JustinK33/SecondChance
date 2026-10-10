@@ -1,0 +1,303 @@
+{
+  "category": "HEALTHCARE",
+  "description": "Health coverage and help with medical and hospital bills.",
+  "programs": [
+    {
+      "program": {
+        "id": "76c5d50f-2e48-5e86-ae95-956c792103e4",
+        "slug": "nj-familycare",
+        "official_name": "NJ FamilyCare",
+        "administering_org": "New Jersey Department of Human Services, Division of Medical Assistance and Health Services",
+        "category": "HEALTHCARE",
+        "description": "NJ FamilyCare is New Jersey's publicly funded health insurance programme and includes CHIP, Medicaid and the Medicaid expansion population. It covers doctor visits, prescriptions, vision, dental care, mental health and substance use services and hospitalisation. Children under 19 qualify with household income up to 355% of the federal poverty level, adults aged 19 to 64 up to 138%, and pregnant people up to 205%. Financial eligibility is based on Modified Adjusted Gross Income taken from the most recent federal tax return.",
+        "plain_language_summary": "NJ FamilyCare is free or low-cost health insurance for New Jersey residents. Children can qualify with family income up to 355% of the federal poverty level, adults up to 138%, and pregnant people up to 205%. Children can qualify no matter their immigration status.",
+        "who_it_helps": [
+          "Children under 19, regardless of immigration status",
+          "Adults aged 19 to 64 with low income",
+          "Pregnant people",
+          "Families who cannot afford private insurance"
+        ],
+        "geo_scope": {
+          "nationwide": false,
+          "states": [
+            "NJ"
+          ],
+          "counties": [],
+          "campuses": [],
+          "label": "All of New Jersey"
+        },
+        "official_url": "https://njfamilycare.dhs.state.nj.us/who_eligbl.aspx",
+        "application_url": "https://dmahs-nj.my.site.com/familycare/quickstart",
+        "phone": "1-800-701-0710",
+        "keywords": [
+          "medicaid",
+          "chip",
+          "health insurance",
+          "njfamilycare",
+          "doctor",
+          "dentist",
+          "prescriptions",
+          "pregnant",
+          "children",
+          "healthcare"
+        ],
+        "verification_status": "VERIFIED",
+        "last_verified_at": "2026-10-10T19:58:56.610088Z",
+        "active_rule_version": "2026.1",
+        "sources": [
+          {
+            "id": "nj-familycare-eligibility-page-2026",
+            "url": "https://njfamilycare.dhs.state.nj.us/who_eligbl.aspx",
+            "title": "NJ FamilyCare - Who Is Eligible?",
+            "publisher": "New Jersey Department of Human Services, Division of Medical Assistance and Health Services",
+            "excerpt": "NJ FamilyCare includes New Jersey residents; all are eligible to apply.\nFinancial eligibility will be determined by the latest\nfederal tax return which, when filed, will be electronically verified.\nChildren under 19 are eligible with higher incomes up to 355% of the Federal Poverty Level (FPL) ($9,763/month for a family of four).\nParents still need to renew the coverage each year. Children can qualify regardless of their immigration status.\nAdults age 19-64 with income up to 138% FPL ($1,836/month for a single person and $2,489/month for a couple).\nIn general, non-citizen adults must have Lawful Permanent Resident status in the United States for at least 5 years from the\ndate of qualifying immigration status in order to qualify for NJ FamilyCare. However, there are some exceptions to the 5-year rule.\nLawfully present pregnant women and lawfully present non-citizens age 19 and 20 can qualify, regardless of the date that they entered the United States.\nPregnant people with income up to 205% FPL ($5,638/month for a family of four).\n\nFinancial eligibility for individuals seeking eligibility for NJ FamilyCare will be based on their Modified Adjusted Gross Income or MAGI.\nThis means the income and household size will be determined by their latest federal tax return which when filed, can be electronically\nverified. The tax-based household size provides a simplified income calculation.",
+            "retrieved_at": "2026-10-10T19:58:55.659212Z",
+            "content_hash": "6380082b15e26bb4318610665961373389c3c2b39694bde499925ab8be91e844",
+            "freshness": "FRESH"
+          }
+        ]
+      },
+      "rule_version": {
+        "version": "2026.1",
+        "program_slug": "nj-familycare",
+        "effective_from": "2026-10-10",
+        "effective_to": null,
+        "root": {
+          "description": "NJ FamilyCare preliminary eligibility screen",
+          "source_ids": [
+            "nj-familycare-eligibility-page-2026"
+          ],
+          "kind": "all_of",
+          "conditions": [
+            {
+              "description": "You are a New Jersey resident.",
+              "source_ids": [
+                "nj-familycare-eligibility-page-2026"
+              ],
+              "kind": "geography",
+              "states": [
+                "NJ"
+              ],
+              "counties": []
+            },
+            {
+              "description": "You fall into one of the covered groups and your household income is at or below that group's limit: children under 19 up to 355% of the federal poverty level, adults aged 19 to 64 up to 138%, and pregnant people up to 205%.",
+              "source_ids": [
+                "nj-familycare-eligibility-page-2026"
+              ],
+              "kind": "any_of",
+              "conditions": [
+                {
+                  "description": "You are under 19 and your household income is at or below 355% of the federal poverty level.",
+                  "source_ids": [
+                    "nj-familycare-eligibility-page-2026"
+                  ],
+                  "kind": "all_of",
+                  "conditions": [
+                    {
+                      "description": "You are under 19.",
+                      "source_ids": [
+                        "nj-familycare-eligibility-page-2026"
+                      ],
+                      "kind": "age",
+                      "min": null,
+                      "max": 18
+                    },
+                    {
+                      "description": "Your household income is at or below 355% of the federal poverty level.",
+                      "source_ids": [
+                        "nj-familycare-eligibility-page-2026"
+                      ],
+                      "kind": "income_fpl",
+                      "max_pct_fpl": 355.0,
+                      "fpl_year": 2026,
+                      "household_definition": "the income and household size will be determined by their latest federal tax return"
+                    }
+                  ]
+                },
+                {
+                  "description": "You are an adult aged 19 to 64 and your household income is at or below 138% of the federal poverty level.",
+                  "source_ids": [
+                    "nj-familycare-eligibility-page-2026"
+                  ],
+                  "kind": "all_of",
+                  "conditions": [
+                    {
+                      "description": "You are between 19 and 64.",
+                      "source_ids": [
+                        "nj-familycare-eligibility-page-2026"
+                      ],
+                      "kind": "age",
+                      "min": 19,
+                      "max": 64
+                    },
+                    {
+                      "description": "Your household income is at or below 138% of the federal poverty level.",
+                      "source_ids": [
+                        "nj-familycare-eligibility-page-2026"
+                      ],
+                      "kind": "income_fpl",
+                      "max_pct_fpl": 138.0,
+                      "fpl_year": 2026,
+                      "household_definition": "the income and household size will be determined by their latest federal tax return"
+                    }
+                  ]
+                },
+                {
+                  "description": "You are pregnant and your household income is at or below 205% of the federal poverty level.",
+                  "source_ids": [
+                    "nj-familycare-eligibility-page-2026"
+                  ],
+                  "kind": "all_of",
+                  "conditions": [
+                    {
+                      "description": "You are pregnant.",
+                      "source_ids": [
+                        "nj-familycare-eligibility-page-2026"
+                      ],
+                      "kind": "flag",
+                      "flag": "is_pregnant",
+                      "expected": true
+                    },
+                    {
+                      "description": "Your household income is at or below 205% of the federal poverty level.",
+                      "source_ids": [
+                        "nj-familycare-eligibility-page-2026"
+                      ],
+                      "kind": "income_fpl",
+                      "max_pct_fpl": 205.0,
+                      "fpl_year": 2026,
+                      "household_definition": "the income and household size will be determined by their latest federal tax return"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "source_ids": [
+          "nj-familycare-eligibility-page-2026"
+        ],
+        "review_status": "APPROVED",
+        "limitations": [
+          "Immigration status rules are not encoded. Non-citizen adults generally need five years of Lawful Permanent Resident status, with exceptions, while children under 19 and lawfully present pregnant people qualify regardless of entry date.",
+          "People over 65, people who are blind or have a disability, people in long term care and adults aged 19 to 64 with Medicare are covered by a different set of rules that this record does not describe.",
+          "The official page carries a notice that the rules to qualify change starting Fall 2026, so re-read it before relying on these thresholds."
+        ],
+        "reviewed_by": "secondchance-curation",
+        "reviewed_at": "2026-10-10T19:58:56.610088Z"
+      },
+      "limitations": [
+        "Immigration status rules are not encoded. Non-citizen adults generally need five years of Lawful Permanent Resident status, with exceptions, while children under 19 and lawfully present pregnant people qualify regardless of entry date.",
+        "People over 65, people who are blind or have a disability, people in long term care and adults aged 19 to 64 with Medicare are covered by a different set of rules that this record does not describe.",
+        "The official page carries a notice that the rules to qualify change starting Fall 2026, so re-read it before relying on these thresholds."
+      ]
+    },
+    {
+      "program": {
+        "id": "f4f94b89-4f4d-5915-8d05-8611881bf679",
+        "slug": "nj-charity-care",
+        "official_name": "New Jersey Hospital Care Payment Assistance Program (Charity Care)",
+        "administering_org": "New Jersey Department of Health, Charity Care Unit",
+        "category": "HEALTHCARE",
+        "description": "Charity Care reduces or cancels hospital bills for inpatient and outpatient medically necessary services at every acute care hospital in New Jersey. It is not health insurance. The share of the bill a patient pays is set by household income as a percentage of the federal poverty guidelines: nothing at or below 200%, rising in steps to the full amount above 300%. Assets must not exceed $7,500 for an individual or $15,000 for a family, and applicants must first be screened for Medicaid and other coverage. Applications are made at the hospital.",
+        "plain_language_summary": "If you got care at a New Jersey hospital and cannot pay the bill, Charity Care can cut it or wipe it out. You pay nothing if your household income is at or below 200% of the federal poverty guidelines, and less than full price up to 300%. Apply at the hospital's business or admissions office.",
+        "who_it_helps": [
+          "People with no health coverage or coverage that pays only part of a bill",
+          "People who were turned down for Medicaid",
+          "People facing a hospital bill they cannot pay"
+        ],
+        "geo_scope": {
+          "nationwide": false,
+          "states": [
+            "NJ"
+          ],
+          "counties": [],
+          "campuses": [],
+          "label": "All New Jersey acute care hospitals"
+        },
+        "official_url": "https://www.nj.gov/health/hcf/charity-care/overview/",
+        "application_url": null,
+        "phone": null,
+        "keywords": [
+          "charity care",
+          "hospital bill",
+          "medical debt",
+          "uninsured",
+          "hospital",
+          "payment assistance",
+          "healthcare"
+        ],
+        "verification_status": "VERIFIED",
+        "last_verified_at": "2026-10-10T19:58:56.610088Z",
+        "active_rule_version": "2026.1",
+        "sources": [
+          {
+            "id": "nj-charity-care-eligibility-2026",
+            "url": "https://www.nj.gov/health/hcf/charity-care/overview/",
+            "title": "New Jersey Charity Care (Hospital Care Payment Assistance) - Overview",
+            "publisher": "New Jersey Department of Health, Charity Care Unit",
+            "excerpt": "Hospital care payment assistance is available to New Jersey residents who:\nHave no health coverage, or have coverage that pays only part of the bill\nAre not eligible for Medicaid or any other medical assistance program\nMeet the income and asset criteria below\nApplicants must provide proof of New Jersey residency at the time of service. Assistance may also be available to non-New Jersey residents under specific conditions.\nIncome Guidelines\nThe amount you pay is based on your household income as a percentage of the federal poverty guidelines .\nIncome (% of HHS Federal Poverty Income Guidelines)\nPatient Share of Bill\n200% or below\n0%\n201% to 225%\n20%\n226% to 250%\n40%\n251% to 275%\n60%\n276% to 300%\n80%\nAbove 300%\n100%\nIf your income falls between 200% and 300% of the federal poverty guidelines and your out-of-pocket medical expenses exceed 30% of your gross annual income, the amount above that threshold may qualify for assistance.\nAsset Limits\nTo qualify, your assets must not exceed the following limits:\nIndividual: $7,500\nFamily: $15,000",
+            "retrieved_at": "2026-10-10T19:58:55.631344Z",
+            "content_hash": "f2a195ba176ccb4215b6f40067eee89c0997425c53d5aa34293f8b343d757a41",
+            "freshness": "FRESH"
+          }
+        ]
+      },
+      "rule_version": {
+        "version": "2026.1",
+        "program_slug": "nj-charity-care",
+        "effective_from": "2026-10-10",
+        "effective_to": null,
+        "root": {
+          "description": "Charity Care preliminary eligibility screen",
+          "source_ids": [
+            "nj-charity-care-eligibility-2026"
+          ],
+          "kind": "all_of",
+          "conditions": [
+            {
+              "description": "You are a New Jersey resident and can prove it at the time of service.",
+              "source_ids": [
+                "nj-charity-care-eligibility-2026"
+              ],
+              "kind": "geography",
+              "states": [
+                "NJ"
+              ],
+              "counties": []
+            },
+            {
+              "description": "Your household income is at or below 300% of the federal poverty guidelines. The bill is fully covered at or below 200%, and partly covered between 201% and 300%.",
+              "source_ids": [
+                "nj-charity-care-eligibility-2026"
+              ],
+              "kind": "income_fpl",
+              "max_pct_fpl": 300.0,
+              "fpl_year": 2026,
+              "household_definition": "your household income as a percentage of the federal poverty guidelines"
+            }
+          ]
+        },
+        "source_ids": [
+          "nj-charity-care-eligibility-2026"
+        ],
+        "review_status": "APPROVED",
+        "limitations": [
+          "The asset limits - $7,500 for an individual and $15,000 for a family - are a real requirement but are not encoded, because the profile does not record assets.",
+          "The benefit is a sliding scale, not a yes or no: the bill is fully covered at or below 200% of the federal poverty guidelines and partly covered up to 300%.",
+          "You must first be screened by the hospital for insurance, Medicaid or other medical assistance, and only apply for Charity Care after being found ineligible for those.",
+          "The hospital where you were treated makes the determination, not the state."
+        ],
+        "reviewed_by": "secondchance-curation",
+        "reviewed_at": "2026-10-10T19:58:56.610088Z"
+      },
+      "limitations": [
+        "The asset limits - $7,500 for an individual and $15,000 for a family - are a real requirement but are not encoded, because the profile does not record assets.",
+        "The benefit is a sliding scale, not a yes or no: the bill is fully covered at or below 200% of the federal poverty guidelines and partly covered up to 300%.",
+        "You must first be screened by the hospital for insurance, Medicaid or other medical assistance, and only apply for Charity Care after being found ineligible for those.",
+        "The hospital where you were treated makes the determination, not the state."
+      ]
+    }
+  ]
+}

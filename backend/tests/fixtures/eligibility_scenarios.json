@@ -1,0 +1,1276 @@
+{
+  "fixture_version": 1,
+  "disclaimer": "Hand-labelled test data. Every person here is FICTIONAL and no profile contains real personal information. The rule sets are illustrative encodings written to exercise the engine; they are not a published eligibility determination and must not be shown to a user or used as a citation.",
+  "how_to_read": "Each scenario's expected status is derivable from the rule sets in this file alone, using the 2026 HHS poverty guidelines for the 48 contiguous states (https://aspe.hhs.gov/topics/poverty-economic-mobility/poverty-guidelines). POTENTIAL_MATCH means the root condition resolved TRUE, MORE_INFO_NEEDED means UNKNOWN, and UNLIKELY_MATCH means FALSE.",
+  "fpl_year": 2026,
+  "evaluated_on": "2026-10-10T12:00:00Z",
+  "thresholds_for_reference": {
+    "2026 annual guideline, 48 states": {
+      "1": 1596000,
+      "2": 2164000,
+      "3": 2732000,
+      "4": 3300000,
+      "5": 3868000,
+      "6": 4436000,
+      "7": 5004000,
+      "8": 5572000
+    },
+    "note": "Values are integer cents. 185%, 200% and 300% thresholds round up to the cent."
+  },
+  "rulesets": [
+    {
+      "version": "2026.1",
+      "program_slug": "nj-snap",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "root": {
+        "description": "You meet all of these to be a potential match for food benefits",
+        "source_ids": [],
+        "kind": "all_of",
+        "conditions": [
+          {
+            "description": "You live in New Jersey",
+            "source_ids": [
+              "fixture-nj-snap-rules"
+            ],
+            "kind": "geography",
+            "states": [
+              "NJ"
+            ],
+            "counties": []
+          },
+          {
+            "description": "Your household income is at or below 185% of the federal poverty level",
+            "source_ids": [
+              "fixture-nj-snap-rules"
+            ],
+            "kind": "income_fpl",
+            "max_pct_fpl": 185.0,
+            "fpl_year": 2026,
+            "household_definition": "Everyone who buys and prepares food together"
+          },
+          {
+            "description": "You are not a full-time student, or a student rule does not apply to you",
+            "source_ids": [
+              "fixture-nj-snap-rules"
+            ],
+            "kind": "any_of",
+            "conditions": [
+              {
+                "description": "You are not enrolled as a student",
+                "source_ids": [],
+                "kind": "student_status",
+                "allowed": [
+                  "NOT_A_STUDENT",
+                  "OTHER"
+                ]
+              },
+              {
+                "description": "There are children under 18 in your household",
+                "source_ids": [],
+                "kind": "flag",
+                "flag": "has_children",
+                "expected": true
+              },
+              {
+                "description": "You have a disability",
+                "source_ids": [],
+                "kind": "flag",
+                "flag": "is_disabled",
+                "expected": true
+              },
+              {
+                "description": "You are working",
+                "source_ids": [],
+                "kind": "categorical",
+                "field": "employment_status",
+                "any_of": [
+                  "EMPLOYED_FULL_TIME",
+                  "EMPLOYED_PART_TIME",
+                  "SELF_EMPLOYED"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "source_ids": [
+        "fixture-nj-snap-rules"
+      ],
+      "review_status": "APPROVED",
+      "limitations": [
+        "These requirements are fixture data for engine tests. They are illustrative, not a published eligibility determination."
+      ],
+      "reviewed_by": null,
+      "reviewed_at": "2026-09-01T00:00:00Z"
+    },
+    {
+      "version": "2026.1",
+      "program_slug": "nj-familycare",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "root": {
+        "description": "You meet all of these to be a potential match for health coverage",
+        "source_ids": [],
+        "kind": "all_of",
+        "conditions": [
+          {
+            "description": "You live in New Jersey",
+            "source_ids": [],
+            "kind": "geography",
+            "states": [
+              "NJ"
+            ],
+            "counties": []
+          },
+          {
+            "description": "Your household income is at or below 200% of the federal poverty level",
+            "source_ids": [],
+            "kind": "income_fpl",
+            "max_pct_fpl": 200.0,
+            "fpl_year": 2026,
+            "household_definition": "Everyone you claim on your tax return"
+          },
+          {
+            "description": "You are not already enrolled in Medicaid or NJ FamilyCare",
+            "source_ids": [],
+            "kind": "not",
+            "condition": {
+              "description": "You already have Medicaid or NJ FamilyCare",
+              "source_ids": [],
+              "kind": "flag",
+              "flag": "receives_medicaid",
+              "expected": true
+            }
+          }
+        ]
+      },
+      "source_ids": [
+        "fixture-nj-familycare-rules"
+      ],
+      "review_status": "APPROVED",
+      "limitations": [
+        "These requirements are fixture data for engine tests. They are illustrative, not a published eligibility determination."
+      ],
+      "reviewed_by": null,
+      "reviewed_at": "2026-09-01T00:00:00Z"
+    },
+    {
+      "version": "2026.1",
+      "program_slug": "nj-usf",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "root": {
+        "description": "You meet all of these to be a potential match for utility bill help",
+        "source_ids": [],
+        "kind": "all_of",
+        "conditions": [
+          {
+            "description": "You live in New Jersey",
+            "source_ids": [],
+            "kind": "geography",
+            "states": [
+              "NJ"
+            ],
+            "counties": []
+          },
+          {
+            "description": "Your household brings in $4,000 a month or less",
+            "source_ids": [],
+            "kind": "income_absolute",
+            "max_monthly_cents": 400000,
+            "max_annual_cents": null
+          },
+          {
+            "description": "You are responsible for a utility bill, or you have a shut-off notice",
+            "source_ids": [],
+            "kind": "any_of",
+            "conditions": [
+              {
+                "description": "You have received a shut-off notice from a utility company",
+                "source_ids": [],
+                "kind": "flag",
+                "flag": "has_utility_shutoff_notice",
+                "expected": true
+              },
+              {
+                "description": "You rent, own or share a home with a utility bill",
+                "source_ids": [],
+                "kind": "categorical",
+                "field": "housing_situation",
+                "any_of": [
+                  "RENTING",
+                  "OWN_HOME",
+                  "LIVING_WITH_FAMILY"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "source_ids": [
+        "fixture-nj-usf-rules"
+      ],
+      "review_status": "APPROVED",
+      "limitations": [
+        "These requirements are fixture data for engine tests. They are illustrative, not a published eligibility determination."
+      ],
+      "reviewed_by": null,
+      "reviewed_at": "2026-09-01T00:00:00Z"
+    },
+    {
+      "version": "2026.1",
+      "program_slug": "rutgers-student-food-pantry",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "root": {
+        "description": "You meet both of these to use the campus food pantry",
+        "source_ids": [],
+        "kind": "all_of",
+        "conditions": [
+          {
+            "description": "You are part of the Rutgers community",
+            "source_ids": [],
+            "kind": "flag",
+            "flag": "is_rutgers_affiliated",
+            "expected": true
+          },
+          {
+            "description": "You are currently enrolled at Rutgers",
+            "source_ids": [],
+            "kind": "student_status",
+            "allowed": [
+              "UNDERGRAD_FULL_TIME",
+              "UNDERGRAD_PART_TIME",
+              "GRADUATE"
+            ]
+          }
+        ]
+      },
+      "source_ids": [
+        "fixture-rutgers-pantry-rules"
+      ],
+      "review_status": "APPROVED",
+      "limitations": [
+        "These requirements are fixture data for engine tests. They are illustrative, not a published eligibility determination."
+      ],
+      "reviewed_by": null,
+      "reviewed_at": "2026-09-01T00:00:00Z"
+    },
+    {
+      "version": "2026.1",
+      "program_slug": "nj-eitc",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "root": {
+        "description": "You meet all of these to be a potential match for the state tax credit",
+        "source_ids": [],
+        "kind": "all_of",
+        "conditions": [
+          {
+            "description": "You live in New Jersey",
+            "source_ids": [],
+            "kind": "geography",
+            "states": [
+              "NJ"
+            ],
+            "counties": []
+          },
+          {
+            "description": "You are 18 or older",
+            "source_ids": [],
+            "kind": "age",
+            "min": 18,
+            "max": null
+          },
+          {
+            "description": "Your household income is at or below 300% of the federal poverty level",
+            "source_ids": [],
+            "kind": "income_fpl",
+            "max_pct_fpl": 300.0,
+            "fpl_year": 2026,
+            "household_definition": "Everyone on the tax return"
+          },
+          {
+            "description": "You filed a tax return last year",
+            "source_ids": [],
+            "kind": "flag",
+            "flag": "filed_taxes_last_year",
+            "expected": true
+          }
+        ]
+      },
+      "source_ids": [
+        "fixture-nj-eitc-rules"
+      ],
+      "review_status": "APPROVED",
+      "limitations": [
+        "These requirements are fixture data for engine tests. They are illustrative, not a published eligibility determination."
+      ],
+      "reviewed_by": null,
+      "reviewed_at": "2026-09-01T00:00:00Z"
+    },
+    {
+      "version": "2026.1",
+      "program_slug": "nj-child-care-subsidy",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "root": {
+        "description": "You meet all of these to be a potential match for child care help",
+        "source_ids": [],
+        "kind": "all_of",
+        "conditions": [
+          {
+            "description": "You live in New Jersey",
+            "source_ids": [],
+            "kind": "geography",
+            "states": [
+              "NJ"
+            ],
+            "counties": []
+          },
+          {
+            "description": "There are children under 18 in your household",
+            "source_ids": [],
+            "kind": "flag",
+            "flag": "has_children",
+            "expected": true
+          },
+          {
+            "description": "Your household has at least two people",
+            "source_ids": [],
+            "kind": "household_size",
+            "min": 2,
+            "max": null
+          },
+          {
+            "description": "Your household income is at or below 200% of the federal poverty level",
+            "source_ids": [],
+            "kind": "income_fpl",
+            "max_pct_fpl": 200.0,
+            "fpl_year": 2026,
+            "household_definition": "The parent or guardian plus the children in their care"
+          }
+        ]
+      },
+      "source_ids": [
+        "fixture-nj-child-care-rules"
+      ],
+      "review_status": "APPROVED",
+      "limitations": [
+        "These requirements are fixture data for engine tests. They are illustrative, not a published eligibility determination."
+      ],
+      "reviewed_by": null,
+      "reviewed_at": "2026-09-01T00:00:00Z"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "S01",
+      "name": "single-parent-low-income-renter",
+      "notes": "A fictional single parent of two in NJ, renting, $2,000 a month, already filed taxes.",
+      "profile": {
+        "state": "NJ",
+        "county": null,
+        "student_status": "NOT_A_STUDENT",
+        "household_size": 3,
+        "household_composition": {
+          "adults": null,
+          "children_under_18": null,
+          "seniors_65_plus": null,
+          "full_time_students": null,
+          "members_with_disability": null
+        },
+        "income_min_cents": 200000,
+        "income_max_cents": 200000,
+        "income_period": "MONTHLY",
+        "employment_status": "EMPLOYED_PART_TIME",
+        "housing_situation": "RENTING",
+        "needs": [],
+        "age": 34,
+        "flags": {
+          "has_children": true,
+          "receives_medicaid": false,
+          "has_utility_shutoff_notice": true,
+          "filed_taxes_last_year": true,
+          "is_rutgers_affiliated": false
+        },
+        "unknown_fields": [],
+        "extras": {}
+      },
+      "expected": {
+        "nj-snap": "POTENTIAL_MATCH",
+        "nj-familycare": "POTENTIAL_MATCH",
+        "nj-usf": "POTENTIAL_MATCH",
+        "rutgers-student-food-pantry": "UNLIKELY_MATCH",
+        "nj-eitc": "POTENTIAL_MATCH",
+        "nj-child-care-subsidy": "POTENTIAL_MATCH"
+      }
+    },
+    {
+      "id": "S02",
+      "name": "rutgers-undergrad-no-income-stated",
+      "notes": "A fictional full-time Rutgers undergraduate who said nothing about money.",
+      "profile": {
+        "state": "NJ",
+        "county": null,
+        "student_status": "UNDERGRAD_FULL_TIME",
+        "household_size": 1,
+        "household_composition": {
+          "adults": null,
+          "children_under_18": null,
+          "seniors_65_plus": null,
+          "full_time_students": null,
+          "members_with_disability": null
+        },
+        "income_min_cents": null,
+        "income_max_cents": null,
+        "income_period": null,
+        "employment_status": null,
+        "housing_situation": null,
+        "needs": [],
+        "age": null,
+        "flags": {
+          "is_rutgers_affiliated": true
+        },
+        "unknown_fields": [],
+        "extras": {}
+      },
+      "expected": {
+        "nj-snap": "MORE_INFO_NEEDED",
+        "nj-familycare": "MORE_INFO_NEEDED",
+        "nj-usf": "MORE_INFO_NEEDED",
+        "rutgers-student-food-pantry": "POTENTIAL_MATCH",
+        "nj-eitc": "MORE_INFO_NEEDED",
+        "nj-child-care-subsidy": "UNLIKELY_MATCH"
+      }
+    },
+    {
+      "id": "S03",
+      "name": "out-of-state-pennsylvania",
+      "notes": "A fictional Pennsylvania household: every NJ-scoped rule fails on geography.",
+      "profile": {
+        "state": "PA",
+        "county": null,
+        "student_status": "NOT_A_STUDENT",
+        "household_size": 2,
+        "household_composition": {
+          "adults": null,
+          "children_under_18": null,
+          "seniors_65_plus": null,
+          "full_time_students": null,
+          "members_with_disability": null
+        },
+        "income_min_cents": 150000,
+        "income_max_cents": 150000,
+        "income_period": "MONTHLY",
+        "employment_status": null,
+        "housing_situation": null,
+        "needs": [],
+        "age": 45,
+        "flags": {
+          "has_children": false,
+          "is_rutgers_affiliated": false,
+          "filed_taxes_last_year": true
+        },
+        "unknown_fields": [],
+        "extras": {}
+      },
+      "expected": {
+        "nj-snap": "UNLIKELY_MATCH",
+        "nj-familycare": "UNLIKELY_MATCH",
+        "nj-usf": "UNLIKELY_MATCH",
+        "rutgers-student-food-pantry": "UNLIKELY_MATCH",
+        "nj-eitc": "UNLIKELY_MATCH",
+        "nj-child-care-subsidy": "UNLIKELY_MATCH"
+      }
+    },
+    {
+      "id": "S04",
+      "name": "out-of-state-rutgers-graduate-student",
+      "notes": "A fictional Rutgers graduate student living in New York: the campus pantry has no geography rule, so it still matches while every state program does not.",
+      "profile": {
+        "state": "NY",
+        "county": null,
+        "student_status": "GRADUATE",
+        "household_size": 1,
+        "household_composition": {
+          "adults": null,
+          "children_under_18": null,
+          "seniors_65_plus": null,
+          "full_time_students": null,
+          "members_with_disability": null
+        },
+        "income_min_cents": 80000,
+        "income_max_cents": 120000,
+        "income_period": "MONTHLY",
+        "employment_status": null,
+        "housing_situation": null,
+        "needs": [],
+        "age": null,
+        "flags": {
+          "is_rutgers_affiliated": true
+        },
+        "unknown_fields": [],
+        "extras": {}
+      },
+      "expected": {
+        "nj-snap": "UNLIKELY_MATCH",
+        "nj-familycare": "UNLIKELY_MATCH",
+        "nj-usf": "UNLIKELY_MATCH",
+        "rutgers-student-food-pantry": "POTENTIAL_MATCH",
+        "nj-eitc": "UNLIKELY_MATCH",
+        "nj-child-care-subsidy": "UNLIKELY_MATCH"
+      }
+    },
+    {
+      "id": "S05",
+      "name": "straddling-income-monthly",
+      "notes": "A fictional couple whose $3,000-$5,000 monthly range crosses the SNAP, FamilyCare and USF limits but clears the tax credit limit.",
+      "profile": {
+        "state": "NJ",
+        "county": null,
+        "student_status": "NOT_A_STUDENT",
+        "household_size": 2,
+        "household_composition": {
+          "adults": null,
+          "children_under_18": null,
+          "seniors_65_plus": null,
+          "full_time_students": null,
+          "members_with_disability": null
+        },
+        "income_min_cents": 300000,
+        "income_max_cents": 500000,
+        "income_period": "MONTHLY",
+        "employment_status": null,
+        "housing_situation": "RENTING",
+        "needs": [],
+        "age": 30,
+        "flags": {
+          "has_children": false,
+          "receives_medicaid": false,
+          "has_utility_shutoff_notice": false,
+          "filed_taxes_last_year": true,
+          "is_rutgers_affiliated": false
+        },
+        "unknown_fields": [],
+        "extras": {}
+      },
+      "expected": {
+        "nj-snap": "MORE_INFO_NEEDED",
+        "nj-familycare": "MORE_INFO_NEEDED",
+        "nj-usf": "MORE_INFO_NEEDED",
+        "rutgers-student-food-pantry": "UNLIKELY_MATCH",
+        "nj-eitc": "POTENTIAL_MATCH",
+        "nj-child-care-subsidy": "UNLIKELY_MATCH"
+      }
+    },
+    {
+      "id": "S06",
+      "name": "straddling-income-annual",
+      "notes": "The same ambiguity stated annually: $25,000-$35,000 a year straddles the SNAP and FamilyCare limits, while the monthly USF limit is clear either way.",
+      "profile": {
+        "state": "NJ",
+        "county": null,
+        "student_status": "NOT_A_STUDENT",
+        "household_size": 1,
+        "household_composition": {
+          "adults": null,
+          "children_under_18": null,
+          "seniors_65_plus": null,
+          "full_time_students": null,
+          "members_with_disability": null
+        },
+        "income_min_cents": 2500000,
+        "income_max_cents": 3500000,
+        "income_period": "ANNUAL",
+        "employment_status": null,
+        "housing_situation": "OWN_HOME",
+        "needs": [],
+        "age": 52,
+        "flags": {
+          "has_children": false,
+          "receives_medicaid": false,
+          "has_utility_shutoff_notice": false,
+          "filed_taxes_last_year": true,
+          "is_rutgers_affiliated": false
+        },
+        "unknown_fields": [],
+        "extras": {}
+      },
+      "expected": {
+        "nj-snap": "MORE_INFO_NEEDED",
+        "nj-familycare": "MORE_INFO_NEEDED",
+        "nj-usf": "POTENTIAL_MATCH",
+        "rutgers-student-food-pantry": "UNLIKELY_MATCH",
+        "nj-eitc": "POTENTIAL_MATCH",
+        "nj-child-care-subsidy": "UNLIKELY_MATCH"
+      }
+    },
+    {
+      "id": "S07",
+      "name": "income-clearly-above-every-limit",
+      "notes": "A fictional family of four on $150,000 a year: every income rule resolves FALSE.",
+      "profile": {
+        "state": "NJ",
+        "county": null,
+        "student_status": "NOT_A_STUDENT",
+        "household_size": 4,
+        "household_composition": {
+          "adults": null,
+          "children_under_18": null,
+          "seniors_65_plus": null,
+          "full_time_students": null,
+          "members_with_disability": null
+        },
+        "income_min_cents": 15000000,
+        "income_max_cents": 15000000,
+        "income_period": "ANNUAL",
+        "employment_status": null,
+        "housing_situation": "OWN_HOME",
+        "needs": [],
+        "age": 41,
+        "flags": {
+          "has_children": true,
+          "receives_medicaid": false,
+          "has_utility_shutoff_notice": false,
+          "filed_taxes_last_year": true,
+          "is_rutgers_affiliated": false
+        },
+        "unknown_fields": [],
+        "extras": {}
+      },
+      "expected": {
+        "nj-snap": "UNLIKELY_MATCH",
+        "nj-familycare": "UNLIKELY_MATCH",
+        "nj-usf": "UNLIKELY_MATCH",
+        "rutgers-student-food-pantry": "UNLIKELY_MATCH",
+        "nj-eitc": "UNLIKELY_MATCH",
+        "nj-child-care-subsidy": "UNLIKELY_MATCH"
+      }
+    },
+    {
+      "id": "S08",
+      "name": "no-income-information-at-all",
+      "notes": "A fictional two-person household with no income stated and no flags set: the income rules are unknown, and the pantry still fails on student status.",
+      "profile": {
+        "state": "NJ",
+        "county": null,
+        "student_status": "NOT_A_STUDENT",
+        "household_size": 2,
+        "household_composition": {
+          "adults": null,
+          "children_under_18": null,
+          "seniors_65_plus": null,
+          "full_time_students": null,
+          "members_with_disability": null
+        },
+        "income_min_cents": null,
+        "income_max_cents": null,
+        "income_period": null,
+        "employment_status": null,
+        "housing_situation": "RENTING",
+        "needs": [],
+        "age": 29,
+        "flags": {},
+        "unknown_fields": [],
+        "extras": {}
+      },
+      "expected": {
+        "nj-snap": "MORE_INFO_NEEDED",
+        "nj-familycare": "MORE_INFO_NEEDED",
+        "nj-usf": "MORE_INFO_NEEDED",
+        "rutgers-student-food-pantry": "UNLIKELY_MATCH",
+        "nj-eitc": "MORE_INFO_NEEDED",
+        "nj-child-care-subsidy": "MORE_INFO_NEEDED"
+      }
+    },
+    {
+      "id": "S09",
+      "name": "income-known-household-size-unknown",
+      "notes": "A fictional parent who gave a monthly figure and a household breakdown but no household size: the FPL rules cannot be indexed, the flat monthly USF limit can.",
+      "profile": {
+        "state": "NJ",
+        "county": null,
+        "student_status": "NOT_A_STUDENT",
+        "household_size": null,
+        "household_composition": {
+          "adults": 1,
+          "children_under_18": 2,
+          "seniors_65_plus": null,
+          "full_time_students": null,
+          "members_with_disability": null
+        },
+        "income_min_cents": 180000,
+        "income_max_cents": 180000,
+        "income_period": "MONTHLY",
+        "employment_status": null,
+        "housing_situation": "RENTING",
+        "needs": [],
+        "age": 37,
+        "flags": {
+          "has_children": true,
+          "is_rutgers_affiliated": false,
+          "receives_medicaid": false,
+          "filed_taxes_last_year": false,
+          "has_utility_shutoff_notice": true
+        },
+        "unknown_fields": [],
+        "extras": {}
+      },
+      "expected": {
+        "nj-snap": "MORE_INFO_NEEDED",
+        "nj-familycare": "MORE_INFO_NEEDED",
+        "nj-usf": "POTENTIAL_MATCH",
+        "rutgers-student-food-pantry": "UNLIKELY_MATCH",
+        "nj-eitc": "UNLIKELY_MATCH",
+        "nj-child-care-subsidy": "MORE_INFO_NEEDED"
+      }
+    },
+    {
+      "id": "S10",
+      "name": "senior-on-ssi-already-has-medicaid",
+      "notes": "A fictional 71-year-old homeowner on SSI who already has Medicaid, which makes the FamilyCare negation resolve FALSE.",
+      "profile": {
+        "state": "NJ",
+        "county": "Middlesex",
+        "student_status": "NOT_A_STUDENT",
+        "household_size": 1,
+        "household_composition": {
+          "adults": null,
+          "children_under_18": null,
+          "seniors_65_plus": null,
+          "full_time_students": null,
+          "members_with_disability": null
+        },
+        "income_min_cents": 1100000,
+        "income_max_cents": 1100000,
+        "income_period": "ANNUAL",
+        "employment_status": null,
+        "housing_situation": "OWN_HOME",
+        "needs": [],
+        "age": 71,
+        "flags": {
+          "is_senior": true,
+          "receives_ssi": true,
+          "receives_medicaid": true,
+          "has_utility_shutoff_notice": false,
+          "filed_taxes_last_year": false,
+          "is_rutgers_affiliated": false
+        },
+        "unknown_fields": [],
+        "extras": {}
+      },
+      "expected": {
+        "nj-snap": "POTENTIAL_MATCH",
+        "nj-familycare": "UNLIKELY_MATCH",
+        "nj-usf": "POTENTIAL_MATCH",
+        "rutgers-student-food-pantry": "UNLIKELY_MATCH",
+        "nj-eitc": "UNLIKELY_MATCH",
+        "nj-child-care-subsidy": "UNLIKELY_MATCH"
+      }
+    },
+    {
+      "id": "S11",
+      "name": "rutgers-undergrad-with-child-exemption",
+      "notes": "A fictional full-time undergraduate with a child: the student restriction is lifted by the exemption branch, so SNAP is a potential match.",
+      "profile": {
+        "state": "NJ",
+        "county": null,
+        "student_status": "UNDERGRAD_FULL_TIME",
+        "household_size": 2,
+        "household_composition": {
+          "adults": null,
+          "children_under_18": null,
+          "seniors_65_plus": null,
+          "full_time_students": null,
+          "members_with_disability": null
+        },
+        "income_min_cents": 120000,
+        "income_max_cents": 120000,
+        "income_period": "MONTHLY",
+        "employment_status": null,
+        "housing_situation": "UNIVERSITY_HOUSING",
+        "needs": [],
+        "age": 23,
+        "flags": {
+          "is_rutgers_affiliated": true,
+          "has_children": true,
+          "receives_medicaid": false,
+          "filed_taxes_last_year": true,
+          "has_utility_shutoff_notice": false
+        },
+        "unknown_fields": [],
+        "extras": {}
+      },
+      "expected": {
+        "nj-snap": "POTENTIAL_MATCH",
+        "nj-familycare": "POTENTIAL_MATCH",
+        "nj-usf": "UNLIKELY_MATCH",
+        "rutgers-student-food-pantry": "POTENTIAL_MATCH",
+        "nj-eitc": "POTENTIAL_MATCH",
+        "nj-child-care-subsidy": "POTENTIAL_MATCH"
+      }
+    },
+    {
+      "id": "S12",
+      "name": "rutgers-undergrad-without-exemption",
+      "notes": "The same student without any exemption: every branch of the student disjunction is FALSE, so SNAP is unlikely even though the income is very low.",
+      "profile": {
+        "state": "NJ",
+        "county": null,
+        "student_status": "UNDERGRAD_FULL_TIME",
+        "household_size": 1,
+        "household_composition": {
+          "adults": null,
+          "children_under_18": null,
+          "seniors_65_plus": null,
+          "full_time_students": null,
+          "members_with_disability": null
+        },
+        "income_min_cents": 60000,
+        "income_max_cents": 60000,
+        "income_period": "MONTHLY",
+        "employment_status": "UNEMPLOYED",
+        "housing_situation": "UNIVERSITY_HOUSING",
+        "needs": [],
+        "age": 20,
+        "flags": {
+          "is_rutgers_affiliated": true,
+          "has_children": false,
+          "is_disabled": false,
+          "filed_taxes_last_year": false,
+          "receives_medicaid": false,
+          "has_utility_shutoff_notice": false
+        },
+        "unknown_fields": [],
+        "extras": {}
+      },
+      "expected": {
+        "nj-snap": "UNLIKELY_MATCH",
+        "nj-familycare": "POTENTIAL_MATCH",
+        "nj-usf": "UNLIKELY_MATCH",
+        "rutgers-student-food-pantry": "POTENTIAL_MATCH",
+        "nj-eitc": "UNLIKELY_MATCH",
+        "nj-child-care-subsidy": "UNLIKELY_MATCH"
+      }
+    },
+    {
+      "id": "S13",
+      "name": "part-time-student-working-part-time",
+      "notes": "A fictional part-time student working part time: the employment branch satisfies the student disjunction.",
+      "profile": {
+        "state": "NJ",
+        "county": null,
+        "student_status": "UNDERGRAD_PART_TIME",
+        "household_size": 1,
+        "household_composition": {
+          "adults": null,
+          "children_under_18": null,
+          "seniors_65_plus": null,
+          "full_time_students": null,
+          "members_with_disability": null
+        },
+        "income_min_cents": 150000,
+        "income_max_cents": 150000,
+        "income_period": "MONTHLY",
+        "employment_status": "EMPLOYED_PART_TIME",
+        "housing_situation": "RENTING",
+        "needs": [],
+        "age": 26,
+        "flags": {
+          "is_rutgers_affiliated": true,
+          "receives_medicaid": false,
+          "filed_taxes_last_year": true,
+          "has_utility_shutoff_notice": false,
+          "has_children": false
+        },
+        "unknown_fields": [],
+        "extras": {}
+      },
+      "expected": {
+        "nj-snap": "POTENTIAL_MATCH",
+        "nj-familycare": "POTENTIAL_MATCH",
+        "nj-usf": "POTENTIAL_MATCH",
+        "rutgers-student-food-pantry": "POTENTIAL_MATCH",
+        "nj-eitc": "POTENTIAL_MATCH",
+        "nj-child-care-subsidy": "UNLIKELY_MATCH"
+      }
+    },
+    {
+      "id": "S14",
+      "name": "unemployed-with-shutoff-notice-no-income-stated",
+      "notes": "A fictional family of four facing a utility shut-off who did not state an income.",
+      "profile": {
+        "state": "NJ",
+        "county": "Essex",
+        "student_status": "NOT_A_STUDENT",
+        "household_size": 4,
+        "household_composition": {
+          "adults": null,
+          "children_under_18": null,
+          "seniors_65_plus": null,
+          "full_time_students": null,
+          "members_with_disability": null
+        },
+        "income_min_cents": null,
+        "income_max_cents": null,
+        "income_period": null,
+        "employment_status": "UNEMPLOYED",
+        "housing_situation": "RENTING",
+        "needs": [],
+        "age": 44,
+        "flags": {
+          "has_utility_shutoff_notice": true,
+          "has_children": true,
+          "receives_unemployment": true,
+          "receives_medicaid": false,
+          "is_rutgers_affiliated": false
+        },
+        "unknown_fields": [],
+        "extras": {}
+      },
+      "expected": {
+        "nj-snap": "MORE_INFO_NEEDED",
+        "nj-familycare": "MORE_INFO_NEEDED",
+        "nj-usf": "MORE_INFO_NEEDED",
+        "rutgers-student-food-pantry": "UNLIKELY_MATCH",
+        "nj-eitc": "MORE_INFO_NEEDED",
+        "nj-child-care-subsidy": "MORE_INFO_NEEDED"
+      }
+    },
+    {
+      "id": "S15",
+      "name": "income-floor-only-high",
+      "notes": "A fictional household that gave only a floor of $5,000 a month: that floor is above three limits outright and leaves the 300% limit open at the top.",
+      "profile": {
+        "state": "NJ",
+        "county": null,
+        "student_status": "NOT_A_STUDENT",
+        "household_size": 2,
+        "household_composition": {
+          "adults": null,
+          "children_under_18": null,
+          "seniors_65_plus": null,
+          "full_time_students": null,
+          "members_with_disability": null
+        },
+        "income_min_cents": 500000,
+        "income_max_cents": null,
+        "income_period": "MONTHLY",
+        "employment_status": null,
+        "housing_situation": "RENTING",
+        "needs": [],
+        "age": 33,
+        "flags": {
+          "has_children": false,
+          "receives_medicaid": false,
+          "has_utility_shutoff_notice": false,
+          "is_rutgers_affiliated": false,
+          "filed_taxes_last_year": true
+        },
+        "unknown_fields": [],
+        "extras": {}
+      },
+      "expected": {
+        "nj-snap": "UNLIKELY_MATCH",
+        "nj-familycare": "UNLIKELY_MATCH",
+        "nj-usf": "UNLIKELY_MATCH",
+        "rutgers-student-food-pantry": "UNLIKELY_MATCH",
+        "nj-eitc": "MORE_INFO_NEEDED",
+        "nj-child-care-subsidy": "UNLIKELY_MATCH"
+      }
+    },
+    {
+      "id": "S16",
+      "name": "income-ceiling-only-low",
+      "notes": "A fictional household that gave only a ceiling of $2,500 a month, which is under every limit, so a half-open range still resolves TRUE.",
+      "profile": {
+        "state": "NJ",
+        "county": null,
+        "student_status": "NOT_A_STUDENT",
+        "household_size": 3,
+        "household_composition": {
+          "adults": null,
+          "children_under_18": null,
+          "seniors_65_plus": null,
+          "full_time_students": null,
+          "members_with_disability": null
+        },
+        "income_min_cents": null,
+        "income_max_cents": 250000,
+        "income_period": "MONTHLY",
+        "employment_status": null,
+        "housing_situation": "LIVING_WITH_FAMILY",
+        "needs": [],
+        "age": 38,
+        "flags": {
+          "has_children": true,
+          "receives_medicaid": false,
+          "has_utility_shutoff_notice": false,
+          "is_rutgers_affiliated": false,
+          "filed_taxes_last_year": true
+        },
+        "unknown_fields": [],
+        "extras": {}
+      },
+      "expected": {
+        "nj-snap": "POTENTIAL_MATCH",
+        "nj-familycare": "POTENTIAL_MATCH",
+        "nj-usf": "POTENTIAL_MATCH",
+        "rutgers-student-food-pantry": "UNLIKELY_MATCH",
+        "nj-eitc": "POTENTIAL_MATCH",
+        "nj-child-care-subsidy": "POTENTIAL_MATCH"
+      }
+    },
+    {
+      "id": "S17",
+      "name": "household-composition-without-a-size",
+      "notes": "A fictional household described only as two adults and one child: the composition lower bound settles the 'at least two people' rule but not the FPL lookups.",
+      "profile": {
+        "state": "NJ",
+        "county": null,
+        "student_status": "NOT_A_STUDENT",
+        "household_size": null,
+        "household_composition": {
+          "adults": 2,
+          "children_under_18": 1,
+          "seniors_65_plus": null,
+          "full_time_students": null,
+          "members_with_disability": null
+        },
+        "income_min_cents": 250000,
+        "income_max_cents": 250000,
+        "income_period": "MONTHLY",
+        "employment_status": null,
+        "housing_situation": "RENTING",
+        "needs": [],
+        "age": 31,
+        "flags": {
+          "has_children": true,
+          "receives_medicaid": false,
+          "is_rutgers_affiliated": false,
+          "filed_taxes_last_year": true,
+          "has_utility_shutoff_notice": false
+        },
+        "unknown_fields": [],
+        "extras": {}
+      },
+      "expected": {
+        "nj-snap": "MORE_INFO_NEEDED",
+        "nj-familycare": "MORE_INFO_NEEDED",
+        "nj-usf": "POTENTIAL_MATCH",
+        "rutgers-student-food-pantry": "UNLIKELY_MATCH",
+        "nj-eitc": "MORE_INFO_NEEDED",
+        "nj-child-care-subsidy": "MORE_INFO_NEEDED"
+      }
+    },
+    {
+      "id": "S18",
+      "name": "large-household-moderate-income",
+      "notes": "A fictional household of six on $70,000 a year: large-household FPL limits are high enough to clear, but the flat monthly utility limit is not.",
+      "profile": {
+        "state": "NJ",
+        "county": null,
+        "student_status": "NOT_A_STUDENT",
+        "household_size": 6,
+        "household_composition": {
+          "adults": null,
+          "children_under_18": null,
+          "seniors_65_plus": null,
+          "full_time_students": null,
+          "members_with_disability": null
+        },
+        "income_min_cents": 7000000,
+        "income_max_cents": 7000000,
+        "income_period": "ANNUAL",
+        "employment_status": null,
+        "housing_situation": "OWN_HOME",
+        "needs": [],
+        "age": 66,
+        "flags": {
+          "is_senior": true,
+          "has_children": true,
+          "receives_medicaid": false,
+          "filed_taxes_last_year": true,
+          "has_utility_shutoff_notice": false,
+          "is_rutgers_affiliated": false
+        },
+        "unknown_fields": [],
+        "extras": {}
+      },
+      "expected": {
+        "nj-snap": "POTENTIAL_MATCH",
+        "nj-familycare": "POTENTIAL_MATCH",
+        "nj-usf": "UNLIKELY_MATCH",
+        "rutgers-student-food-pantry": "UNLIKELY_MATCH",
+        "nj-eitc": "POTENTIAL_MATCH",
+        "nj-child-care-subsidy": "POTENTIAL_MATCH"
+      }
+    },
+    {
+      "id": "S19",
+      "name": "unhoused-adult-no-income-stated",
+      "notes": "A fictional unhoused adult: the utility disjunction has one FALSE branch and one unknown branch, so it stays unknown rather than failing.",
+      "profile": {
+        "state": "NJ",
+        "county": null,
+        "student_status": "NOT_A_STUDENT",
+        "household_size": 1,
+        "household_composition": {
+          "adults": null,
+          "children_under_18": null,
+          "seniors_65_plus": null,
+          "full_time_students": null,
+          "members_with_disability": null
+        },
+        "income_min_cents": null,
+        "income_max_cents": null,
+        "income_period": null,
+        "employment_status": null,
+        "housing_situation": "UNHOUSED",
+        "needs": [],
+        "age": 47,
+        "flags": {
+          "has_children": false,
+          "is_rutgers_affiliated": false,
+          "receives_medicaid": false
+        },
+        "unknown_fields": [],
+        "extras": {}
+      },
+      "expected": {
+        "nj-snap": "MORE_INFO_NEEDED",
+        "nj-familycare": "MORE_INFO_NEEDED",
+        "nj-usf": "MORE_INFO_NEEDED",
+        "rutgers-student-food-pantry": "UNLIKELY_MATCH",
+        "nj-eitc": "MORE_INFO_NEEDED",
+        "nj-child-care-subsidy": "UNLIKELY_MATCH"
+      }
+    },
+    {
+      "id": "S20",
+      "name": "sixteen-year-old-on-medicaid",
+      "notes": "A fictional 16-year-old in a household of four who already has Medicaid: the age rule and the negation both resolve FALSE.",
+      "profile": {
+        "state": "NJ",
+        "county": null,
+        "student_status": "OTHER",
+        "household_size": 4,
+        "household_composition": {
+          "adults": null,
+          "children_under_18": null,
+          "seniors_65_plus": null,
+          "full_time_students": null,
+          "members_with_disability": null
+        },
+        "income_min_cents": null,
+        "income_max_cents": null,
+        "income_period": null,
+        "employment_status": null,
+        "housing_situation": null,
+        "needs": [],
+        "age": 16,
+        "flags": {
+          "is_rutgers_affiliated": false,
+          "has_children": false,
+          "receives_medicaid": true
+        },
+        "unknown_fields": [],
+        "extras": {}
+      },
+      "expected": {
+        "nj-snap": "MORE_INFO_NEEDED",
+        "nj-familycare": "UNLIKELY_MATCH",
+        "nj-usf": "MORE_INFO_NEEDED",
+        "rutgers-student-food-pantry": "UNLIKELY_MATCH",
+        "nj-eitc": "UNLIKELY_MATCH",
+        "nj-child-care-subsidy": "UNLIKELY_MATCH"
+      }
+    },
+    {
+      "id": "S21",
+      "name": "income-exactly-at-the-snap-limit",
+      "notes": "A fictional single adult whose annual income is exactly 185% of the 2026 guideline for one person ($29,526): 'at or below' means this resolves TRUE, not FALSE.",
+      "profile": {
+        "state": "NJ",
+        "county": null,
+        "student_status": "NOT_A_STUDENT",
+        "household_size": 1,
+        "household_composition": {
+          "adults": null,
+          "children_under_18": null,
+          "seniors_65_plus": null,
+          "full_time_students": null,
+          "members_with_disability": null
+        },
+        "income_min_cents": 2952600,
+        "income_max_cents": 2952600,
+        "income_period": "ANNUAL",
+        "employment_status": null,
+        "housing_situation": "RENTING",
+        "needs": [],
+        "age": 40,
+        "flags": {
+          "has_children": false,
+          "receives_medicaid": false,
+          "is_rutgers_affiliated": false,
+          "filed_taxes_last_year": true,
+          "has_utility_shutoff_notice": false
+        },
+        "unknown_fields": [],
+        "extras": {}
+      },
+      "expected": {
+        "nj-snap": "POTENTIAL_MATCH",
+        "nj-familycare": "POTENTIAL_MATCH",
+        "nj-usf": "POTENTIAL_MATCH",
+        "rutgers-student-food-pantry": "UNLIKELY_MATCH",
+        "nj-eitc": "POTENTIAL_MATCH",
+        "nj-child-care-subsidy": "UNLIKELY_MATCH"
+      }
+    },
+    {
+      "id": "S22",
+      "name": "county-given-but-state-missing",
+      "notes": "A fictional household that named a county but no state: geography is unknown, which must not be read as out-of-state.",
+      "profile": {
+        "state": null,
+        "county": "Middlesex",
+        "student_status": "NOT_A_STUDENT",
+        "household_size": 2,
+        "household_composition": {
+          "adults": null,
+          "children_under_18": null,
+          "seniors_65_plus": null,
+          "full_time_students": null,
+          "members_with_disability": null
+        },
+        "income_min_cents": 200000,
+        "income_max_cents": 200000,
+        "income_period": "MONTHLY",
+        "employment_status": null,
+        "housing_situation": "RENTING",
+        "needs": [],
+        "age": 35,
+        "flags": {
+          "has_children": true,
+          "receives_medicaid": false,
+          "is_rutgers_affiliated": false,
+          "filed_taxes_last_year": true,
+          "has_utility_shutoff_notice": false
+        },
+        "unknown_fields": [],
+        "extras": {}
+      },
+      "expected": {
+        "nj-snap": "MORE_INFO_NEEDED",
+        "nj-familycare": "MORE_INFO_NEEDED",
+        "nj-usf": "MORE_INFO_NEEDED",
+        "rutgers-student-food-pantry": "UNLIKELY_MATCH",
+        "nj-eitc": "MORE_INFO_NEEDED",
+        "nj-child-care-subsidy": "MORE_INFO_NEEDED"
+      }
+    }
+  ]
+}

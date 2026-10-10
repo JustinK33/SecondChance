@@ -1,0 +1,209 @@
+{
+  "category": "UNIVERSITY_EMERGENCY_AID",
+  "description": "Emergency and basic-needs support for Rutgers students.",
+  "programs": [
+    {
+      "program": {
+        "id": "06e8cb80-9b4b-5be2-a02b-8cf615b2f559",
+        "slug": "rutgers-emergency-aid",
+        "official_name": "Rutgers Emergency Aid",
+        "administering_org": "Rutgers University-New Brunswick, Off-Campus Living & Community Initiatives",
+        "category": "UNIVERSITY_EMERGENCY_AID",
+        "description": "Rutgers Emergency Aid provides one-time, need-based financial support to currently enrolled, matriculated Rutgers-New Brunswick students - including international and undocumented students - for unforeseen, unplanned and unavoidable costs such as accidents, illness, fire or water damage, emergency lodging and food. A single application covers the Emergency Assistance Fund, the Mason Gross and SEBS emergency assistance funds and Meal Plan Assistance. Students must first check in with the One-Stop/Financial Aid office, appeal their aid package if it does not reflect their situation, and accept all aid offered; emergency aid is a last resort.",
+        "plain_language_summary": "If something unexpected happens - an accident, illness, a fire, nowhere to sleep - Rutgers-New Brunswick can give you a one-time grant. You have to be currently enrolled, and you have to talk to Financial Aid first and accept the aid you have already been offered. International and undocumented students can apply.",
+        "who_it_helps": [
+          "Currently enrolled Rutgers-New Brunswick students",
+          "Undergraduate, graduate, international and undocumented students",
+          "Students hit by a sudden unavoidable expense",
+          "Students who have run out of financial aid options"
+        ],
+        "geo_scope": {
+          "nationwide": false,
+          "states": [
+            "NJ"
+          ],
+          "counties": [],
+          "campuses": [
+            "Rutgers University-New Brunswick"
+          ],
+          "label": "Rutgers University-New Brunswick students"
+        },
+        "official_url": "https://ruoffcampus.rutgers.edu/basic-needs/emergency-aid",
+        "application_url": null,
+        "phone": "848-932-5500",
+        "keywords": [
+          "emergency aid",
+          "emergency fund",
+          "rutgers",
+          "crisis",
+          "student",
+          "emergency grant",
+          "meal plan assistance",
+          "unexpected expense"
+        ],
+        "verification_status": "VERIFIED",
+        "last_verified_at": "2026-10-10T19:58:56.610088Z",
+        "active_rule_version": "2026.1",
+        "sources": [
+          {
+            "id": "rutgers-emergency-aid-page-2026",
+            "url": "https://ruoffcampus.rutgers.edu/basic-needs/emergency-aid",
+            "title": "Emergency Aid",
+            "publisher": "Rutgers University-New Brunswick, Off-Campus Living & Community Initiatives",
+            "excerpt": "Currently enrolled, matriculated undergraduate, graduate, international, and undocumented students are eligible and welcome to apply.\nStudents must be currently enrolled at the Rutgers University - New Brunswick campuses.\nIn order to request funding, you must first check in with the One-Stop/ Financial Aid office to ensure you have exhausted all eligible aid. Due to high need, we are not able to consider applications for funding for students who have available aid through the One-Stop/ Financial Aid office.\n\nEmergency Assistance Fund\nOffers one-time financial support to students experiencing unexpected, non-recurring financial hardships—such as house fires, burglaries, or medical emergencies—after all other resources have been exhausted.\nMason Gross & SEBS Emergency Assistance Funds\nSchool-specific funds designed to assist undergraduate students in financial or familial crisis. Support may include housing, healthcare, travel, transportation, and other urgent needs.\nMeal Plan Assistance\nProvides short-term support for students experiencing food insecurity or disruptions to their regular access to meals.",
+            "retrieved_at": "2026-10-10T19:58:55.524578Z",
+            "content_hash": "06b5c14d2c3d817a7412331b4e180a1398ed8c3979380339cc7b5aee6774bc3f",
+            "freshness": "FRESH"
+          }
+        ]
+      },
+      "rule_version": {
+        "version": "2026.1",
+        "program_slug": "rutgers-emergency-aid",
+        "effective_from": "2026-10-10",
+        "effective_to": null,
+        "root": {
+          "description": "Rutgers Emergency Aid preliminary eligibility screen",
+          "source_ids": [
+            "rutgers-emergency-aid-page-2026"
+          ],
+          "kind": "all_of",
+          "conditions": [
+            {
+              "description": "You are a Rutgers student.",
+              "source_ids": [
+                "rutgers-emergency-aid-page-2026"
+              ],
+              "kind": "flag",
+              "flag": "is_rutgers_affiliated",
+              "expected": true
+            },
+            {
+              "description": "You are currently enrolled in a degree programme - undergraduate or graduate, including international and undocumented students.",
+              "source_ids": [
+                "rutgers-emergency-aid-page-2026"
+              ],
+              "kind": "categorical",
+              "field": "student_status",
+              "any_of": [
+                "UNDERGRAD_FULL_TIME",
+                "UNDERGRAD_PART_TIME",
+                "GRADUATE"
+              ]
+            }
+          ]
+        },
+        "source_ids": [
+          "rutgers-emergency-aid-page-2026"
+        ],
+        "review_status": "APPROVED",
+        "limitations": [
+          "Students must be enrolled at the Rutgers University-New Brunswick campuses. Other Rutgers campuses run their own funds, which this record does not cover.",
+          "You must first check in with the One-Stop/Financial Aid office, appeal your package if it does not reflect your situation, and accept all aid offered including loans and work study. Applications from students who still have available aid are not considered. None of that can be screened here.",
+          "The expense has to be unexpected, unforeseen and unavoidable, and awards are one-time."
+        ],
+        "reviewed_by": "secondchance-curation",
+        "reviewed_at": "2026-10-10T19:58:56.610088Z"
+      },
+      "limitations": [
+        "Students must be enrolled at the Rutgers University-New Brunswick campuses. Other Rutgers campuses run their own funds, which this record does not cover.",
+        "You must first check in with the One-Stop/Financial Aid office, appeal your package if it does not reflect your situation, and accept all aid offered including loans and work study. Applications from students who still have available aid are not considered. None of that can be screened here.",
+        "The expense has to be unexpected, unforeseen and unavoidable, and awards are one-time."
+      ]
+    },
+    {
+      "program": {
+        "id": "49507c68-7bc4-530b-a524-2dec14e65d3d",
+        "slug": "rutgers-basic-needs-center",
+        "official_name": "Basic Needs Center at Rutgers University",
+        "administering_org": "Rutgers University-New Brunswick, Division of Student Affairs",
+        "category": "UNIVERSITY_EMERGENCY_AID",
+        "description": "The Basic Needs Center supports Rutgers students who are struggling to access essential resources: food, housing, clothing, childcare, mental health services, financial resources and transportation. It houses multiple services in one place, runs the food pantry and mobile pantry, and offers guidance on enrolling in programmes such as SNAP and meal plan scholarships.",
+        "plain_language_summary": "The Basic Needs Center is one place at Rutgers where you can get help with food, housing, clothing, childcare, mental health, money and getting around. Staff will also walk you through applying for SNAP or a meal plan scholarship.",
+        "who_it_helps": [
+          "Rutgers students who cannot cover basic needs",
+          "Students who want help applying for SNAP or other benefits",
+          "Students who need clothing, textbooks or transport help"
+        ],
+        "geo_scope": {
+          "nationwide": false,
+          "states": [
+            "NJ"
+          ],
+          "counties": [],
+          "campuses": [
+            "Rutgers University-New Brunswick"
+          ],
+          "label": "Rutgers University-New Brunswick students"
+        },
+        "official_url": "https://ruoffcampus.rutgers.edu/basic-needs/basic-needs-center",
+        "application_url": null,
+        "phone": "848-932-5500",
+        "keywords": [
+          "basic needs",
+          "rutgers",
+          "student support",
+          "food",
+          "housing",
+          "clothing",
+          "childcare",
+          "snap help",
+          "textbooks"
+        ],
+        "verification_status": "VERIFIED",
+        "last_verified_at": "2026-10-10T19:58:56.610088Z",
+        "active_rule_version": "2026.1",
+        "sources": [
+          {
+            "id": "rutgers-basic-needs-center-2026",
+            "url": "https://ruoffcampus.rutgers.edu/basic-needs/basic-needs-center",
+            "title": "Basic Needs Center",
+            "publisher": "Rutgers University-New Brunswick, Off-Campus Living & Community Initiatives",
+            "excerpt": "The Basic Needs Center at Rutgers University is designed to support students facing challenges in accessing essential resources. These resources include food, housing, clothing, childcare, mental health services, financial resources, and transportation. The center aims to ensure that all students have their basic needs met, which is crucial for their overall well-being, academic success, and personal development. It provides a centralized location for students to access various resources.",
+            "retrieved_at": "2026-10-10T19:58:55.521416Z",
+            "content_hash": "47944c715c1804aa4994b019b5a9596c95906bedc6952c713d54b48681a8a4bf",
+            "freshness": "FRESH"
+          }
+        ]
+      },
+      "rule_version": {
+        "version": "2026.1",
+        "program_slug": "rutgers-basic-needs-center",
+        "effective_from": "2026-10-10",
+        "effective_to": null,
+        "root": {
+          "description": "Basic Needs Center access screen",
+          "source_ids": [
+            "rutgers-basic-needs-center-2026"
+          ],
+          "kind": "all_of",
+          "conditions": [
+            {
+              "description": "You are a Rutgers student.",
+              "source_ids": [
+                "rutgers-basic-needs-center-2026"
+              ],
+              "kind": "flag",
+              "flag": "is_rutgers_affiliated",
+              "expected": true
+            }
+          ]
+        },
+        "source_ids": [
+          "rutgers-basic-needs-center-2026"
+        ],
+        "review_status": "APPROVED",
+        "limitations": [
+          "The centre publishes no income test or application; it is a place to go and a set of referrals rather than a benefit with eligibility rules.",
+          "Services are based on the Rutgers-New Brunswick campuses."
+        ],
+        "reviewed_by": "secondchance-curation",
+        "reviewed_at": "2026-10-10T19:58:56.610088Z"
+      },
+      "limitations": [
+        "The centre publishes no income test or application; it is a place to go and a set of referrals rather than a benefit with eligibility rules.",
+        "Services are based on the Rutgers-New Brunswick campuses."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,199 @@
+{
+  "category": "COMMUNITY_SERVICES",
+  "description": "Referral services and the county offices that decide benefit applications.",
+  "programs": [
+    {
+      "program": {
+        "id": "3bfe5fa3-69e5-5aa3-bbba-e2a093273576",
+        "slug": "nj-211",
+        "official_name": "NJ 211",
+        "administering_org": "NJ 211 Partnership",
+        "category": "COMMUNITY_SERVICES",
+        "description": "NJ 211 is a statewide nonprofit whose 211 call centre operates 24 hours a day for New Jersey residents facing a crisis or a disaster. It maintains a directory of more than 6,300 government and nonprofit programmes, continually updated by curators, which its specialists use when assisting callers and which residents can search themselves. NJ 211 also serves as the State's Home Energy Assistance Hotline and Homeless Hotline, and reaches residents by phone, chat, text and web.",
+        "plain_language_summary": "Dial 2-1-1 any time, day or night, and a real person in New Jersey will help you find food, housing, utility help, childcare and more. You can also search their directory online or reach them by text or chat.",
+        "who_it_helps": [
+          "Anyone in New Jersey who does not know where to start",
+          "People in a crisis or after a disaster",
+          "People who need a human being rather than a website"
+        ],
+        "geo_scope": {
+          "nationwide": false,
+          "states": [
+            "NJ"
+          ],
+          "counties": [],
+          "campuses": [],
+          "label": "All of New Jersey"
+        },
+        "official_url": "https://nj211.org/",
+        "application_url": null,
+        "phone": null,
+        "keywords": [
+          "211",
+          "nj 211",
+          "referral",
+          "hotline",
+          "help",
+          "crisis",
+          "homeless hotline",
+          "energy hotline",
+          "community services"
+        ],
+        "verification_status": "VERIFIED",
+        "last_verified_at": "2026-10-10T19:58:56.610088Z",
+        "active_rule_version": "2026.1",
+        "sources": [
+          {
+            "id": "nj211-about-2026",
+            "url": "https://nj211.org/about-nj-211",
+            "title": "About NJ 211",
+            "publisher": "NJ 211 Partnership",
+            "excerpt": "NJ 211 is a statewide nonprofit organization renowned for its 211 call center that operates 24 hours a day for New Jersey’s residents facing a crisis or dealing with a disaster. We maintain a robust and comprehensive directory of over 6,300 government and nonprofit programs, which is continually updated by a team of curators to ensure the most up-to-date information on programs. The directory is used by our specialists when assisting callers and can also found on our website for easy use by residents.\nYet it’s our one-to-one, human-centered approach to service delivery that is our trademark. We take great pride in personally interacting with residents and the agencies that serve them. When people dial 211, they reach someone who will listen carefully and guide them to the health and human services resources and services they need",
+            "retrieved_at": "2026-10-10T19:58:56.221432Z",
+            "content_hash": "0c6432ff522fe44315557de8b0b0ad275baa2ce622c8ec351dc18285c9b3ab8d",
+            "freshness": "FRESH"
+          }
+        ]
+      },
+      "rule_version": {
+        "version": "2026.1",
+        "program_slug": "nj-211",
+        "effective_from": "2026-10-10",
+        "effective_to": null,
+        "root": {
+          "description": "NJ 211 coverage",
+          "source_ids": [
+            "nj211-about-2026"
+          ],
+          "kind": "all_of",
+          "conditions": [
+            {
+              "description": "You are in New Jersey - NJ 211 serves the whole state, 24 hours a day.",
+              "source_ids": [
+                "nj211-about-2026"
+              ],
+              "kind": "geography",
+              "states": [
+                "NJ"
+              ],
+              "counties": []
+            }
+          ]
+        },
+        "source_ids": [
+          "nj211-about-2026"
+        ],
+        "review_status": "APPROVED",
+        "limitations": [
+          "NJ 211 is a referral service: it connects you to programmes but does not itself provide money, food or housing.",
+          "The published contact number is the three-digit code 2-1-1, which this catalog's phone field cannot hold, so it appears in the summary text instead."
+        ],
+        "reviewed_by": "secondchance-curation",
+        "reviewed_at": "2026-10-10T19:58:56.610088Z"
+      },
+      "limitations": [
+        "NJ 211 is a referral service: it connects you to programmes but does not itself provide money, food or housing.",
+        "The published contact number is the three-digit code 2-1-1, which this catalog's phone field cannot hold, so it appears in the summary text instead."
+      ]
+    },
+    {
+      "program": {
+        "id": "e714e33d-a794-5119-b42b-43f53ff2c387",
+        "slug": "middlesex-county-board-of-social-services",
+        "official_name": "Middlesex County Board of Social Services",
+        "administering_org": "Middlesex County Board of Social Services",
+        "category": "COMMUNITY_SERVICES",
+        "description": "The Middlesex County Board of Social Services is the County Social Service Agency that takes and decides applications for New Jersey's means-tested programmes for Middlesex County residents, including NJ SNAP, Work First New Jersey cash assistance, emergency assistance and Medicaid. Its office is at 181 How Lane in New Brunswick and it is open 8:30 AM to 4:15 PM Monday to Friday.",
+        "plain_language_summary": "If you live in Middlesex County, this is the county office that actually decides your SNAP, cash assistance and Medicaid applications. You can go in person to 181 How Lane in New Brunswick, or call them with questions about an application.",
+        "who_it_helps": [
+          "Middlesex County residents applying for SNAP or cash assistance",
+          "People who need help in person with an application",
+          "People who need emergency assistance"
+        ],
+        "geo_scope": {
+          "nationwide": false,
+          "states": [
+            "NJ"
+          ],
+          "counties": [
+            "Middlesex"
+          ],
+          "campuses": [],
+          "label": "Middlesex County"
+        },
+        "official_url": "https://www.nj.gov/humanservices/dfd/counties/",
+        "application_url": "https://www.mynjhelps.gov/",
+        "phone": "(732) 745-3500",
+        "keywords": [
+          "middlesex county",
+          "board of social services",
+          "county welfare",
+          "cssa",
+          "snap application",
+          "cash assistance",
+          "new brunswick",
+          "emergency assistance"
+        ],
+        "verification_status": "VERIFIED",
+        "last_verified_at": "2026-10-10T19:58:56.610088Z",
+        "active_rule_version": "2026.1",
+        "sources": [
+          {
+            "id": "njdfd-middlesex-county-office-2026",
+            "url": "https://www.nj.gov/humanservices/dfd/counties/",
+            "title": "County Social Service Agencies - Middlesex",
+            "publisher": "New Jersey Department of Human Services, Division of Family Development",
+            "excerpt": "Middlesex County Board of Social Services\n181 How Lane\nPO Box 509\nNew Brunswick, NJ 08903\n(732) 745-3500\nFax: (732) 745-4558\nHours: 8:30 AM - 4:15 PM M-F",
+            "retrieved_at": "2026-10-10T19:58:56.266110Z",
+            "content_hash": "bb6d95672e63f374e00d97c7bab53e56df1c4208c80938b5c7c7fd5b19ef2b54",
+            "freshness": "FRESH"
+          }
+        ]
+      },
+      "rule_version": {
+        "version": "2026.1",
+        "program_slug": "middlesex-county-board-of-social-services",
+        "effective_from": "2026-10-10",
+        "effective_to": null,
+        "root": {
+          "description": "Middlesex County Board of Social Services catchment",
+          "source_ids": [
+            "njdfd-middlesex-county-office-2026"
+          ],
+          "kind": "all_of",
+          "conditions": [
+            {
+              "description": "You live in Middlesex County, New Jersey.",
+              "source_ids": [
+                "njdfd-middlesex-county-office-2026"
+              ],
+              "kind": "geography",
+              "states": [
+                "NJ"
+              ],
+              "counties": [
+                "Middlesex"
+              ]
+            }
+          ]
+        },
+        "source_ids": [
+          "njdfd-middlesex-county-office-2026"
+        ],
+        "review_status": "APPROVED",
+        "limitations": [
+          "The agency's own website blocks automated access, so this record is sourced from the New Jersey Division of Family Development's official county agency directory. Contact details were taken from that directory and should be confirmed by phone.",
+          "Each programme the agency administers has its own eligibility rules; this record describes where to apply, not whether you qualify.",
+          "Residents of other counties should use their own County Social Service Agency."
+        ],
+        "reviewed_by": "secondchance-curation",
+        "reviewed_at": "2026-10-10T19:58:56.610088Z"
+      },
+      "limitations": [
+        "The agency's own website blocks automated access, so this record is sourced from the New Jersey Division of Family Development's official county agency directory. Contact details were taken from that directory and should be confirmed by phone.",
+        "Each programme the agency administers has its own eligibility rules; this record describes where to apply, not whether you qualify.",
+        "Residents of other counties should use their own County Social Service Agency."
+      ]
+    }
+  ]
+}

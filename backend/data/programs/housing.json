@@ -1,0 +1,214 @@
+{
+  "category": "HOUSING",
+  "description": "Rental assistance and housing subsidies.",
+  "programs": [
+    {
+      "program": {
+        "id": "b7328b64-2155-5718-a05c-35142050d8d1",
+        "slug": "nj-state-rental-assistance-program",
+        "official_name": "State Rental Assistance Program (SRAP)",
+        "administering_org": "New Jersey Department of Community Affairs, Division of Housing and Community Resources",
+        "category": "HOUSING",
+        "description": "SRAP is a state funded programme that provides housing subsidies on behalf of very low-income New Jersey residents. Applicants must be New Jersey residents, must be at least 18 years old or an emancipated minor, and must meet the income limit of the county where they will live - the limits are published per county for households of up to eight people. Placement on the waiting list is by lottery, with preferences for veterans and their surviving spouses, people who are homeless, elderly or disabled, and local residents. At the time of writing the pre-application period is closed.",
+        "plain_language_summary": "SRAP is a New Jersey rent subsidy for people with very low incomes. You have to live in New Jersey, be 18 or older, and earn under the limit for your county and household size. Places are given out by lottery from a waiting list, and the waiting list is closed right now - check the official page for the next opening.",
+        "who_it_helps": [
+          "New Jersey renters with very low income",
+          "Veterans and their surviving spouses, who get the highest priority",
+          "People who are homeless, elderly or disabled"
+        ],
+        "geo_scope": {
+          "nationwide": false,
+          "states": [
+            "NJ"
+          ],
+          "counties": [],
+          "campuses": [],
+          "label": "All of New Jersey, with county income limits"
+        },
+        "official_url": "https://www.nj.gov/dca/dhcr/offices/srap.shtml",
+        "application_url": null,
+        "phone": "609-292-4080",
+        "keywords": [
+          "srap",
+          "rental assistance",
+          "rent",
+          "subsidy",
+          "voucher",
+          "housing",
+          "waiting list",
+          "lottery"
+        ],
+        "verification_status": "VERIFIED",
+        "last_verified_at": "2026-10-10T19:58:56.610088Z",
+        "active_rule_version": "2026.1",
+        "sources": [
+          {
+            "id": "njdca-srap-program-page-2026",
+            "url": "https://www.nj.gov/dca/dhcr/offices/srap.shtml",
+            "title": "State Rental Assistance Program (SRAP)",
+            "publisher": "New Jersey Department of Community Affairs, Division of Housing and Community Resources",
+            "excerpt": "The New Jersey State Rental Assistance Program (SRAP) is a state funded program that provides housing subsidies on behalf of very low-income New Jersey residents, for decent, safe and sanitary housing. Persons applying must meet all applicable SRAP income and eligibility requirements. A total of 6,000 households will be selected through a lottery system to be placed on the State Rental Assistance Program waiting list. You must be eighteen (18) years of age or older or be an emancipated minor to apply. Please note that only New Jersey residents are eligible to apply for SRAP assistance.\n\nAt the time of selection from the State Rental Assistance Program waiting list, applicants must meet the income limits of the county where they will be residing and provide proof of New Jersey residency. The Income Limits below represent the guidelines up to 8 household members. If you have a larger household, please contact DCA at 609-292-4080, select Option 9 for assistance in determining the maximum income limits for your household. The below Income Limits Chart show the income limits that are in effect now.\n2024 STATE RENTAL ASSISTANCE PROGRAM INCOME LIMITS\n\nThe SRAP waiting list opening for pre-applications has closed.\nPlease continue to check DCA’s website to see when new waiting lists will be opened in the future.",
+            "retrieved_at": "2026-10-10T19:58:55.991017Z",
+            "content_hash": "5748e5cfe9938ce81b7108de810ebb7cf8819c755d3a65b73aeb2368453c3dad",
+            "freshness": "FRESH"
+          }
+        ]
+      },
+      "rule_version": {
+        "version": "2026.1",
+        "program_slug": "nj-state-rental-assistance-program",
+        "effective_from": "2026-10-10",
+        "effective_to": null,
+        "root": {
+          "description": "SRAP preliminary eligibility screen",
+          "source_ids": [
+            "njdca-srap-program-page-2026"
+          ],
+          "kind": "all_of",
+          "conditions": [
+            {
+              "description": "You are a New Jersey resident and can prove it.",
+              "source_ids": [
+                "njdca-srap-program-page-2026"
+              ],
+              "kind": "geography",
+              "states": [
+                "NJ"
+              ],
+              "counties": []
+            }
+          ]
+        },
+        "source_ids": [
+          "njdca-srap-program-page-2026"
+        ],
+        "review_status": "APPROVED",
+        "limitations": [
+          "The income limits are published per county and per household size, up to eight people. The rule format cannot express a county-by-household-size table, so no income condition is encoded. Check the chart on the official page for your county before assuming you qualify.",
+          "The waiting list is currently closed, so a preliminary match does not mean you can apply today.",
+          "You must be 18 or older or an emancipated minor. That is not encoded, because an age rule alone would wrongly rule out an emancipated minor.",
+          "All adult household members are screened for criminal background during the eligibility review."
+        ],
+        "reviewed_by": "secondchance-curation",
+        "reviewed_at": "2026-10-10T19:58:56.610088Z"
+      },
+      "limitations": [
+        "The income limits are published per county and per household size, up to eight people. The rule format cannot express a county-by-household-size table, so no income condition is encoded. Check the chart on the official page for your county before assuming you qualify.",
+        "The waiting list is currently closed, so a preliminary match does not mean you can apply today.",
+        "You must be 18 or older or an emancipated minor. That is not encoded, because an age rule alone would wrongly rule out an emancipated minor.",
+        "All adult household members are screened for criminal background during the eligibility review."
+      ]
+    },
+    {
+      "program": {
+        "id": "572f9b08-e179-5ab1-a73b-a4716d804cf6",
+        "slug": "nj-section-8-housing-choice-voucher",
+        "official_name": "Section 8 Housing Choice Voucher",
+        "administering_org": "New Jersey Department of Community Affairs, Division of Housing and Community Resources",
+        "category": "HOUSING",
+        "description": "The Section 8 Housing Choice Voucher programme makes private market rental housing affordable by paying a rent subsidy directly to the landlord. It is funded by the U.S. Department of Housing and Urban Development and is built on the premise that housing costs - rent and utilities - should not exceed 30 percent of a household's income. Assistance goes to low and very low-income households. The statewide programme run by DCA is available to residents of all New Jersey counties, and municipal and county housing authorities administer their own Section 8 Existing Housing programmes. Income limits are published per county for households of one to eight people.",
+        "plain_language_summary": "A Section 8 voucher pays part of your rent straight to your landlord, so your rent and utilities come to about 30 percent of your income. Income limits depend on your county and household size. You can apply through the state programme or through your county or town housing authority when their waiting list opens.",
+        "who_it_helps": [
+          "Renters with low or very low income",
+          "Households paying more than they can afford in rent",
+          "Residents of any New Jersey county"
+        ],
+        "geo_scope": {
+          "nationwide": false,
+          "states": [
+            "NJ"
+          ],
+          "counties": [],
+          "campuses": [],
+          "label": "All of New Jersey, with county income limits"
+        },
+        "official_url": "https://www.nj.gov/dca/dhcr/offices/section8hcv.shtml",
+        "application_url": null,
+        "phone": "609-292-4080",
+        "keywords": [
+          "section 8",
+          "housing choice voucher",
+          "hcv",
+          "rent",
+          "subsidy",
+          "landlord",
+          "housing authority",
+          "housing"
+        ],
+        "verification_status": "VERIFIED",
+        "last_verified_at": "2026-10-10T19:58:56.610088Z",
+        "active_rule_version": "2026.1",
+        "sources": [
+          {
+            "id": "njdca-hcv-program-page-2026",
+            "url": "https://www.nj.gov/dca/dhcr/offices/section8hcv.shtml",
+            "title": "Section 8 Housing Choice Voucher - programme and 2026 income limits",
+            "publisher": "New Jersey Department of Community Affairs, Division of Housing and Community Resources",
+            "excerpt": "The Section 8 Housing Voucher Program assists in making safe and quality housing in the private rental market affordable to low, and very low-income households by reducing housing costs through direct rent subsidy payments to landlords. The program is funded by the U.S. Department of Housing and Urban Development.\nSection 8 HCV program is based on the premise that housing costs (rent and utilities) should not exceed 30 percent of a household's income.\nAssistance is provided to low, and very low-income households and individuals.\nThe statewide program is available to residents of all New Jersey counties. Section 8 Existing Housing programs are administered throughout the State by a number of municipal and county authorities. Click the link below to see the list of county authorities directory.\n\nHOUSING CHOICE VOUCHER (HCV) PROGRAM\n2026 CURRENT INCOME LIMITS FOR ALL NEW JERSEY COUNTIES\nCOUNTY\n1 PERSON\n2 PERSON\n3 PERSON\n4 PERSON\n5 PERSON\n6 PERSON\n7 PERSON\n8 PERSON\nATLANTIC\n$38,100\n$43,550\n$49,000\n$54,400\n$58,800\n$63,150\n$67,500\n$71,850",
+            "retrieved_at": "2026-10-10T19:58:56.072919Z",
+            "content_hash": "d91e17da5c8045fe9a5123f4746e05174d4d43a3086c90997a240d8707c9c7f2",
+            "freshness": "FRESH"
+          }
+        ]
+      },
+      "rule_version": {
+        "version": "2026.1",
+        "program_slug": "nj-section-8-housing-choice-voucher",
+        "effective_from": "2026-10-10",
+        "effective_to": null,
+        "root": {
+          "description": "Housing Choice Voucher preliminary eligibility screen",
+          "source_ids": [
+            "njdca-hcv-program-page-2026"
+          ],
+          "kind": "all_of",
+          "conditions": [
+            {
+              "description": "You live in New Jersey - the statewide programme covers every county.",
+              "source_ids": [
+                "njdca-hcv-program-page-2026"
+              ],
+              "kind": "geography",
+              "states": [
+                "NJ"
+              ],
+              "counties": []
+            },
+            {
+              "description": "You rent your home, or you are looking for a place to rent.",
+              "source_ids": [
+                "njdca-hcv-program-page-2026"
+              ],
+              "kind": "categorical",
+              "field": "housing_situation",
+              "any_of": [
+                "RENTING",
+                "LIVING_WITH_FAMILY",
+                "TEMPORARY_OR_SHELTER",
+                "UNHOUSED",
+                "UNIVERSITY_HOUSING",
+                "OTHER"
+              ]
+            }
+          ]
+        },
+        "source_ids": [
+          "njdca-hcv-program-page-2026"
+        ],
+        "review_status": "APPROVED",
+        "limitations": [
+          "The 2026 income limits are published per county and per household size, up to eight people. The rule format cannot express that table, so no income condition is encoded. Look up your county on the official page.",
+          "Vouchers are rationed through waiting lists that open and close. A preliminary match does not mean a voucher is available.",
+          "County and municipal housing authorities run their own Section 8 programmes with their own waiting lists, which this record does not cover."
+        ],
+        "reviewed_by": "secondchance-curation",
+        "reviewed_at": "2026-10-10T19:58:56.610088Z"
+      },
+      "limitations": [
+        "The 2026 income limits are published per county and per household size, up to eight people. The rule format cannot express that table, so no income condition is encoded. Look up your county on the official page.",
+        "Vouchers are rationed through waiting lists that open and close. A preliminary match does not mean a voucher is available.",
+        "County and municipal housing authorities run their own Section 8 programmes with their own waiting lists, which this record does not cover."
+      ]
+    }
+  ]
+}

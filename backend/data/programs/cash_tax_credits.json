@@ -1,0 +1,406 @@
+{
+  "category": "CASH_TAX_CREDITS",
+  "description": "Cash benefits, tax credits and property tax relief.",
+  "programs": [
+    {
+      "program": {
+        "id": "14a46a6b-acf0-5e2f-a73c-c6c4481b5143",
+        "slug": "nj-earned-income-tax-credit",
+        "official_name": "New Jersey Earned Income Tax Credit (NJEITC)",
+        "administering_org": "New Jersey Division of Taxation",
+        "category": "CASH_TAX_CREDITS",
+        "description": "The NJEITC is a cash-back tax credit for working families and individuals, including the self-employed, who earn low to moderate income. For Tax Year 2025 a claimant must have been a New Jersey resident for at least part of the year who works or earns income, must have a qualifying child or be at least 18 years old, must meet the federal income limits for their filing status and claimed dependents, must have a valid Social Security number, and must file a New Jersey Resident Income Tax Return. In general the claimant must also qualify for the federal Earned Income Tax Credit, though New Jersey does not follow the federal age limits. Investment income must be $11,950 or less.",
+        "plain_language_summary": "The NJEITC is money back from the state if you worked and did not earn much. You have to file a New Jersey tax return to get it, even if your income is too low to be required to file. The income limit depends on your filing status and how many children you claim - from $19,104 up to $68,675.",
+        "who_it_helps": [
+          "Working people with low or moderate earnings",
+          "Self-employed people and gig workers",
+          "Parents claiming qualifying children",
+          "Workers aged 18 and over, with or without children"
+        ],
+        "geo_scope": {
+          "nationwide": false,
+          "states": [
+            "NJ"
+          ],
+          "counties": [],
+          "campuses": [],
+          "label": "All of New Jersey"
+        },
+        "official_url": "https://www.nj.gov/treasury/taxation/eitc/eitcinfo.shtml",
+        "application_url": null,
+        "phone": null,
+        "keywords": [
+          "eitc",
+          "njeitc",
+          "earned income tax credit",
+          "tax refund",
+          "tax credit",
+          "cash back",
+          "nj-1040",
+          "taxes"
+        ],
+        "verification_status": "VERIFIED",
+        "last_verified_at": "2026-10-10T19:58:56.610088Z",
+        "active_rule_version": "2026.1",
+        "sources": [
+          {
+            "id": "njeitc-overview-2026",
+            "url": "https://www.nj.gov/treasury/taxation/eitc/eitcinfo.shtml",
+            "title": "New Jersey Earned Income Tax Credit (NJEITC)",
+            "publisher": "New Jersey Division of Taxation",
+            "excerpt": "NJEITC is a cash-back tax credit that puts money back into the pockets of working families and individuals, including the self-employed, who earn low to moderate income.",
+            "retrieved_at": "2026-10-10T19:58:56.181397Z",
+            "content_hash": "f1e2ffada3e5247cfe3d40b85c0070a4eac8342b27d85ddfd17f11bc91856e1c",
+            "freshness": "FRESH"
+          },
+          {
+            "id": "njeitc-eligibility-ty2025",
+            "url": "https://www.nj.gov/treasury/taxation/eitc/knoweitc.shtml",
+            "title": "Know NJEITC - Eligibility and Earned Income Limits",
+            "publisher": "New Jersey Division of Taxation",
+            "excerpt": "To be eligible for the NJEITC for Tax Year 2025, you must:\nBe a New Jersey resident for at least some of the tax year who works or earns income;\nHave a qualifying child and/or be at least 18 years old;\nMeet the federal income limits for your filing status and claimed dependents;\nHave a valid Social Security number (This includes your spouse and any qualifying dependent you list on your tax return); and\nFile a New Jersey Resident Income Tax Return (NJ-1040), even if your New Jersey gross income is below the minimum filing threshold amount.\nYou cannot be listed as a dependent on another tax return.\nImportant Information About NJEITC:\nEarned Income Limits\nFiling Status\nQualifying Children Claimed\n0\n1\n2\n3 or more\nSingle, Head of Household, or Widowed\n$19,104\n$50,434\n$57,310\n$61,555\nMarried Filing Jointly\n$26,214\n$57,554\n$64,430\n$68,675",
+            "retrieved_at": "2026-10-10T19:58:56.347819Z",
+            "content_hash": "59a066a08d24f9c48889721c8d68475866e22e12791ef7f742616dc6936fb519",
+            "freshness": "FRESH"
+          }
+        ]
+      },
+      "rule_version": {
+        "version": "2026.1",
+        "program_slug": "nj-earned-income-tax-credit",
+        "effective_from": "2026-10-10",
+        "effective_to": null,
+        "root": {
+          "description": "NJEITC preliminary eligibility screen",
+          "source_ids": [
+            "njeitc-overview-2026",
+            "njeitc-eligibility-ty2025"
+          ],
+          "kind": "all_of",
+          "conditions": [
+            {
+              "description": "You were a New Jersey resident for at least part of the tax year.",
+              "source_ids": [
+                "njeitc-eligibility-ty2025"
+              ],
+              "kind": "geography",
+              "states": [
+                "NJ"
+              ],
+              "counties": []
+            },
+            {
+              "description": "You are at least 18 years old, or you have a qualifying child.",
+              "source_ids": [
+                "njeitc-eligibility-ty2025"
+              ],
+              "kind": "age",
+              "min": 18,
+              "max": null
+            },
+            {
+              "description": "Your earned income is under the federal limit for your filing status and number of qualifying children. The highest limit in the published table is $68,675, for married filing jointly with three or more children; the lowest is $19,104, for a single filer with no children.",
+              "source_ids": [
+                "njeitc-eligibility-ty2025"
+              ],
+              "kind": "income_absolute",
+              "max_monthly_cents": null,
+              "max_annual_cents": 6867500
+            }
+          ]
+        },
+        "source_ids": [
+          "njeitc-overview-2026",
+          "njeitc-eligibility-ty2025"
+        ],
+        "review_status": "APPROVED",
+        "limitations": [
+          "The income limit that actually applies depends on your filing status and the number of qualifying children you claim, and ranges from $19,104 to $68,675. The profile does not record filing status, so this screen uses the highest published figure and will look optimistic for a single filer with no children.",
+          "Investment income must be $11,950 or less for the year, which is not encoded.",
+          "You need a valid Social Security number for yourself, your spouse and every claimed dependent, you cannot be claimed as a dependent on someone else's return, and you must file an NJ-1040.",
+          "In general you must also claim and qualify for the federal Earned Income Tax Credit."
+        ],
+        "reviewed_by": "secondchance-curation",
+        "reviewed_at": "2026-10-10T19:58:56.610088Z"
+      },
+      "limitations": [
+        "The income limit that actually applies depends on your filing status and the number of qualifying children you claim, and ranges from $19,104 to $68,675. The profile does not record filing status, so this screen uses the highest published figure and will look optimistic for a single filer with no children.",
+        "Investment income must be $11,950 or less for the year, which is not encoded.",
+        "You need a valid Social Security number for yourself, your spouse and every claimed dependent, you cannot be claimed as a dependent on someone else's return, and you must file an NJ-1040.",
+        "In general you must also claim and qualify for the federal Earned Income Tax Credit."
+      ]
+    },
+    {
+      "program": {
+        "id": "11e82953-72b6-542f-acd1-22cf1be86aef",
+        "slug": "nj-anchor-property-tax-relief",
+        "official_name": "ANCHOR (Affordable New Jersey Communities for Homeowners and Renters)",
+        "administering_org": "New Jersey Division of Taxation",
+        "category": "CASH_TAX_CREDITS",
+        "description": "ANCHOR offers property tax relief to New Jersey residents who own or rent their main home in New Jersey and meet the income limits. Homeowners qualify if they owned and occupied a New Jersey home as their principal residence on October 1, 2024, the home was subject to property taxes, and their 2024 New Jersey gross income was not more than $250,000. Renters qualify if they rented and occupied a New Jersey residence as their principal residence on October 1, 2024, their name was on the lease, they paid rent, the property was subject to local property taxes, and their 2024 New Jersey gross income was not more than $150,000. The Division files on behalf of most eligible residents; seniors and recipients of Social Security or Railroad Retirement disability benefits file the combined PAS-1 application.",
+        "plain_language_summary": "ANCHOR is a New Jersey payment that helps with property taxes, and renters get it too. Homeowners can earn up to $250,000 and renters up to $150,000. The state files for most people automatically and sends a confirmation letter, so check whether you already have one before applying.",
+        "who_it_helps": [
+          "Homeowners who paid New Jersey property taxes",
+          "Renters whose building pays local property taxes",
+          "Seniors and people receiving Social Security disability benefits"
+        ],
+        "geo_scope": {
+          "nationwide": false,
+          "states": [
+            "NJ"
+          ],
+          "counties": [],
+          "campuses": [],
+          "label": "All of New Jersey"
+        },
+        "official_url": "https://www.nj.gov/treasury/taxation/anchor/index.shtml",
+        "application_url": null,
+        "phone": null,
+        "keywords": [
+          "anchor",
+          "property tax",
+          "rebate",
+          "renter rebate",
+          "property tax relief",
+          "pas-1",
+          "taxes",
+          "rent"
+        ],
+        "verification_status": "VERIFIED",
+        "last_verified_at": "2026-10-10T19:58:56.610088Z",
+        "active_rule_version": "2026.1",
+        "sources": [
+          {
+            "id": "nj-anchor-program-page-2025",
+            "url": "https://www.nj.gov/treasury/taxation/anchor/index.shtml",
+            "title": "ANCHOR Program",
+            "publisher": "New Jersey Division of Taxation",
+            "excerpt": "ANCHOR Homeowner Eligibility Requirements\nYou are eligible if:\nYou were a New Jersey resident; and\nYou owned and occupied a home in New Jersey that was your principal residence (main home) on October 1, 2024; and\nYour home was subject to property taxes; and\nYour 2024 New Jersey gross income was not more than $250,000.\nANCHOR Renter Eligibility Requirements\nYou are eligible if:\nYou were a New Jersey resident; and\nYou rented and occupied a residence in New Jersey that was your principal residence (main home) on October 1, 2024; and\nYour name was on the lease or rental agreement; and\nYou paid rent; and\nThe rental property was subject to local property taxes, (see Qualified and Non-Qualified Rental Properties); and\nYour 2024 New Jersey gross income was not more than $150,000.\n\nThis program offers property tax relief to New Jersey residents who own or rent property in New Jersey as their main home and meet certain income limits. This year's ANCHOR benefit is based on residency, income, and age from 2025.",
+            "retrieved_at": "2026-10-10T19:58:56.385631Z",
+            "content_hash": "7c9dfd0e196880fb4b00a06c2e046fc3a7cee677f444e6f91bca4aced3c01c86",
+            "freshness": "FRESH"
+          }
+        ]
+      },
+      "rule_version": {
+        "version": "2026.1",
+        "program_slug": "nj-anchor-property-tax-relief",
+        "effective_from": "2026-10-10",
+        "effective_to": null,
+        "root": {
+          "description": "ANCHOR preliminary eligibility screen",
+          "source_ids": [
+            "nj-anchor-program-page-2025"
+          ],
+          "kind": "all_of",
+          "conditions": [
+            {
+              "description": "You were a New Jersey resident and New Jersey was your main home.",
+              "source_ids": [
+                "nj-anchor-program-page-2025"
+              ],
+              "kind": "geography",
+              "states": [
+                "NJ"
+              ],
+              "counties": []
+            },
+            {
+              "description": "You owned your main home and your New Jersey gross income was not more than $250,000, or you rented it and your income was not more than $150,000.",
+              "source_ids": [
+                "nj-anchor-program-page-2025"
+              ],
+              "kind": "any_of",
+              "conditions": [
+                {
+                  "description": "You own the home you live in and your New Jersey gross income was not more than $250,000.",
+                  "source_ids": [
+                    "nj-anchor-program-page-2025"
+                  ],
+                  "kind": "all_of",
+                  "conditions": [
+                    {
+                      "description": "You own the home you live in.",
+                      "source_ids": [
+                        "nj-anchor-program-page-2025"
+                      ],
+                      "kind": "categorical",
+                      "field": "housing_situation",
+                      "any_of": [
+                        "OWN_HOME"
+                      ]
+                    },
+                    {
+                      "description": "Your New Jersey gross income was not more than $250,000.",
+                      "source_ids": [
+                        "nj-anchor-program-page-2025"
+                      ],
+                      "kind": "income_absolute",
+                      "max_monthly_cents": null,
+                      "max_annual_cents": 25000000
+                    }
+                  ]
+                },
+                {
+                  "description": "You rent the home you live in and your New Jersey gross income was not more than $150,000.",
+                  "source_ids": [
+                    "nj-anchor-program-page-2025"
+                  ],
+                  "kind": "all_of",
+                  "conditions": [
+                    {
+                      "description": "You rent the home you live in.",
+                      "source_ids": [
+                        "nj-anchor-program-page-2025"
+                      ],
+                      "kind": "categorical",
+                      "field": "housing_situation",
+                      "any_of": [
+                        "RENTING"
+                      ]
+                    },
+                    {
+                      "description": "Your New Jersey gross income was not more than $150,000.",
+                      "source_ids": [
+                        "nj-anchor-program-page-2025"
+                      ],
+                      "kind": "income_absolute",
+                      "max_monthly_cents": null,
+                      "max_annual_cents": 15000000
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "source_ids": [
+          "nj-anchor-program-page-2025"
+        ],
+        "review_status": "APPROVED",
+        "limitations": [
+          "Eligibility depends on where you lived on October 1, 2024 and on your 2024 New Jersey gross income. This screen compares current income, which may differ.",
+          "Renters only qualify if their name was on the lease and the rental property is subject to local property taxes; some property types do not qualify.",
+          "The Division of Taxation files automatically for most eligible homeowners and renters and sends a confirmation letter, so many people do not need to apply.",
+          "Seniors and recipients of Social Security or Railroad Retirement disability benefits apply through the combined PAS-1 application, which also covers Senior Freeze and Stay NJ. Deadlines apply - check the official page."
+        ],
+        "reviewed_by": "secondchance-curation",
+        "reviewed_at": "2026-10-10T19:58:56.610088Z"
+      },
+      "limitations": [
+        "Eligibility depends on where you lived on October 1, 2024 and on your 2024 New Jersey gross income. This screen compares current income, which may differ.",
+        "Renters only qualify if their name was on the lease and the rental property is subject to local property taxes; some property types do not qualify.",
+        "The Division of Taxation files automatically for most eligible homeowners and renters and sends a confirmation letter, so many people do not need to apply.",
+        "Seniors and recipients of Social Security or Railroad Retirement disability benefits apply through the combined PAS-1 application, which also covers Senior Freeze and Stay NJ. Deadlines apply - check the official page."
+      ]
+    },
+    {
+      "program": {
+        "id": "b4e7e408-fdcd-55fd-a450-bb739f3fc239",
+        "slug": "nj-unemployment-insurance",
+        "official_name": "New Jersey Unemployment Insurance",
+        "administering_org": "New Jersey Department of Labor and Workforce Development, Division of Unemployment Insurance",
+        "category": "CASH_TAX_CREDITS",
+        "description": "New Jersey Unemployment Insurance pays weekly benefits to workers who lose a job through no fault of their own. Eligibility is based on wage information from employers in the last 18 months, on the reason the claim ended, and on continuing requirements once a claim is open. To qualify on a 2026 claim a worker must have earned at least $310 per week for 20 or more weeks in covered employment during the base year, or at least $15,500 in total. Workers who live in New Jersey but worked only in other states should apply where they physically worked, and self-employed people who do not pay into Unemployment Insurance may not be eligible.",
+        "plain_language_summary": "If you lost your job through no fault of your own, New Jersey Unemployment Insurance pays you every week while you look for work. For a 2026 claim you need to have earned at least $310 a week for 20 weeks, or $15,500 in total, in the year before you apply. You also have to confirm each week that you are still eligible.",
+        "who_it_helps": [
+          "People laid off or whose employer ran out of work",
+          "Workers with enough recent New Jersey wages",
+          "People out of work and looking for a job"
+        ],
+        "geo_scope": {
+          "nationwide": false,
+          "states": [
+            "NJ"
+          ],
+          "counties": [],
+          "campuses": [],
+          "label": "Work performed in New Jersey"
+        },
+        "official_url": "https://www.nj.gov/labor/myunemployment/before/about/who/",
+        "application_url": null,
+        "phone": null,
+        "keywords": [
+          "unemployment",
+          "unemployment insurance",
+          "ui",
+          "laid off",
+          "benefits",
+          "weekly benefits",
+          "job loss",
+          "income support"
+        ],
+        "verification_status": "VERIFIED",
+        "last_verified_at": "2026-10-10T19:58:56.610088Z",
+        "active_rule_version": "2026.1",
+        "sources": [
+          {
+            "id": "nj-ui-who-is-eligible-2026",
+            "url": "https://www.nj.gov/labor/myunemployment/before/about/who/",
+            "title": "Who is eligible for benefits?",
+            "publisher": "New Jersey Department of Labor and Workforce Development, Division of Unemployment Insurance",
+            "excerpt": "When you first apply for Unemployment Insurance benefits, we look at a few different factors to see if you qualify.\nUnemployment benefits are based on wage information from your employers in the last 18 months. If you live in NJ but only worked in other states, you should apply in a state where you physically worked.\nWe need to know why you're out of work, and whether your recent earnings meet the minimum required by law.\nAfter you first qualify for benefits, you will need to meet some additional requirements in order to keep receiving them.\nSome workers, like school employees and business owners, have their own unique qualifications. If you are self-employed and do not pay for Unemployment Insurance through your paycheck, you may not be eligible for benefits.\nRead our FAQs on who is eligible for benefits here .\nWhy are you unemployed?\nUnemployment Insurance benefits are meant for people who lose their job “through no fault of their own,” such as an employer’s lack of work or a layoff due to downsizing. If you voluntarily quit your job for reasons that were not work-related, or you were terminated for misconduct, your eligibility will need to be reviewed. A representative from our division (a claims examiner) will conduct a fact-finding interview by either phone or email to determine whether you are eligible for Unemployment Insurance benefits. Your employer(s) may also be requested to participate. The claims examiner will review the facts that you and your employer(s) provide, and determine your eligibility based on the law.\nIf you were fired due to misconduct or you quit voluntarily, your benefits may be delayed or denied.\nRead more about quitting or getting fired.\nDid you earn enough during your \"base year period\" of employment?\nTo qualify for unemployment payments from New Jersey, you must have made at least a certain amount of money during your \"base year.\" You don’t have to calculate your weekly benefit rate. Department of Labor staff will do these calculations when they review your application.\nYour weekly payment amount is determined by the earnings you made in your base year.\nMinimum earnings\nIf you applied in 2025 : You must have earned at least $303 per week for 20 or more weeks in covered employment during your base year, or a total of at least $15,200.\nIf you're applying in 2026: You must have earned at least $310 per week for 20 or more weeks in covered employment during your base year, or a total of at least $15,500.",
+            "retrieved_at": "2026-10-10T19:58:56.454165Z",
+            "content_hash": "a6d17fcb8129639da0c26a19bb929d803b507f0df32d8f26d2e07ec13a552d13",
+            "freshness": "FRESH"
+          }
+        ]
+      },
+      "rule_version": {
+        "version": "2026.1",
+        "program_slug": "nj-unemployment-insurance",
+        "effective_from": "2026-10-10",
+        "effective_to": null,
+        "root": {
+          "description": "Unemployment Insurance preliminary eligibility screen",
+          "source_ids": [
+            "nj-ui-who-is-eligible-2026"
+          ],
+          "kind": "all_of",
+          "conditions": [
+            {
+              "description": "You worked in New Jersey - benefits are based on wages from New Jersey employers.",
+              "source_ids": [
+                "nj-ui-who-is-eligible-2026"
+              ],
+              "kind": "geography",
+              "states": [
+                "NJ"
+              ],
+              "counties": []
+            },
+            {
+              "description": "You are out of work.",
+              "source_ids": [
+                "nj-ui-who-is-eligible-2026"
+              ],
+              "kind": "categorical",
+              "field": "employment_status",
+              "any_of": [
+                "UNEMPLOYED"
+              ]
+            }
+          ]
+        },
+        "source_ids": [
+          "nj-ui-who-is-eligible-2026"
+        ],
+        "review_status": "APPROVED",
+        "limitations": [
+          "The base-year earnings test - at least $310 a week for 20 weeks, or $15,500 in total for a 2026 claim - cannot be checked from the profile, which records current income rather than wage history.",
+          "Benefits are for people who lose work through no fault of their own. If you quit voluntarily for reasons that were not work-related, or you were fired for misconduct, a claims examiner reviews your eligibility.",
+          "If you live in New Jersey but worked only in other states, apply in a state where you physically worked.",
+          "School employees, federal employees, corporate officers and business owners have their own qualification rules."
+        ],
+        "reviewed_by": "secondchance-curation",
+        "reviewed_at": "2026-10-10T19:58:56.610088Z"
+      },
+      "limitations": [
+        "The base-year earnings test - at least $310 a week for 20 weeks, or $15,500 in total for a 2026 claim - cannot be checked from the profile, which records current income rather than wage history.",
+        "Benefits are for people who lose work through no fault of their own. If you quit voluntarily for reasons that were not work-related, or you were fired for misconduct, a claims examiner reviews your eligibility.",
+        "If you live in New Jersey but worked only in other states, apply in a state where you physically worked.",
+        "School employees, federal employees, corporate officers and business owners have their own qualification rules."
+      ]
+    }
+  ]
+}
