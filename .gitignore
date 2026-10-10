@@ -1,0 +1,44 @@
+# ---- secrets: never commit ----
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# ---- local spec notes (not part of the product) ----
+prompts
+prompt2
+
+# ---- python ----
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+dist/
+build/
+
+# ---- node / next ----
+node_modules/
+.next/
+out/
+.turbo/
+*.tsbuildinfo
+.vercel/
+
+# ---- os / editor ----
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# ---- local data ----
+pgdata/
+benchmarks/results/*.local.json
