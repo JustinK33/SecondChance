@@ -13,6 +13,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
 import { LoadingCards } from "@/components/ui/loading-state";
 import { useAnnouncer } from "@/lib/announcer";
+import { pluralize } from "@/lib/format";
 import { useReevaluate, useWorkflow } from "@/lib/hooks";
 import { compareByStatus } from "@/lib/status";
 import { MATCH_STATUSES } from "@/lib/types";
@@ -247,19 +248,6 @@ export function ResultsView({ runId }: { runId: string }): ReactNode {
         </div>
       ) : null}
 
-      {workflow.limitations.length > 0 ? (
-        <section aria-labelledby="run-limitations" className="space-y-2">
-          <h2 id="run-limitations" className="text-base font-semibold">
-            What this check does not cover
-          </h2>
-          <ul className="text-muted-foreground reading-width list-disc space-y-1 pl-5 text-sm">
-            {workflow.limitations.map((limitation) => (
-              <li key={limitation}>{limitation}</li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
-
       {total === 0 ? (
         <EmptyState
           title="Nothing matched this time"
@@ -276,11 +264,48 @@ export function ResultsView({ runId }: { runId: string }): ReactNode {
         ))
       )}
 
+      {workflow.limitations.length > 0 ? <Limitations notes={workflow.limitations} /> : null}
+
       <p className="text-muted-foreground reading-width text-xs">
         SecondChance is an independent project. It is not a government agency and cannot apply on
         your behalf or decide any application.
       </p>
     </div>
+  );
+}
+
+/**
+ * The caveats behind the check, after the results rather than in front of them.
+ *
+ * These are real and they have to stay on the page: each one is a requirement
+ * the engine could not encode, and hiding them would make the list look more
+ * certain than it is. But a run against twenty-five programs produces dozens of
+ * them, and rendering that wall above the matches buried the actual answer
+ * under two screens of fine print. So: a closed disclosure, with the count on
+ * the summary so nobody has to guess whether it is worth opening.
+ *
+ * `<details>` rather than a scripted accordion, because the open state has no
+ * business being React state and a native disclosure is keyboard-operable and
+ * announced correctly without any help from us.
+ */
+function Limitations({ notes }: { notes: readonly string[] }): ReactNode {
+  return (
+    <details className="bg-card rounded-lg border">
+      <summary className="touch-row flex cursor-pointer items-center px-4 py-3 text-base font-semibold">
+        What this check does not cover ({pluralize(notes.length, "note")})
+      </summary>
+      <div className="space-y-2 px-4 pb-4">
+        <p className="text-muted-foreground reading-width text-sm">
+          Each of these is a requirement we could not check for you. They are the reason nothing
+          here is a decision.
+        </p>
+        <ul className="text-muted-foreground reading-width list-disc space-y-1 pl-5 text-sm">
+          {notes.map((note) => (
+            <li key={note}>{note}</li>
+          ))}
+        </ul>
+      </div>
+    </details>
   );
 }
 

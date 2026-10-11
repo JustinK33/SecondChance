@@ -31,8 +31,8 @@ import type { ReactNode } from "react";
 import { ROUTES } from "@/components/layout/routes";
 import { Button } from "@/components/ui/button";
 import { ErrorState } from "@/components/ui/error-state";
-import { LoadingState } from "@/components/ui/loading-state";
 import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useAnnouncer } from "@/lib/announcer";
 import { useWorkflow } from "@/lib/hooks";
 import type { ClarificationAnswer, ClarificationQuestion } from "@/lib/types";
@@ -118,7 +118,7 @@ export function ClarificationFlow({ runId }: { runId: string }): ReactNode {
   );
 
   if (run.isLoading) {
-    return <LoadingState message="Loading your questions..." />;
+    return <QuestionSkeleton />;
   }
 
   if (run.error !== null) {
@@ -249,6 +249,34 @@ export function ClarificationFlow({ runId }: { runId: string }): ReactNode {
         We only ask questions whose answers could change your results. We never ask for a Social
         Security number, bank details or a password.
       </p>
+    </div>
+  );
+}
+
+/**
+ * The shape of the question that is coming, while the run is being read.
+ *
+ * A bare spinner tells someone nothing and the page jumps when the real card
+ * arrives. This is the same layout - progress, question, "why we are asking",
+ * two choices - so the only thing that changes on load is the text.
+ */
+function QuestionSkeleton(): ReactNode {
+  return (
+    <div className="space-y-6">
+      <p role="status" className="sr-only">
+        Loading your questions.
+      </p>
+      <div aria-hidden="true" className="space-y-6">
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-32" />
+          <Skeleton className="h-2 w-full" />
+        </div>
+        <Skeleton className="h-7 w-3/4" />
+        <Skeleton className="h-16 w-full rounded-lg" />
+        <Skeleton className="h-20 w-full rounded-lg" />
+        <Skeleton className="h-20 w-full rounded-lg" />
+        <Skeleton className="h-12 w-48 rounded-md" />
+      </div>
     </div>
   );
 }

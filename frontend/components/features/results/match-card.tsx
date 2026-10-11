@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { LastVerified } from "@/components/ui/last-verified";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { humanizeEnum } from "@/lib/format";
+import { programCategoryLabel } from "@/lib/format";
 import { statusPresentation } from "@/lib/status";
 import type { ProgramMatch } from "@/lib/types";
 
@@ -72,7 +72,7 @@ export function MatchCard({
               {program.official_name}
             </Heading>
             <p className="text-muted-foreground text-sm">
-              Run by {program.administering_org} · {humanizeEnum(program.category)} ·{" "}
+              Run by {program.administering_org} · {programCategoryLabel(program.category)} ·{" "}
               {program.geo_scope_label}
             </p>
           </div>

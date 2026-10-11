@@ -57,7 +57,7 @@ export function NarrativeField({
       </Label>
       <p id={hintId} className="text-muted-foreground text-sm">
         Write it however you like - the way you would tell a friend. A few sentences is plenty.
-        Include anything you think matters: money, housing, food, school, health, children.
+        Include anything you think matters: income, housing, food, education, health care, children.
       </p>
 
       <Textarea

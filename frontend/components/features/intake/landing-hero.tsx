@@ -10,10 +10,14 @@ import { Button } from "@/components/ui/button";
  * One honest sentence about what this does, one about who it is for, and one
  * primary action. The secondary action is deliberately quieter: browsing the
  * catalog is useful, but it is not what most people arrive needing.
+ *
+ * Centred, as one reading column. The copy is capped at a readable measure and
+ * the column is centred in whatever window it lands in, which is what keeps a
+ * 1440px desktop from rendering it as a narrow strip against the left edge.
  */
 export function LandingHero(): ReactNode {
   return (
-    <section className="reading-width space-y-6">
+    <section className="reading-column space-y-6 text-center">
       <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
         Find help you may be able to get in New Jersey
       </h1>
@@ -27,7 +31,7 @@ export function LandingHero(): ReactNode {
         jobs, anyone who has been told to &ldquo;apply online&rdquo; and found twelve different
         websites. You do not need to know the name of any program.
       </p>
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-center">
         <Button asChild size="lg" className="touch-row w-full px-6 text-base sm:w-auto">
           <Link href={ROUTES.start}>Start - it takes about 5 minutes</Link>
         </Button>

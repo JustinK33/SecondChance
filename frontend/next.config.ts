@@ -7,7 +7,7 @@ import type { NextConfig } from "next";
  * and are left on: every data-bearing page in this app is client-rendered
  * through `lib/hooks`, so there is no server cache for them to stale.
  *
- * Security headers live in `middleware.ts` rather than here, because the CSP
+ * Security headers live in `proxy.ts` rather than here, because the CSP
  * needs the configured API origin and `headers()` cannot read it per-request.
  */
 const nextConfig: NextConfig = {

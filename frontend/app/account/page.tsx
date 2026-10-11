@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 export default function AccountPage(): ReactNode {
   return (
     <div className="page-container py-8 sm:py-12">
-      <div className="reading-width space-y-10">
+      <div className="reading-column space-y-10">
         <header className="space-y-2">
           <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Your information</h1>
           <p className="text-muted-foreground">

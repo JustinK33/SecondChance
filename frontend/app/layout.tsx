@@ -48,7 +48,10 @@ export const viewport: Viewport = {
   initialScale: 1,
   // Never block zoom. Someone who needs to magnify text must be able to.
   maximumScale: 5,
-  colorScheme: "light dark",
+  // Only the light palette is actually rendered today: `.dark` exists in the
+  // stylesheet but nothing toggles it. Claiming "light dark" made the UA draw
+  // native checkboxes and radios dark on a light page.
+  colorScheme: "light",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#fbfdfc" },
     { media: "(prefers-color-scheme: dark)", color: "#13191d" },

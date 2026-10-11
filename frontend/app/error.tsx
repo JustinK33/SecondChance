@@ -31,7 +31,7 @@ export default function RouteError({
 
   return (
     <div className="page-container py-16">
-      <div className="reading-width space-y-5">
+      <div className="reading-column space-y-5">
         <h1 className="text-2xl font-semibold">This page could not load</h1>
         <p>
           Something went wrong on our side, not yours. Anything you had already typed is saved on

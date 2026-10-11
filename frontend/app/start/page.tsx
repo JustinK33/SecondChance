@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 export default function StartPage(): ReactNode {
   return (
     <div className="page-container py-8 sm:py-12">
-      <div className="reading-width space-y-8">
+      <div className="reading-column space-y-8">
         <header className="space-y-3">
           <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
             Tell us what is going on

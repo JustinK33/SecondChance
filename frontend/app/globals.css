@@ -24,6 +24,17 @@
 --------------------------------------------------------------------------- */
 
 :root {
+  /* The UA renders native form controls - a checkbox, a radio, a select - from
+     `color-scheme`, not from our tokens. Declaring `light dark` here while the
+     only palette we actually switch to is the `.dark` class would give a light
+     page dark checkboxes on a machine that prefers dark, which is exactly the
+     bug it looks like. The scheme is therefore pinned to whichever palette is
+     really rendered. */
+  color-scheme: light;
+  /* Checked checkboxes and radios inherit this, so the native controls are the
+     brand colour instead of the UA's blue. */
+  accent-color: var(--primary);
+
   /* surfaces */
   --background: oklch(0.994 0.003 140);
   --foreground: oklch(0.215 0.015 220);
@@ -93,6 +104,8 @@
 }
 
 .dark {
+  color-scheme: dark;
+
   --background: oklch(0.175 0.012 225);
   --foreground: oklch(0.965 0.005 220);
   --card: oklch(0.215 0.014 225);
@@ -290,9 +303,21 @@
     }
   }
 
-  /* Measure for long-form reading. Narrower than the page, deliberately. */
+  /* Measure for long-form reading. Narrower than the page, deliberately.
+
+     This one only caps the width: it is applied to a paragraph sitting under a
+     full-width heading, where centring the paragraph and not the heading would
+     look like a mistake. */
   .reading-width {
     max-width: 42rem;
+  }
+
+  /* A whole screen whose content is one reading column. Centred, because a
+     42rem column pinned to the left of a 1440px window leaves half the screen
+     empty - which is how the desktop layout read before this existed. */
+  .reading-column {
+    max-width: 42rem;
+    margin-inline: auto;
   }
 
   /* Visible only when focused. Used by the skip link. */

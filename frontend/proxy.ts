@@ -1,8 +1,12 @@
 /**
- * Edge middleware: security headers, and Supabase session upkeep.
+ * The request proxy: security headers, and Supabase session upkeep.
  *
- * Two jobs, and nothing else. Middleware runs on every request, so anything
- * expensive here is paid for on every navigation.
+ * This is the `proxy.ts` convention, which replaced `middleware.ts` in Next 16
+ * - the old filename still works but warns on every build, and a build that
+ * warns is a build people stop reading.
+ *
+ * Two jobs, and nothing else. It runs on every request, so anything expensive
+ * here is paid for on every navigation.
  *
  * **Security headers.** Set here rather than in `next.config.ts` so they also
  * cover responses the config's `headers()` does not, and so the connect-src
@@ -19,7 +23,7 @@
  * paying for a Supabase client per request would be pure waste.
  *
  * Deliberately *not* done here: route protection. In development-identity mode
- * the identity lives in `localStorage`, which middleware cannot see, so a
+ * the identity lives in `localStorage`, which this layer cannot see, so a
  * cookie-based redirect would bounce every authenticated page to sign-in. The
  * screens gate their own content on `useAuth()`, which is correct in both modes.
  */
@@ -84,7 +88,7 @@ function withSecurityHeaders(response: NextResponse): NextResponse {
   return response;
 }
 
-export async function middleware(request: NextRequest): Promise<NextResponse> {
+export default async function proxy(request: NextRequest): Promise<NextResponse> {
   let response = NextResponse.next({ request });
 
   if (!SUPABASE_SESSIONS_ACTIVE) {
@@ -121,7 +125,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
 export const config = {
   /**
    * Skip static assets and the image optimiser. Matching them would add a
-   * middleware invocation to every icon request for no benefit.
+   * proxy invocation to every icon request for no benefit.
    */
   matcher: [
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",

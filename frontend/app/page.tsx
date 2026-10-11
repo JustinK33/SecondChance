@@ -15,27 +15,44 @@ import { Button } from "@/components/ui/button";
  * is not, then the action again for anyone who scrolled to the bottom before
  * deciding. A server component - there is no state here, so there is no reason
  * to ship it as JavaScript.
+ *
+ * The layout is a centred 64rem column rather than the full 72rem page: the
+ * hero is one reading column, and the sections below it widen into a grid so a
+ * desktop window is used rather than leaving its right half empty.
  */
 export default function HomePage(): ReactNode {
   return (
-    <div className="page-container space-y-12 py-10 sm:py-14">
-      <LandingHero />
-      <HowItWorks className="reading-width sm:max-w-none" />
-      <WhatWeCollect className="reading-width" />
-      <PreliminaryNotice className="reading-width" />
+    <div className="page-container py-10 sm:py-14">
+      <div className="mx-auto max-w-5xl space-y-14">
+        <LandingHero />
 
-      <section aria-labelledby="start-again-heading" className="reading-width space-y-4">
-        <h2 id="start-again-heading" className="text-xl font-semibold">
-          Ready when you are
-        </h2>
-        <p className="text-muted-foreground">
-          You can stop part way through and come back. Your answers stay on your own device until
-          you send them.
-        </p>
-        <Button asChild size="lg" className="touch-row w-full px-6 text-base sm:w-auto">
-          <Link href={ROUTES.start}>Start</Link>
-        </Button>
-      </section>
+        <HowItWorks />
+
+        {/* Two notices of similar weight. Side by side above `lg`, stacked
+            below it, so neither is buried under a long scroll on a phone. They
+            stretch to a common height rather than leaving a ragged gap under
+            the shorter one. */}
+        <div className="grid gap-6 lg:grid-cols-2 [&>*]:h-full">
+          <WhatWeCollect />
+          <PreliminaryNotice />
+        </div>
+
+        <section
+          aria-labelledby="start-again-heading"
+          className="reading-column space-y-4 border-t pt-10 text-center"
+        >
+          <h2 id="start-again-heading" className="text-xl font-semibold">
+            Ready when you are
+          </h2>
+          <p className="text-muted-foreground">
+            You can stop part way through and come back. Your answers stay on your own device until
+            you send them.
+          </p>
+          <Button asChild size="lg" className="touch-row w-full px-8 text-base sm:w-auto">
+            <Link href={ROUTES.start}>Start</Link>
+          </Button>
+        </section>
+      </div>
     </div>
   );
 }

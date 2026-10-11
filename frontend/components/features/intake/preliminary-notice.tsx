@@ -28,7 +28,7 @@ export function PreliminaryNotice({
       )}
     >
       <Info aria-hidden="true" className="mt-0.5 size-5 shrink-0" />
-      <div className="reading-width space-y-2 text-sm">
+      <div className="space-y-2 text-sm">
         <h2 id="preliminary-notice-heading" className="text-base font-semibold">
           {heading}
         </h2>

@@ -6,6 +6,7 @@ import type { ConditionEvidence, Trilean } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 import { describeMissingFields } from "./field-labels";
+import { describeThreshold } from "./threshold-text";
 
 /**
  * The rule engine's reasoning, in human terms.
@@ -67,6 +68,10 @@ function OutcomeIcon({ outcome }: { outcome: Trilean }): ReactNode {
 
 export function EvidenceRow({ leaf }: { leaf: EvidenceLeaf }): ReactNode {
   const missing = describeMissingFields(leaf.missingFields);
+  // `threshold_applied` is an audit string. It is shown only once it has been
+  // rewritten into plain language; a field name or an enum member must never
+  // reach this row.
+  const threshold = describeThreshold(leaf.thresholdApplied);
   return (
     <li className="flex items-start gap-2 text-sm">
       <OutcomeIcon outcome={leaf.outcome} />
@@ -75,8 +80,8 @@ export function EvidenceRow({ leaf }: { leaf: EvidenceLeaf }): ReactNode {
           {leaf.description}{" "}
           <span className="text-muted-foreground">({trileanLabel(leaf.outcome)})</span>
         </p>
-        {leaf.thresholdApplied !== null ? (
-          <p className="text-muted-foreground text-xs">Checked against {leaf.thresholdApplied}.</p>
+        {threshold !== null ? (
+          <p className="text-muted-foreground text-xs">Checked against {threshold}.</p>
         ) : null}
         {missing.length > 0 ? (
           <p className="text-muted-foreground text-xs">

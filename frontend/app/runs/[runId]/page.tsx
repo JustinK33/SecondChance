@@ -29,7 +29,7 @@ export const metadata: Metadata = {
 export default function RunPage({ params }: { params: Promise<{ runId: string }> }): ReactNode {
   return (
     <div className="page-container py-8 sm:py-12">
-      <div className="reading-width space-y-6">
+      <div className="reading-column space-y-6">
         <header className="space-y-2">
           <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
             A couple of quick questions

@@ -14,7 +14,7 @@ export const metadata = { title: "Page not found" };
 export default function NotFound() {
   return (
     <div className="page-container py-16">
-      <div className="reading-width space-y-5">
+      <div className="reading-column space-y-5">
         <h1 className="text-2xl font-semibold">We could not find that page</h1>
         <p>
           The link may be out of date, or the page may have moved. Nothing is wrong with your

@@ -54,6 +54,22 @@ function readStored<T>(key: string): T | undefined {
 }
 
 /**
+ * Whether a draft is still the starting state.
+ *
+ * Compared by serialisation rather than field by field, because the draft shape
+ * is the caller's and this hook is generic. Both sides are produced by
+ * spreading the same initial object, so their key order matches; a false
+ * negative would only cost one redundant write.
+ */
+function isInitial<T>(value: T, initial: T): boolean {
+  try {
+    return JSON.stringify(value) === JSON.stringify(initial);
+  } catch {
+    return false;
+  }
+}
+
+/**
  * A `localStorage`-backed draft.
  *
  * `key` is namespaced for this app; pass something stable and non-personal such
@@ -78,7 +94,11 @@ export function useDraft<T>(key: string, initial: T): DraftResult<T> {
     const stored = readStored<T>(key);
     if (stored !== undefined) {
       setState(stored);
-      setWasRestored(true);
+      // Only an edit counts as something to restore. A stored draft that is
+      // still the starting state was written by the effect below, not typed by
+      // anyone, and telling someone "we kept what you had written" over an
+      // empty form reads as a bug and makes the real message untrustworthy.
+      if (!isInitial(stored, initialRef.current)) setWasRestored(true);
     }
     setIsHydrated(true);
   }, [key]);
@@ -86,12 +106,21 @@ export function useDraft<T>(key: string, initial: T): DraftResult<T> {
 
   // Debounced write. Skipped until hydration so we cannot overwrite a stored
   // draft with the initial value on first paint.
+  //
+  // An untouched form - or one the user has emptied again - stores nothing and
+  // removes anything already stored. Keeping an empty draft on the device would
+  // be both pointless and, on the next visit, a lie.
   useEffect(() => {
     if (!isHydrated || typeof window === "undefined") return;
     if (timerRef.current !== null) clearTimeout(timerRef.current);
+    const isUntouched = isInitial(value, initialRef.current);
     timerRef.current = setTimeout(() => {
       try {
-        window.localStorage.setItem(PREFIX + key, JSON.stringify(value));
+        if (isUntouched) {
+          window.localStorage.removeItem(PREFIX + key);
+        } else {
+          window.localStorage.setItem(PREFIX + key, JSON.stringify(value));
+        }
       } catch {
         // Storage full or disabled. In-memory state still works.
       }

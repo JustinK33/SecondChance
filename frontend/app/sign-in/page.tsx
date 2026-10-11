@@ -31,7 +31,7 @@ function SignInInner(): ReactNode {
 export default function SignInPage(): ReactNode {
   return (
     <div className="page-container py-10 sm:py-14">
-      <div className="reading-width space-y-6">
+      <div className="reading-column space-y-6">
         <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Sign in</h1>
         <p className="text-muted-foreground">
           Signing in is optional. You can get your list of programs without an account - an account
