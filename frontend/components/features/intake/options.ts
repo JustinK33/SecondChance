@@ -104,23 +104,35 @@ export const HOUSING_CHOICES: readonly Choice<HousingSituation>[] = [
  * `UNKNOWN` is never offered: an empty selection already says it.
  */
 export const NEED_CHOICES: readonly Choice<NeedCategory>[] = [
-  { value: "FOOD", label: "Food", help: "Groceries, meals, a food pantry" },
-  { value: "HEALTHCARE", label: "Health care", help: "Doctor visits, prescriptions, insurance" },
-  { value: "UTILITIES", label: "Utility bills", help: "Electric, gas, water, heating" },
-  { value: "HOUSING", label: "Housing or rent", help: "Rent help, deposits, eviction" },
-  { value: "CHILDCARE", label: "Child care", help: "Day care, after-school care" },
-  { value: "TRANSPORTATION", label: "Getting around", help: "Bus, train, car repairs" },
-  { value: "EDUCATION_COSTS", label: "School costs", help: "Tuition, books, fees, supplies" },
-  { value: "INCOME_SUPPORT", label: "Money for basics", help: "Cash assistance, benefits" },
-  { value: "INTERNET_PHONE", label: "Internet or phone", help: "Service, a device" },
-  { value: "LEGAL_HELP", label: "Legal help", help: "Free or low-cost legal advice" },
-  { value: "MENTAL_HEALTH", label: "Mental health", help: "Counselling, someone to talk to" },
+  { value: "FOOD", label: "Food assistance", help: "Groceries, meals, a food pantry" },
+  {
+    value: "HEALTHCARE",
+    label: "Health coverage and care",
+    help: "Doctor visits, prescriptions, insurance",
+  },
+  { value: "UTILITIES", label: "Utility assistance", help: "Electric, gas, water, heating" },
+  { value: "HOUSING", label: "Housing assistance", help: "Rent help, deposits, eviction" },
+  { value: "CHILDCARE", label: "Child care assistance", help: "Day care, after-school care" },
+  { value: "TRANSPORTATION", label: "Transportation", help: "Bus, train, car repairs" },
+  {
+    value: "EDUCATION_COSTS",
+    label: "Education expenses",
+    help: "Tuition, books, fees, supplies",
+  },
+  { value: "INCOME_SUPPORT", label: "Income support", help: "Cash assistance, benefits" },
+  { value: "INTERNET_PHONE", label: "Internet and phone service", help: "Service, a device" },
+  { value: "LEGAL_HELP", label: "Legal assistance", help: "Free or low-cost legal advice" },
+  {
+    value: "MENTAL_HEALTH",
+    label: "Mental health services",
+    help: "Counselling, someone to talk to",
+  },
   {
     value: "EMERGENCY_EXPENSE",
-    label: "An urgent bill",
+    label: "Emergency expenses",
     help: "A one-time cost you cannot cover",
   },
-  { value: "OTHER", label: "Something else", help: "You can describe it above" },
+  { value: "OTHER", label: "Other", help: "You can describe it above" },
 ] as const;
 
 /** A selectable income band, held in integer cents like the profile is. */

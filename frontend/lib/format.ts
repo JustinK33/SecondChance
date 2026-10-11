@@ -93,3 +93,30 @@ export function humanizeEnum(value: string): string {
 export function pluralize(count: number, singular: string, plural?: string): string {
   return `${count} ${count === 1 ? singular : (plural ?? `${singular}s`)}`;
 }
+
+/**
+ * Official-sounding display names for the program categories.
+ *
+ * `humanizeEnum` is fine for debug text but produces things like "Cash tax
+ * credits", which reads as a database value rather than a category an agency
+ * would print. These are the names users see, so they are written out by hand.
+ * The plain-language explanation of a category belongs in the body copy, not
+ * here - the label's job is to look like it came from an official list.
+ */
+const PROGRAM_CATEGORY_LABELS: Record<string, string> = {
+  FOOD: "Food assistance",
+  HEALTHCARE: "Health coverage and care",
+  UTILITIES: "Utility assistance",
+  HOUSING: "Housing assistance",
+  CHILDCARE: "Child care assistance",
+  CASH_TAX_CREDITS: "Cash and tax credits",
+  UNIVERSITY_EMERGENCY_AID: "University emergency aid",
+  COMMUNITY_SERVICES: "Community services",
+  TRANSPORTATION: "Transportation",
+  EDUCATION_COSTS: "Education expenses",
+};
+
+/** Display name for a program category, falling back to a readable form. */
+export function programCategoryLabel(category: string): string {
+  return PROGRAM_CATEGORY_LABELS[category] ?? humanizeEnum(category);
+}

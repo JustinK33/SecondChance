@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { humanizeEnum, pluralize } from "@/lib/format";
+import { pluralize, programCategoryLabel } from "@/lib/format";
 import { usePrograms } from "@/lib/hooks";
 import type { ListProgramsQuery, Program, ProgramCategory } from "@/lib/types";
 
@@ -168,7 +168,7 @@ export function ProgramCatalog(): ReactNode {
                 <SelectItem value={ALL}>Any kind of help</SelectItem>
                 {CATEGORIES.map((value) => (
                   <SelectItem key={value} value={value}>
-                    {humanizeEnum(value)}
+                    {programCategoryLabel(value)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -265,7 +265,7 @@ function ProgramListCard({ program }: { program: Program }): ReactNode {
       <CardHeader className="gap-1">
         <h3 className="text-base leading-snug font-semibold">{program.official_name}</h3>
         <p className="text-muted-foreground text-sm">
-          Run by {program.administering_org} · {humanizeEnum(program.category)} ·{" "}
+          Run by {program.administering_org} · {programCategoryLabel(program.category)} ·{" "}
           {program.geo_scope_label}
         </p>
       </CardHeader>

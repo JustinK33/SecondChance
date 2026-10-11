@@ -12,7 +12,7 @@ import { LastVerified } from "@/components/ui/last-verified";
 import { LoadingCards } from "@/components/ui/loading-state";
 import { SourceList } from "@/components/ui/source-citation";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { formatDate, humanizeEnum } from "@/lib/format";
+import { formatDate, programCategoryLabel } from "@/lib/format";
 import { useProgram, useWorkflow } from "@/lib/hooks";
 import { statusPresentation } from "@/lib/status";
 
@@ -95,7 +95,7 @@ export function ProgramDetailView({
       <header className="space-y-3">
         <h1 className="text-2xl font-semibold sm:text-3xl">{program.official_name}</h1>
         <p className="text-muted-foreground">
-          Run by {program.administering_org} · {humanizeEnum(program.category)} ·{" "}
+          Run by {program.administering_org} · {programCategoryLabel(program.category)} ·{" "}
           {program.geo_scope.label}
         </p>
         <LastVerified
