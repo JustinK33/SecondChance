@@ -243,9 +243,7 @@ def _eval_geography(condition: GeographyCondition, profile: UserProfile) -> Cond
             missing.append("state")
         else:
             allowed = {_normalize(state) for state in condition.states}
-            outcomes.append(
-                Trilean.TRUE if _normalize(profile.state) in allowed else Trilean.FALSE
-            )
+            outcomes.append(Trilean.TRUE if _normalize(profile.state) in allowed else Trilean.FALSE)
     if condition.counties:
         fields.append("county")
         parts.append("county is one of " + ", ".join(sorted(condition.counties)))
@@ -390,8 +388,7 @@ def _eval_income_fpl(
             fields=fields,
             missing=["household_size"],
             threshold=(
-                f"{FPL_TABLE_UNAVAILABLE} for {condition.fpl_year} "
-                f"and a household of {size}"
+                f"{FPL_TABLE_UNAVAILABLE} for {condition.fpl_year} and a household of {size}"
             ),
         )
 
@@ -526,9 +523,7 @@ def evaluate_condition(
     if isinstance(condition, FlagCondition):
         return _eval_flag(condition, profile)
     if isinstance(condition, AllOf | AnyOf):
-        children = [
-            evaluate_condition(child, profile, fpl=table) for child in condition.conditions
-        ]
+        children = [evaluate_condition(child, profile, fpl=table) for child in condition.conditions]
         outcomes = [child.outcome for child in children]
         is_all = isinstance(condition, AllOf)
         outcome = resolve_all_of(outcomes) if is_all else resolve_any_of(outcomes)
@@ -585,9 +580,7 @@ def _blocking_counts(evidence: ConditionEvidence) -> Counter[str]:
 
 def _rank_missing_fields(counts: Mapping[str, int]) -> list[str]:
     def sort_key(field: str) -> tuple[int, int, str]:
-        priority = (
-            FIELD_PRIORITY.index(field) if field in FIELD_PRIORITY else len(FIELD_PRIORITY)
-        )
+        priority = FIELD_PRIORITY.index(field) if field in FIELD_PRIORITY else len(FIELD_PRIORITY)
         return (-counts[field], priority, field)
 
     return sorted(counts, key=sort_key)
@@ -763,9 +756,7 @@ def _limitations(
 
     geographies = _geography_conditions(ruleset.root)
     if profile.state is not None and geographies:
-        states = {
-            _normalize(state) for condition in geographies for state in condition.states
-        }
+        states = {_normalize(state) for condition in geographies for state in condition.states}
         if states and _normalize(profile.state) not in states:
             found[
                 "The rules we have for this program only cover certain states, and the "
@@ -947,9 +938,9 @@ class _QuestionTemplate:
     max_value: float | None = None
 
 
-def _enum_options(*values: StudentStatus | EmploymentStatus | HousingSituation) -> tuple[
-    tuple[str, str], ...
-]:
+def _enum_options(
+    *values: StudentStatus | EmploymentStatus | HousingSituation,
+) -> tuple[tuple[str, str], ...]:
     labels = {
         StudentStatus.NOT_A_STUDENT: "I am not a student",
         StudentStatus.UNDERGRAD_FULL_TIME: "Undergraduate, full time",
@@ -1081,7 +1072,7 @@ _FLAG_QUESTIONS: Final[dict[ProfileFlag, tuple[str, str]]] = {
     ),
     ProfileFlag.RECEIVES_TANF: (
         "Do you get cash assistance (WorkFirst NJ or TANF)?",
-        "Getting cash assistance can make you automatically eligible elsewhere.",
+        "Getting cash assistance can qualify you for several other programs automatically.",
     ),
     ProfileFlag.RECEIVES_SSI: (
         "Do you get SSI (Supplemental Security Income) payments?",
@@ -1216,9 +1207,7 @@ def missing_field_questions(
                     conditions[canonical] += count
 
     def sort_key(field: str) -> tuple[int, int, int, str]:
-        priority = (
-            FIELD_PRIORITY.index(field) if field in FIELD_PRIORITY else len(FIELD_PRIORITY)
-        )
+        priority = FIELD_PRIORITY.index(field) if field in FIELD_PRIORITY else len(FIELD_PRIORITY)
         return (-len(programs[field]), -conditions[field], priority, field)
 
     questions: list[ClarificationQuestion] = []

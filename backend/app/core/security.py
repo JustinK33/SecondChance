@@ -110,19 +110,29 @@ def assert_auth_mode_allowed(settings: Settings) -> None:
     ``Settings`` already enforces this, but the check is cheap and this is the
     one invariant where defence in depth is clearly worth it: the failure mode
     is "every user's data is readable by anyone".
+
+    What goes *out* matters as much as the refusal itself. The diagnostic names
+    ``APP_ENV`` and the configured mode, which together tell an unauthenticated
+    caller that a dev-header deployment may be accepting unsigned headers -
+    precisely the hint not to hand out. So it is logged, operator-side, and
+    :class:`~app.core.errors.InternalError` carries only its class default
+    message and no ``detail``.
     """
     if settings.auth_mode == "dev" and not settings.is_local:
-        msg = (
-            "AUTH_MODE=dev accepts an unsigned X-Dev-User header and is only "
-            f"permitted when APP_ENV=local (APP_ENV={settings.app_env!r})"
+        _log.error(
+            "auth.config.dev_mode_outside_local",
+            auth_mode=settings.auth_mode,
+            app_env=settings.app_env,
+            note="AUTH_MODE=dev accepts an unsigned header and requires APP_ENV=local",
         )
-        raise InternalError(msg)
+        raise InternalError("AUTH_MODE=dev is only permitted when APP_ENV=local")
     if settings.auth_mode == "supabase" and not settings.supabase_url:
-        msg = (
-            "AUTH_MODE=supabase requires SUPABASE_URL so the token issuer and "
-            "JWKS endpoint can be derived and verified"
+        _log.error(
+            "auth.config.missing_supabase_url",
+            auth_mode=settings.auth_mode,
+            note="SUPABASE_URL is required to derive and verify the issuer and JWKS endpoint",
         )
-        raise InternalError(msg)
+        raise InternalError("AUTH_MODE=supabase requires SUPABASE_URL")
 
 
 def issuer_for(settings: Settings) -> str:

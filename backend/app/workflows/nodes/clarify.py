@@ -18,6 +18,11 @@ produces an answer. Nothing here can ask for an SSN, bank details or an
 immigration status, because a question's ``field`` is validated against the
 closed :data:`~app.schemas.profile.PROFILE_FIELD_NAMES` set and no such field
 exists.
+
+Skipping is durable. Every question is optional, so leaving one alone is a
+choice, and ``request_targeted_clarification`` records it as the decline it is
+rather than asking the same question again next round. See that function and
+:func:`~app.workflows.questions.declines_for_unanswered`.
 """
 
 from __future__ import annotations
@@ -33,7 +38,11 @@ from app.core.logging import get_logger
 from app.schemas import ClarificationAnswer, ClarificationQuestion, MatchStatus
 from app.workflows.deps import WorkflowDeps
 from app.workflows.nodes.base import entering, profile_of
-from app.workflows.questions import intake_questions, not_already_declined
+from app.workflows.questions import (
+    declines_for_unanswered,
+    intake_questions,
+    not_already_declined,
+)
 from app.workflows.state import MAX_CLARIFICATION_ROUNDS, NavigatorState, StateUpdate
 
 __all__ = [
@@ -53,6 +62,15 @@ _log = get_logger(__name__)
 _NOTHING_TO_ASK = (
     "We could not think of a question whose answer would change your results, "
     "so we went ahead with what we know."
+)
+
+#: Said instead of :data:`_NOTHING_TO_ASK` when there *was* something left to
+#: ask and the only reason we are not asking is that the person already
+#: declined it. Claiming we had no question would be untrue, and a caveat that
+#: misstates why a result is incomplete is worse than no caveat at all.
+_ALREADY_DECLINED = (
+    "The optional questions still outstanding are ones you chose not to answer, "
+    "so we did not ask again and some programs still need more information."
 )
 
 
@@ -196,6 +214,15 @@ async def request_targeted_clarification(
     straight back to ``evaluate_eligibility`` and never through
     ``validate_profile`` again. The two writes to ``profile`` are strictly
     serial; see :mod:`app.workflows.state`.
+
+    A question this gate already presented is never presented again. An answer
+    that came back resolves its field; a question that came back untouched is
+    recorded as declined (:func:`~app.workflows.questions.declines_for_unanswered`)
+    and therefore lands in ``profile.unknown_fields``, which
+    :func:`~app.workflows.questions.not_already_declined` reads on the next
+    pass. So a second round surfaces only fields the person has not already
+    seen and passed on, and the programs behind a declined field stay at
+    ``MORE_INFO_NEEDED`` - the honest outcome of not knowing.
     """
     update = entering(TARGETED_NODE)
     run_id = state["run_id"]
@@ -205,16 +232,15 @@ async def request_targeted_clarification(
         for evaluation in state.get("evaluations", [])
         if evaluation.status is MatchStatus.MORE_INFO_NEEDED
     ]
-    questions = not_already_declined(
-        deps.engine.missing_field_questions(blocked, run_id=run_id), profile_of(state)
-    )
+    provable = deps.engine.missing_field_questions(blocked, run_id=run_id)
+    questions = not_already_declined(provable, profile_of(state))
 
     if not questions or round_number > MAX_CLARIFICATION_ROUNDS:
         update["clarification_questions"] = []
         update["clarification_answers"] = []
         update["clarification_rounds"] = MAX_CLARIFICATION_ROUNDS
         if not questions:
-            update["limitations"] = [_NOTHING_TO_ASK]
+            update["limitations"] = [_ALREADY_DECLINED if provable else _NOTHING_TO_ASK]
         return update
 
     _log.info(
@@ -234,6 +260,24 @@ async def request_targeted_clarification(
         )
     )
     answers = parse_answers(resume)
+    # Everything this gate showed and did not get back is a decline, and is
+    # recorded as one. Without it the edge back to ``evaluate_eligibility``
+    # returns here, re-derives the same unresolved fields and asks the identical
+    # questions - same deterministic ids - in the next round, which tells the
+    # person their skip did not count. Only this gate does it:
+    # ``request_clarification`` cannot re-ask itself (``validate_profile`` opens
+    # it only while no round has been spent) and its pre-retrieval questions are
+    # guesses, so a field it raised still deserves the one evidence-backed
+    # asking it gets here.
+    implicit = declines_for_unanswered(questions, answers)
+    if implicit:
+        _log.info(
+            "workflow.clarification.unanswered_declined",
+            node=TARGETED_NODE,
+            fields=[answer.field for answer in implicit],
+            round=round_number,
+        )
+    answers.extend(implicit)
     update.update(
         _answered(TARGETED_NODE, questions=questions, answers=answers, round_number=round_number)
     )

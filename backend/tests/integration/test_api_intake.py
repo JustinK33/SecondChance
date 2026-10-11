@@ -10,15 +10,22 @@ presented as a reading of the narrative.
 
 from __future__ import annotations
 
+from collections.abc import Iterator
+from contextlib import contextmanager
+
 import pytest
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.ai.fake import FailureMode
+from app.ai.fake import FailureMode, FakeGeminiClient
+from app.ai.gemini import set_gemini_port_override
 from app.ai.schemas import GeminiTask
+from app.api.v1.deps import provide_gemini
 from app.db import models
 from app.schemas import IntakeResponse
-from tests.security.harness import ApiHarness, rolled_back_api
+from app.schemas.enums import EmploymentStatus, NeedCategory
+from app.services.ai_port import DegradingGeminiPort, build_ai_port, reset_ai_port
+from tests.security.harness import ApiHarness, dev_settings, rolled_back_api
 
 __all__ = ["rolled_back_api"]
 
@@ -218,3 +225,133 @@ class TestModelFailures:
         )
         assert response.status_code == 429
         assert "Retry-After" in response.headers, "a 429 without one is not actionable"
+
+
+class TestTheDegradedProductionPath:
+    """The gap that let a fabricated profile reach users.
+
+    Every other test in this file injects :class:`~app.ai.fake.FakeGeminiClient`
+    as the model port, which is correct for a hermetic test and is exactly why
+    this defect survived: nothing exercised the port the *application* builds.
+    It built a fixture replayer too, so when the live model answered ``404`` -
+    which it does for every call with this project's key today - intake returned
+    the recorded fixture's household to whoever had typed, with
+    ``extraction_source: "fallback"`` on it.
+
+    These tests therefore use ``build_ai_port``, the function the app itself
+    calls, with the live client failing the way it really fails.
+    """
+
+    NARRATIVE = (
+        "I am a 71 year old retired widow living alone in Camden County and I need help "
+        "paying my heating bill this winter."
+    )
+    OTHER_NARRATIVE = (
+        "I live in Essex County, New Jersey with my three kids. I lost my job and I need "
+        "help with groceries."
+    )
+
+    @contextmanager
+    def production_port(self, harness: ApiHarness) -> Iterator[DegradingGeminiPort]:
+        """The real port, wired the way ``provide_gemini`` wires it.
+
+        The live leg is a fixture client stuck in ``unavailable``, which raises
+        the same :class:`~app.ai.errors.ModelUnavailable` the retired model
+        raises. Its *fixtures are never read*: the point is that the live call
+        fails and the non-model port answers instead.
+        """
+        settings = dev_settings(gemini_api_key="test-key-not-a-real-credential")
+        set_gemini_port_override(FakeGeminiClient(settings, failure_mode=FailureMode.UNAVAILABLE))
+        try:
+            port = build_ai_port(settings)
+            assert isinstance(port, DegradingGeminiPort)
+            assert port.has_live_client, "the live leg must be tried before degrading"
+            harness.app.dependency_overrides[provide_gemini] = lambda: port
+            yield port
+        finally:
+            set_gemini_port_override(None)
+            reset_ai_port()
+
+    async def test_the_degraded_answer_contains_nothing_the_narrative_did_not_say(
+        self, rolled_back_api: ApiHarness, user_a: str
+    ) -> None:
+        with self.production_port(rolled_back_api) as port:
+            response = await rolled_back_api.client.post(
+                "/api/v1/intake",
+                json={"narrative": self.NARRATIVE},
+                headers=rolled_back_api.dev(user_a),
+            )
+
+        assert response.status_code == 200, response.text
+        assert port.failures == 1, "the live model must actually have been attempted"
+        intake = IntakeResponse.model_validate(response.json())
+        assert intake.extraction_source == "fallback"
+
+        profile = intake.profile
+        # Stated in the narrative, in the narrative's own words.
+        assert profile.county == "Camden"
+        assert profile.age == 71
+        assert profile.household_size == 1
+        assert profile.employment_status is EmploymentStatus.RETIRED
+        assert profile.needs == [NeedCategory.UTILITIES]
+        # Not stated anywhere in it. Each of these came back populated from the
+        # recorded fixture when this path was the fake.
+        assert profile.state is None, "the narrative names a county, never a state"
+        assert profile.student_status is None
+        assert profile.income_min_cents is None
+        assert profile.income_max_cents is None
+        assert profile.income_period is None
+        assert profile.housing_situation is None
+        assert profile.flags == {}
+        assert intake.ambiguities == []
+        assert {"state", "income"} <= set(intake.unknown_fields)
+
+    async def test_two_narratives_do_not_come_back_as_the_same_profile(
+        self, rolled_back_api: ApiHarness, user_a: str
+    ) -> None:
+        """The fixture replayer returned byte-identical bodies here."""
+        with self.production_port(rolled_back_api):
+            first = await rolled_back_api.client.post(
+                "/api/v1/intake",
+                json={"narrative": self.NARRATIVE},
+                headers=rolled_back_api.dev(user_a),
+            )
+            second = await rolled_back_api.client.post(
+                "/api/v1/intake",
+                json={"narrative": self.OTHER_NARRATIVE},
+                headers=rolled_back_api.dev(user_a),
+            )
+
+        assert first.status_code == second.status_code == 200
+        one = IntakeResponse.model_validate(first.json()).profile
+        two = IntakeResponse.model_validate(second.json()).profile
+        assert one.model_dump_json() != two.model_dump_json()
+        assert (one.county, two.county) == ("Camden", "Essex")
+        assert (one.household_size, two.household_size) == (1, 4)
+        assert two.employment_status is EmploymentStatus.UNEMPLOYED
+
+    async def test_the_degraded_answer_is_saved_and_labelled_as_non_model_output(
+        self, rolled_back_api: ApiHarness, session: AsyncSession, user_a: str
+    ) -> None:
+        with self.production_port(rolled_back_api):
+            response = await rolled_back_api.client.post(
+                "/api/v1/intake",
+                json={"narrative": self.NARRATIVE},
+                headers=rolled_back_api.dev(user_a),
+            )
+
+        assert response.status_code == 200
+        saved = await session.scalar(
+            select(func.count()).select_from(models.Profile).where(models.Profile.user_id == user_a)
+        )
+        assert saved == 1
+        audit = await session.scalar(
+            select(models.AuditEvent)
+            .where(models.AuditEvent.user_id == user_a)
+            .order_by(models.AuditEvent.created_at.desc())
+            .limit(1)
+        )
+        assert audit is not None
+        assert audit.event_metadata["extraction_source"] == "fallback", (
+            "the audit trail has to record that no model wrote this"
+        )

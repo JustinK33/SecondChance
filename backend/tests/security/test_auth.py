@@ -22,6 +22,7 @@ anyone who can set a header.
 
 from __future__ import annotations
 
+import json
 import uuid
 from collections.abc import Iterator
 from dataclasses import dataclass
@@ -39,7 +40,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import security as security_module
 from app.core.config import Settings
-from app.core.security import AUDIENCE, DEV_USER_HEADER, issuer_for, reset_jwks_cache
+from app.core.errors import InternalError
+from app.core.security import (
+    AUDIENCE,
+    DEV_USER_HEADER,
+    assert_auth_mode_allowed,
+    issuer_for,
+    reset_jwks_cache,
+)
 from app.db import models
 from tests.security.harness import (
     ApiHarness,
@@ -415,24 +423,48 @@ class TestTheDevelopmentHeader:
         assert envelope(response)["code"] == "internal_error"
         assert rolled_back_api.runner.scheduled == []
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason=(
-            "app.core.security.assert_auth_mode_allowed raises InternalError with an "
-            "operator diagnostic as the message, and the envelope renders message "
-            "verbatim, so APP_ENV and the configured mode reach the client. Handoff "
-            "note: the diagnostic belongs in the log line and detail=None, with the "
-            "class default message going to the user."
-        ),
-    )
     async def test_the_misconfiguration_detail_does_not_reach_the_client(
         self, rolled_back_api: ApiHarness
     ) -> None:
+        """Failing closed must not narrate *why* to an unauthenticated caller.
+
+        The diagnostic names ``APP_ENV`` and the configured auth mode, which
+        together say "this deployment may accept an unsigned header" - a
+        starting point, handed to the one person who should not get it. The
+        500 is correct; the body must carry the class default copy and nothing
+        else.
+        """
         rolled_back_api.settings.app_env = "staging"
         response = await rolled_back_api.client.get(
             "/api/v1/workflows", headers=rolled_back_api.dev(str(uuid.uuid4()))
         )
-        assert "APP_ENV" not in response.text
+        assert response.status_code == 500
+        error = envelope(response)
+        assert error["code"] == "internal_error"
+        assert error["message"] == InternalError.default_message
+        assert error.get("detail") is None
+        for leak in ("APP_ENV", "AUTH_MODE", "auth_mode", "staging", "X-Dev-User", "Settings"):
+            assert leak not in response.text, f"{leak!r} leaked: {response.text}"
+
+    def test_the_runtime_gate_keeps_its_diagnostic_for_the_operator(self) -> None:
+        """The operator still gets the diagnostic - from the exception, not the wire.
+
+        Asserted directly on the error object because that is where the
+        separation lives: ``args`` (traceback, ``str(exc)``, logs) carries the
+        configuration detail, ``message`` and ``detail`` carry none of it.
+        """
+        settings = dev_settings()
+        settings.app_env = "staging"
+
+        with pytest.raises(InternalError) as raised:
+            assert_auth_mode_allowed(settings)
+
+        error = raised.value
+        assert "APP_ENV" in str(error), "the operator lost the diagnostic entirely"
+        body = json.dumps(error.to_response(request_id="req-test").model_dump())
+        assert error.message == InternalError.default_message
+        assert error.detail is None
+        assert "APP_ENV" not in body
 
     async def test_a_missing_dev_header_is_rejected_in_dev_mode(
         self, rolled_back_api: ApiHarness

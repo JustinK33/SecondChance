@@ -26,15 +26,17 @@ anything a user wrote.
 from __future__ import annotations
 
 import time
+from typing import Annotated
 
-from fastapi import APIRouter, Response
+from fastapi import APIRouter, Depends, Response
 from sqlalchemy import text
 
-from app.api.v1.deps import DbSession, SettingsDep
+from app.api.v1.deps import DbSession, SettingsDep, provide_gemini
 from app.core.logging import get_logger
 from app.core.metrics import PROMETHEUS_CONTENT_TYPE, get_metrics
 from app.db.session import get_engine
-from app.schemas import DependencyStatus, HealthResponse, ReadinessResponse, utcnow
+from app.schemas import DependencyStatus, GeminiPort, HealthResponse, ReadinessResponse, utcnow
+from app.services.ai_port import DegradingGeminiPort, provide_ai_port
 from app.services.workflow_runner import get_runner
 
 __all__ = ["internal_router", "router"]
@@ -47,6 +49,16 @@ internal_router = APIRouter(include_in_schema=False)
 #: Readiness must answer quickly even when the database is wedged, so the probe
 #: query gets a much tighter budget than an ordinary request.
 _PROBE_TIMEOUT_S = 2.0
+
+#: The model port, injected on the HTTP path and optional off it.
+#:
+#: ``app.main`` mounts ``/readyz`` as a root-path alias that *calls* :func:`ready`
+#: directly rather than re-declaring the probe, so that one definition of
+#: "ready" serves both. A direct call has no dependency injection, which is why
+#: this parameter has a default: when it is absent, :func:`ready` resolves the
+#: process-wide port itself. Injecting it on the versioned route keeps the
+#: probe overridable in a test, exactly like every other port in the API.
+ModelPortDep = Annotated[GeminiPort | None, Depends(provide_gemini)]
 
 
 @router.get(
@@ -73,8 +85,14 @@ async def health(settings: SettingsDep) -> HealthResponse:
     ),
     responses={503: {"model": ReadinessResponse, "description": "A dependency is unavailable."}},
 )
-async def ready(session: DbSession, settings: SettingsDep, response: Response) -> ReadinessResponse:
-    dependencies = [await _check_database(session), _check_model_access(settings)]
+async def ready(
+    session: DbSession,
+    settings: SettingsDep,
+    response: Response,
+    gemini: ModelPortDep = None,
+) -> ReadinessResponse:
+    port = gemini if gemini is not None else _process_model_port(settings)
+    dependencies = [await _check_database(session), _check_model_access(settings, port)]
     required = [entry for entry in dependencies if entry.name != "gemini"]
     is_ready = all(entry.ok for entry in required)
     if not is_ready:
@@ -98,17 +116,100 @@ async def _check_database(session: DbSession) -> DependencyStatus:
     return DependencyStatus(name="database", ok=True, latency_ms=elapsed_ms)
 
 
-def _check_model_access(settings: SettingsDep) -> DependencyStatus:
-    """Whether a live model call is possible at all.
+def _process_model_port(settings: SettingsDep) -> GeminiPort | None:
+    """The process-wide model port, for callers that bypass injection.
+
+    Building it is cheap and local - :func:`app.services.ai_port.provide_ai_port`
+    caches, and constructing a client opens no connection - so this costs the
+    probe nothing. ``None`` on failure: a model port that cannot even be
+    constructed is reported as unavailable, which is true, rather than turning
+    an unauthenticated readiness probe into a 500.
+    """
+    try:
+        return provide_ai_port(settings)
+    except Exception as exc:  # pragma: no cover - construction is local
+        _log.warning("readiness.model_port_unavailable", error_type=type(exc).__name__)
+        return None
+
+
+def _check_model_access(settings: SettingsDep, port: GeminiPort | None) -> DependencyStatus:
+    """What this process actually knows about model access.
 
     Deliberately not a required dependency. The whole product works without
     model access - the rule engine decides every status and retrieval is
-    deterministic - so a missing key degrades the wording, not the service.
+    deterministic - so an unreachable model degrades the wording, not the
+    service, and ``ready`` stays true either way.
+
+    The check makes **no network call**. A readiness endpoint that ran a live
+    ``generateContent`` would bill a round trip on every load-balancer poll and
+    would time out precisely when the model is slow, which is when being
+    drained helps least. But the previous version went to the other extreme and
+    reported ``ok=True, note="configured"`` purely because a key *string* was
+    present. With this project's key, ``generateContent`` fails for every
+    model, so the probe advertised a dependency that was failing 100% of calls
+    - the exact outage a readiness endpoint exists to surface.
+
+    So the answer has three states rather than two, and the evidence for each
+    is free:
+
+    * **No key.** ``ok=False``. Evidence, from configuration.
+    * **Key, and the port is latched off.**  ``ok=False, degraded=True``.
+      :class:`~app.services.ai_port.DegradingGeminiPort` already records every
+      live failure and the cool-off it entered, so this is a cheap read of
+      evidence from a real attempt.
+    * **Key, nothing attempted yet.** ``ok=True`` - no evidence either way -
+      with a note that says so, so "configured" is never mistaken for
+      "reachable".
     """
-    if settings.gemini_enabled:
-        return DependencyStatus(name="gemini", ok=True, note="configured")
+    if not settings.gemini_enabled:
+        return DependencyStatus(
+            name="gemini",
+            ok=False,
+            degraded=True,
+            note="model access not provisioned; wording will be deterministic",
+        )
+    if port is None:
+        return DependencyStatus(
+            name="gemini",
+            ok=False,
+            degraded=True,
+            note="model port unavailable; wording will be deterministic",
+        )
+    if not isinstance(port, DegradingGeminiPort):
+        # An explicit override - a benchmark stub or a test double. It tracks
+        # no failure state, so there is nothing to report beyond the fact that
+        # this endpoint did not probe it.
+        return DependencyStatus(name="gemini", ok=True, note="configured; not probed")
+    if not port.has_live_client:
+        return DependencyStatus(
+            name="gemini",
+            ok=False,
+            degraded=True,
+            failures=port.failures,
+            note="no live model client; wording will be deterministic",
+        )
+    if port.is_degraded:
+        return DependencyStatus(
+            name="gemini",
+            ok=False,
+            degraded=True,
+            failures=port.failures,
+            note="live calls failing; deterministic wording until the cool-off expires",
+        )
+    if port.failures:
+        return DependencyStatus(
+            name="gemini",
+            ok=True,
+            degraded=False,
+            failures=port.failures,
+            note="cool-off expired after earlier failures; the next call re-probes",
+        )
     return DependencyStatus(
-        name="gemini", ok=False, note="model access not provisioned; wording will be deterministic"
+        name="gemini",
+        ok=True,
+        degraded=False,
+        failures=0,
+        note="configured; no live call attempted yet",
     )
 
 

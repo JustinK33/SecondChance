@@ -532,6 +532,12 @@ Conventions:
 - `POST .../resume` on a run that is not `AWAITING_INPUT` is 409 `conflict`.
 - A run belonging to another user is 404, not 403, so the API does not confirm that the id exists.
 - `/readyz` returns 503 with `ready: false` when a required dependency is down. `/healthz` never touches a dependency.
+- `gemini` is a **non-required** dependency of readiness. An unreachable model degrades the wording, never the service - the rule engine decides every status and retrieval is deterministic - so `ready` stays `true` and the status code stays 200 even when `gemini.ok` is `false`. Only `database` can drain an instance.
+- The `gemini` entry distinguishes *a key is configured* from *the model is reachable*, because those are different claims and the probe makes no network call (a billable `generateContent` on every load-balancer poll would time out exactly when the model is slow). Its three states:
+  - `ok: false`, `degraded: true`, note "model access not provisioned" - no key. Evidence, from configuration.
+  - `ok: false`, `degraded: true`, `failures: n` - a live call really failed and `DegradingGeminiPort` has latched into its cool-off. Evidence, from a real attempt, read off the port with no new call.
+  - `ok: true`, `degraded: false`, `failures: 0`, note "configured; no live call attempted yet" - no evidence either way. Never reported as "configured" alone, which is what previously let a key whose every call failed report healthy.
+- `DependencyStatus.degraded` and `.failures` are `null` for a dependency with no fallback path, and `note` never carries an upstream exception message, a model id or a status code: these endpoints are unauthenticated and must not be reconnaissance tools.
 - `GET /api/v1/programs` is the only unauthenticated data route and returns catalog data only.
 
 ---

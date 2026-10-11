@@ -10,6 +10,8 @@ documented semantics rather than against the implementation:
   in both monthly and annual periods;
 * that a missing field never produces ``UNLIKELY_MATCH``;
 * that selective re-evaluation leaves unaffected programs byte-identical;
+* that every author-written clarification string avoids the banned status
+  vocabulary, which model output was already checked against;
 * and 22 hand-labelled scenarios from ``tests/fixtures/eligibility_scenarios.json``.
 """
 
@@ -22,7 +24,11 @@ from pathlib import Path
 
 import pytest
 
+from app.ai.schemas import BANNED_STATUS_VOCABULARY
 from app.eligibility.engine import (
+    _FLAG_QUESTIONS,
+    _QUESTION_TEMPLATES,
+    _YES_NO,
     FPL_TABLE_UNAVAILABLE,
     ProgramRuleset,
     RuleEngine,
@@ -95,9 +101,7 @@ def leaf_for(outcome: Trilean) -> Condition:
 
 
 #: ``is_veteran`` is true, ``is_disabled`` is false, ``is_senior`` was never stated.
-LOGIC_PROFILE = UserProfile(
-    flags={ProfileFlag.IS_VETERAN: True, ProfileFlag.IS_DISABLED: False}
-)
+LOGIC_PROFILE = UserProfile(flags={ProfileFlag.IS_VETERAN: True, ProfileFlag.IS_DISABLED: False})
 
 
 def resolve(condition: Condition, profile: UserProfile | None = None) -> Trilean:
@@ -174,9 +178,7 @@ def candidate(
     ruleset = (
         approved_ruleset(root, slug=slug, review_status=review_status) if with_ruleset else None
     )
-    return RetrievedProgram(
-        program=program(slug), ruleset=ruleset, retrieval_score=retrieval_score
-    )
+    return RetrievedProgram(program=program(slug), ruleset=ruleset, retrieval_score=retrieval_score)
 
 
 def evaluate(
@@ -260,9 +262,7 @@ class TestTruthTables:
             ((UNKNOWN, UNKNOWN, UNKNOWN), UNKNOWN),
         ],
     )
-    def test_all_of_three_children(
-        self, outcomes: tuple[Trilean, ...], expected: Trilean
-    ) -> None:
+    def test_all_of_three_children(self, outcomes: tuple[Trilean, ...], expected: Trilean) -> None:
         assert resolve(all_of(*outcomes)) is expected
 
     @pytest.mark.parametrize(
@@ -275,9 +275,7 @@ class TestTruthTables:
             ((UNKNOWN, UNKNOWN, UNKNOWN), UNKNOWN),
         ],
     )
-    def test_any_of_three_children(
-        self, outcomes: tuple[Trilean, ...], expected: Trilean
-    ) -> None:
+    def test_any_of_three_children(self, outcomes: tuple[Trilean, ...], expected: Trilean) -> None:
         assert resolve(any_of(*outcomes)) is expected
 
     @pytest.mark.parametrize("first", list(Trilean))
@@ -319,15 +317,12 @@ class TestNesting:
         assert resolve(Not(description="None of these", condition=any_of(FALSE, FALSE))) is TRUE
         assert resolve(Not(description="None of these", condition=any_of(FALSE, TRUE))) is FALSE
         assert (
-            resolve(Not(description="None of these", condition=any_of(FALSE, UNKNOWN)))
-            is UNKNOWN
+            resolve(Not(description="None of these", condition=any_of(FALSE, UNKNOWN))) is UNKNOWN
         )
 
     def test_double_negation_round_trips(self) -> None:
         for outcome in Trilean:
-            doubled = Not(
-                description="Not not this", condition=negate(outcome)
-            )
+            doubled = Not(description="Not not this", condition=negate(outcome))
             assert resolve(doubled) is outcome
 
     def test_three_levels_deep(self) -> None:
@@ -362,9 +357,7 @@ class TestNesting:
 
 class TestOnlyBlockingUnknownsAreReported:
     def test_satisfied_alternative_hides_its_unknown_sibling(self) -> None:
-        evidence = evaluate_condition(
-            any_of(TRUE, UNKNOWN), LOGIC_PROFILE, fpl=default_fpl_table()
-        )
+        evidence = evaluate_condition(any_of(TRUE, UNKNOWN), LOGIC_PROFILE, fpl=default_fpl_table())
         assert evidence.outcome is TRUE
         assert evidence.missing_fields == []
         # the unknown is still in the tree, for audit
@@ -378,9 +371,7 @@ class TestOnlyBlockingUnknownsAreReported:
         assert evidence.missing_fields == []
 
     def test_blocking_unknown_is_reported(self) -> None:
-        evidence = evaluate_condition(
-            all_of(TRUE, UNKNOWN), LOGIC_PROFILE, fpl=default_fpl_table()
-        )
+        evidence = evaluate_condition(all_of(TRUE, UNKNOWN), LOGIC_PROFILE, fpl=default_fpl_table())
         assert evidence.outcome is UNKNOWN
         assert evidence.missing_fields == ["flags.is_senior"]
 
@@ -550,7 +541,7 @@ class TestIncomeFplCondition:
         assert resolve(self.RULE, profile) is TRUE
 
     def test_exactly_at_the_limit_is_true(self) -> None:
-        """"At or below" is inclusive, and a borderline person should be
+        """ "At or below" is inclusive, and a borderline person should be
         encouraged to apply rather than discouraged."""
         profile = UserProfile(
             household_size=2,
@@ -1043,7 +1034,7 @@ class TestLimitations:
         assert any("not one of them" in text for text in evaluation.limitations)
 
     def test_a_negated_geography_rule_is_not_read_as_a_service_area(self) -> None:
-        """"You do not live in New York" says nothing about which states the
+        """ "You do not live in New York" says nothing about which states the
         program serves, so a New Jersey user must not be warned off."""
         root = AllOf(
             description="You live in New Jersey and not in New York",
@@ -1051,9 +1042,7 @@ class TestLimitations:
                 GeographyCondition(description="You live in New Jersey", states=["NJ"]),
                 Not(
                     description="You do not live in New York",
-                    condition=GeographyCondition(
-                        description="You live in New York", states=["NY"]
-                    ),
+                    condition=GeographyCondition(description="You live in New York", states=["NY"]),
                 ),
             ],
         )
@@ -1237,7 +1226,8 @@ class TestAffectedPrograms:
         engine = RuleEngine()
         candidates = [
             candidate(
-                "draft", AgeCondition(description="60 or older", min=60),
+                "draft",
+                AgeCondition(description="60 or older", min=60),
                 review_status=ReviewStatus.DRAFT,
             )
         ]
@@ -1296,9 +1286,7 @@ class TestReevaluateAffected:
             programs_with_rulesets=candidates,
             now=NOW,
         )
-        assert [item.program_slug for item in result] == [
-            item.program_slug for item in previous
-        ]
+        assert [item.program_slug for item in result] == [item.program_slug for item in previous]
 
     def test_no_changed_fields_returns_everything_untouched(self) -> None:
         candidates, previous = self.setup_three()
@@ -1411,8 +1399,7 @@ FIXTURE_NOW = datetime.fromisoformat(str(FIXTURE["evaluated_on"]))
 def evaluate_scenario(scenario: dict[str, object]) -> dict[str, EligibilityEvaluation]:
     profile = UserProfile.model_validate(scenario["profile"])
     return {
-        item.program_slug: item
-        for item in evaluate_all(FIXTURE_ENTRIES, profile, now=FIXTURE_NOW)
+        item.program_slug: item for item in evaluate_all(FIXTURE_ENTRIES, profile, now=FIXTURE_NOW)
     }
 
 
@@ -1490,9 +1477,7 @@ class TestLabelledScenarios:
             if item["name"] == "out-of-state-rutgers-graduate-student"
         )
         evaluations = evaluate_scenario(scenario)
-        assert (
-            evaluations["rutgers-student-food-pantry"].status is MatchStatus.POTENTIAL_MATCH
-        )
+        assert evaluations["rutgers-student-food-pantry"].status is MatchStatus.POTENTIAL_MATCH
         assert evaluations["nj-snap"].status is MatchStatus.UNLIKELY_MATCH
 
     def test_a_custom_fpl_table_changes_results_but_not_the_mapping(self) -> None:
@@ -1504,9 +1489,7 @@ class TestLabelledScenarios:
         profile = UserProfile.model_validate(scenario["profile"])
         evaluations = {
             item.program_slug: item
-            for item in evaluate_all(
-                FIXTURE_ENTRIES, profile, fpl=empty_table, now=FIXTURE_NOW
-            )
+            for item in evaluate_all(FIXTURE_ENTRIES, profile, fpl=empty_table, now=FIXTURE_NOW)
         }
         snap = evaluations["nj-snap"]
         assert snap.status is MatchStatus.MORE_INFO_NEEDED
@@ -1527,3 +1510,69 @@ def test_uuid_helper_is_stable() -> None:
     assert program_uuid("nj-snap") == uuid.uuid5(
         uuid.UUID("6f1b9e1c-2a4d-5b8e-9c3f-7d0a1b2c3d4e"), "nj-snap"
     )
+
+
+# ---------------------------------------------------------------------------
+# author-written clarification copy
+# ---------------------------------------------------------------------------
+def author_copy_strings() -> list[tuple[str, str]]:
+    """Every author-written string in the engine's clarification copy tables.
+
+    Built by walking the tables rather than by listing sentences, so copy added
+    later is covered without touching this test.
+    """
+    items: list[tuple[str, str]] = []
+    for field, template in _QUESTION_TEMPLATES.items():
+        where = f"_QUESTION_TEMPLATES[{field!r}]"
+        items.append((f"{where}.question", template.question))
+        items.append((f"{where}.why_it_matters", template.why_it_matters))
+        if template.unit is not None:
+            items.append((f"{where}.unit", template.unit))
+        for value, label in template.options:
+            items.append((f"{where}.options[{value!r}]", label))
+    for flag, (question, why_it_matters) in _FLAG_QUESTIONS.items():
+        where = f"_FLAG_QUESTIONS[{flag.value!r}]"
+        items.append((f"{where}.question", question))
+        items.append((f"{where}.why_it_matters", why_it_matters))
+    for value, label in _YES_NO:
+        items.append((f"_YES_NO[{value!r}]", label))
+    return items
+
+
+AUTHOR_COPY_STRINGS = author_copy_strings()
+
+
+class TestAuthorWrittenCopyUsesTheProductVocabulary:
+    """Product rule 2 applies to copy we wrote, not only to model output.
+
+    ``BANNED_STATUS_VOCABULARY`` was enforced on generated text alone, so an
+    author-written question could say "eligible" and only the end-to-end
+    journey would notice. These assertions move that check to the source.
+    """
+
+    def test_every_copy_string_is_covered(self) -> None:
+        """A table-driven test over an empty table passes silently, so the
+        collector itself is asserted against the tables it walks."""
+        assert AUTHOR_COPY_STRINGS
+        labels = [label for label, _ in AUTHOR_COPY_STRINGS]
+        assert len(labels) == len(set(labels))
+        for field in _QUESTION_TEMPLATES:
+            assert f"_QUESTION_TEMPLATES[{field!r}].question" in labels
+        for flag in _FLAG_QUESTIONS:
+            assert f"_FLAG_QUESTIONS[{flag.value!r}].question" in labels
+
+    @pytest.mark.parametrize(
+        ("where", "text"), AUTHOR_COPY_STRINGS, ids=[label for label, _ in AUTHOR_COPY_STRINGS]
+    )
+    def test_copy_avoids_banned_status_vocabulary(self, where: str, text: str) -> None:
+        """Words like "eligible" or "you qualify" state a conclusion this
+        system is not entitled to state, wherever the wording came from."""
+        haystack = text.casefold()
+        found = [term for term in BANNED_STATUS_VOCABULARY if term in haystack]
+        assert not found, f"{where} uses banned status wording {found}: {text!r}"
+
+    def test_the_check_would_catch_a_regression(self) -> None:
+        """Pins the assertion against the exact wording that escaped once, so a
+        future loosening of the check cannot pass unnoticed."""
+        regression = "Getting cash assistance can make you automatically eligible elsewhere."
+        assert any(term in regression.casefold() for term in BANNED_STATUS_VOCABULARY)

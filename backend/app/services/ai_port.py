@@ -32,12 +32,18 @@ attach a user-visible limitation saying the wording was not model-written, so
 nothing can present a non-model answer as live model output. Relabelling *up*
 to ``"live"`` is impossible: the live client is the only code that sets it.
 
-The non-model implementation is currently :class:`~app.ai.fake.FakeGeminiClient`,
-which replays validated fixtures through the same decoder and the same
-projections as production. ``docs/INTERFACES.md`` specifies
-``app.ai.fallback.DeterministicAi`` and ``app.ai.factory.build_gemini_port``;
-neither exists yet. When they land, :func:`_build_deterministic` is the single
-line that changes.
+The non-model implementation is :class:`~app.ai.fallback.DeterministicAi`:
+heuristics over the caller's own text plus fixed template wording, with no
+network and no recorded data. It used to be :class:`~app.ai.fake.FakeGeminiClient`
+as a stand-in, which was a defect rather than a shortcut - the fake replays a
+*recorded* response, so every degraded intake returned the fixture author's
+household instead of the user's, and the fixtures are not even in the container
+image. The fake is now refused outside ``APP_ENV=local`` and can no longer be
+selected here.
+
+``docs/INTERFACES.md`` also specifies ``app.ai.factory.build_gemini_port``,
+which does not exist; :func:`build_ai_port` is that function under this
+module's name.
 """
 
 from __future__ import annotations
@@ -50,7 +56,7 @@ from pydantic import BaseModel
 
 from app.ai.base import BaseGeminiPort, CallContext, StructuredResult, TextResult
 from app.ai.errors import ModelError
-from app.ai.fake import FakeGeminiClient
+from app.ai.fallback import DeterministicAi
 from app.ai.gemini import provide_gemini_port
 from app.ai.prompts.base import PromptSpec
 from app.ai.schemas import GeminiTask
@@ -223,12 +229,14 @@ class DegradingGeminiPort(BaseGeminiPort):
 def _as_fallback(result: StructuredResult[BaseModel] | TextResult) -> ModelUsage:
     """``result.usage`` relabelled as non-model output.
 
-    ``FakeGeminiClient`` reports ``source="cache"``, which is true about the
-    mechanism and wrong about what the caller needs to know. The workflow asks
-    one question - did a model write this? - via ``source == "fallback"``, and
-    an answer served because the model was unreachable has to answer "no", or
-    the run completes with no limitation attached and the interface renders
-    non-model wording as model wording.
+    :class:`~app.ai.fallback.DeterministicAi` already reports
+    ``source="fallback"``, so for it this is a no-op - which is the point. The
+    relabelling is structural: the workflow asks one question, did a model write
+    this, via ``source == "fallback"``, and *any* answer served because the
+    model was unreachable has to answer "no" - including one from a port that
+    reports something truthful but less useful about itself, such as a cache.
+    Otherwise the run completes with no limitation attached and the interface
+    renders non-model wording as model wording.
     """
     return result.usage.model_copy(update={"source": "fallback"})
 
@@ -239,11 +247,14 @@ def _as_fallback(result: StructuredResult[BaseModel] | TextResult) -> ModelUsage
 def _build_deterministic(settings: Settings) -> BaseGeminiPort:
     """The non-model implementation.
 
-    One line, one place. ``app.ai.fallback.DeterministicAi`` replaces
-    ``FakeGeminiClient`` here when the AI agent lands it; nothing else in the
-    application needs to know.
+    One line, one place. It must be an implementation that answers from the
+    *request*: anything that answers from recorded data describes somebody
+    else, which is a fabricated profile no matter how well formed it is. That
+    rules out :class:`~app.ai.fake.FakeGeminiClient` permanently, and the fake
+    now refuses to be constructed outside ``APP_ENV=local`` so the mistake
+    cannot be repeated here.
     """
-    return FakeGeminiClient(settings)
+    return DeterministicAi(settings)
 
 
 def build_ai_port(settings: Settings) -> GeminiPort:

@@ -171,8 +171,7 @@ class TestThresholdArithmetic:
         self, household_size: int, pct: float, expected_cents: int
     ) -> None:
         assert (
-            fpl_threshold_cents(2026, household_size, pct, IncomePeriod.MONTHLY)
-            == expected_cents
+            fpl_threshold_cents(2026, household_size, pct, IncomePeriod.MONTHLY) == expected_cents
         )
 
     def test_rounding_is_always_outward_and_never_loses_more_than_a_cent(self) -> None:
@@ -205,9 +204,7 @@ class TestThresholdArithmetic:
                 else table.annual_threshold_cents(household_size=3, pct=185.0, year=2026)
             )
             assert (
-                table.threshold_cents(
-                    household_size=3, pct=185.0, year=2026, period=period
-                )
+                table.threshold_cents(household_size=3, pct=185.0, year=2026, period=period)
                 == direct
             )
 

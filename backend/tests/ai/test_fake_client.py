@@ -25,11 +25,19 @@ from app.ai.errors import (
     ModelTimeout,
     ModelUnavailable,
 )
-from app.ai.fake import DEFAULT_FIXTURE_DIR, FailureMode, FakeGeminiClient, FixtureNotFound
+from app.ai.fake import (
+    DEFAULT_FIXTURE_DIR,
+    FailureMode,
+    FakeGeminiClient,
+    FixtureNotFound,
+    FixtureReplayNotPermittedError,
+)
+from app.ai.fallback import DeterministicAi
 from app.ai.gemini import GeminiClient
 from app.ai.schemas import MODEL_RESPONSE_SCHEMAS, GeminiTask
 from app.schemas import ChatRequest, GeminiResult, RetrievedProgram
 from app.schemas.contracts import GeminiPort
+from app.services.ai_port import build_ai_port
 from tests.ai.conftest import make_settings
 from tests.conftest import make_evaluation, make_match, make_profile, make_program, make_ruleset
 
@@ -328,3 +336,69 @@ def await_sync(awaitable):
     import asyncio
 
     return asyncio.run(awaitable)
+
+
+# ---------------------------------------------------------- tests-only guard
+class TestItCannotBecomeTheProductionPort:
+    """The regression guard for the defect that produced this class's warning.
+
+    ``FakeGeminiClient`` was once wired in as the degraded *production* port.
+    Every narrative then came back as the recorded fixture's household, which is
+    a fabricated profile - and in the container it could not even do that,
+    because ``backend/Dockerfile`` copies ``app/`` and not ``tests/``, so the
+    fixture directory is absent and every intake failed.
+
+    Both halves of that are now refused at construction. The non-model port is
+    :class:`app.ai.fallback.DeterministicAi`.
+    """
+
+    @pytest.mark.parametrize("app_env", ["staging", "production"])
+    def test_it_refuses_to_be_built_outside_a_local_environment(self, app_env):
+        settings = make_settings(
+            app_env=app_env,
+            auth_mode="supabase",
+            checkpointer="postgres",
+            supabase_url="https://fictional.supabase.co",
+            supabase_service_role_key="not-a-real-value",
+            supabase_jwt_secret="not-a-real-value",
+        )
+
+        with pytest.raises(FixtureReplayNotPermittedError, match="test double"):
+            FakeGeminiClient(settings)
+
+    def test_it_refuses_to_be_built_without_its_fixtures(self, settings, tmp_path):
+        """What the container looks like: no ``tests/`` tree at all."""
+        with pytest.raises(FixtureReplayNotPermittedError, match="nothing to replay"):
+            FakeGeminiClient(settings, fixture_dir=tmp_path / "not-copied-into-the-image")
+
+    async def test_the_port_the_app_builds_answers_from_the_request(self, settings):
+        """The one line in ``app.services.ai_port`` that decides this.
+
+        Asserted through behaviour rather than by inspecting the wiring: the
+        narrative below shares nothing with any recorded fixture, so a port that
+        answered from one would be caught here.
+        """
+        port = build_ai_port(make_settings(gemini_api_key=""))
+
+        result = await port.extract_profile(
+            "I am a 71 year old retired widow living alone in Camden County."
+        )
+
+        assert result.usage.source == "fallback"
+        assert result.value.county == "Camden"
+        assert result.value.age == 71
+        assert result.value.household_size == 1
+        assert result.value.state is None, "a fixture would have filled this in"
+
+    async def test_the_two_non_model_paths_never_claim_to_be_live(self, settings):
+        """``source`` keeps the three paths apart for everything downstream.
+
+        The fake says ``cache`` because that is what a replayed response is; the
+        fallback says ``fallback``. Only the live client can write ``live``.
+        """
+        replayed = await FakeGeminiClient(settings).extract_profile("anything")
+        templated = await DeterministicAi(settings).extract_profile("I live in New Jersey.")
+
+        assert replayed.usage.source == "cache"
+        assert templated.usage.source == "fallback"
+        assert templated.value.state == "NJ"

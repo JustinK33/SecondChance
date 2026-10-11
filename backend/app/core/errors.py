@@ -244,10 +244,40 @@ class WorkflowFailedError(AppError):
 
 
 class InternalError(AppError):
-    """An unexpected defect. The cause is logged, never returned."""
+    """An unexpected defect. The cause is logged, never returned.
+
+    This is the one subclass that refuses a caller-supplied user-facing
+    message, because in practice every raise site has an operator diagnostic
+    to hand and no user-safe copy to offer: ``"the workflow runner is shutting
+    down"``, ``"GEMINI_API_KEY must be set outside APP_ENV=local"``. Rendering
+    one of those verbatim is an information disclosure - the configuration
+    gate in :mod:`app.core.security` leaked ``APP_ENV`` and the configured
+    auth mode to unauthenticated callers that way.
+
+    So the positional argument is named ``diagnostic`` and is treated as
+    operator text: it lands in ``args``, so it shows up in the traceback and
+    in ``str(exc)`` where an operator reading redacted logs will find it, and
+    it never reaches :attr:`message`, which stays
+    :attr:`~AppError.default_message`. A raise site that genuinely has
+    user-safe copy either belongs on a more specific subclass or should state
+    it through ``detail``.
+    """
 
     status_code = 500
     code = ErrorCode.INTERNAL_ERROR
+
+    def __init__(
+        self,
+        diagnostic: str | None = None,
+        *,
+        detail: dict[str, Any] | None = None,
+        cause: BaseException | None = None,
+    ) -> None:
+        super().__init__(None, detail=detail, cause=cause)
+        #: Operator-side explanation of what went wrong. Never serialised.
+        self.diagnostic = diagnostic
+        if diagnostic:
+            self.args = (diagnostic,)
 
 
 _STATUS_TO_CODE: Final[dict[int, ErrorCode]] = {

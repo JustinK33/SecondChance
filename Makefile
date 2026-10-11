@@ -1,142 +1,114 @@
 # SecondChance - developer entry points.
-# Every target here is a real command. Targets that depend on code from a later
-# phase are wired to the command they will run once that code lands.
 #
-# Backend runs on uv-managed CPython 3.12 in backend/.venv. The system python3 is
-# 3.14 with no pip and must never be used, so targets call the venv binaries
-# directly instead of going through `uv run` (which would re-resolve the pins).
-# Frontend needs Node 22; the default node on PATH is v14 and breaks Next.js, so
-# every web target sources nvm first.
+# The recipes are NOT here. They live in ./do, a POSIX-shell entry point, and
+# every target below is a one-line delegation to it.
+#
+# Why: make is not available on every machine this project has to run on (the
+# case that forced this was a WSL image with no make binary, no compiler to
+# build one and no passwordless sudo to install one), and a documented workflow
+# that cannot be executed is not a workflow. Keeping one copy of each recipe in
+# ./do means the two entry points cannot drift apart:
+#
+#   ./do <target> [args]      works everywhere, no make needed
+#   make <target> [ARGS=...]  works wherever make exists
+#
+# `./do help` is the list of targets with descriptions - including this file's.
+# Pass extra arguments to the underlying command with ARGS, e.g.
+# `make smoke ARGS="--base-url http://127.0.0.1:8000"`.
+#
+# ./do sets `set -euo pipefail`, which is the same shell contract these
+# variables used to give the recipes directly.
 
 SHELL := /bin/bash
 .SHELLFLAGS := -eu -o pipefail -c
 
-ROOT    := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
-BACKEND := $(ROOT)/backend
-WEB     := $(ROOT)/frontend
-BIN     := $(BACKEND)/.venv/bin
-COMPOSE := docker compose -f $(ROOT)/docker-compose.yml
+ROOT := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
+DO   := $(ROOT)/do
 
-UV   := PATH="$$HOME/.local/bin:$$PATH" uv
-API  := cd $(BACKEND) &&
-NODE := . "$$HOME/.nvm/nvm.sh" && nvm use 22 >/dev/null && cd $(WEB)
-# Export backend/.env into the recipe shell. Used where a command needs a var
-# that pydantic-settings would otherwise load for itself.
-ENVLOAD := set -a && . $(BACKEND)/.env && set +a
-
-DB_USER := secondchance
-DB_NAME := secondchance
-DB_TEST := secondchance_test
-HAS_WEB := [ -f $(WEB)/package.json ]
+ARGS ?=
 
 .DEFAULT_GOAL := help
 .PHONY: help install db-up db-down db-reset db-shell migrate revision seed lint fmt \
-        typecheck test test-unit test-int e2e smoke bench types dev-api dev-web \
+        typecheck test test-unit test-int e2e e2e-web smoke bench types dev-api dev-web \
         build-web verify
 
-help: ## List available targets
-	@echo "SecondChance targets:"
-	@grep -hE '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
-		| sort \
-		| awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-11s\033[0m %s\n", $$1, $$2}'
+help:
+	@$(DO) help
 
 # ---------------------------------------------------------------- setup
 
-install: ## Create backend/.venv and install backend + frontend dependencies
-	cd $(BACKEND) && $(UV) venv --python 3.12
-	cd $(BACKEND) && $(UV) pip install -e ".[dev]"
-	@if $(HAS_WEB); then $(NODE) && npm install; \
-	else echo "skip: $(WEB)/package.json does not exist yet"; fi
+install:
+	@$(DO) install $(ARGS)
 
 # ---------------------------------------------------------------- database
 
-db-up: ## Start Postgres 16 on localhost:5433 and ensure both databases exist
-	$(COMPOSE) up -d --wait
-	@if [ "$$($(COMPOSE) exec -T db psql -qtAX -U $(DB_USER) -d $(DB_NAME) \
-		-c "SELECT 1 FROM pg_database WHERE datname = '$(DB_TEST)'")" != "1" ]; then \
-		$(COMPOSE) exec -T db createdb -U $(DB_USER) -O $(DB_USER) $(DB_TEST); \
-	fi
-	@echo "databases ready on localhost:5433 -> $(DB_NAME), $(DB_TEST)"
+db-up:
+	@$(DO) db-up
 
-db-down: ## Stop Postgres, keeping the data volume
-	$(COMPOSE) down
+db-down:
+	@$(DO) db-down
 
-db-reset: ## Destroy the data volume, recreate both databases, migrate and seed
-	$(COMPOSE) down -v
-	$(MAKE) db-up
-	$(MAKE) migrate
-	$(MAKE) seed
+db-reset:
+	@$(DO) db-reset
 
-db-shell: ## Open a psql shell on the app database
-	$(COMPOSE) exec db psql -U $(DB_USER) -d $(DB_NAME)
+db-shell:
+	@$(DO) db-shell
 
-migrate: ## Apply alembic migrations to head, on both the app and test databases
-	$(API) $(BIN)/alembic upgrade head
-	$(API) $(ENVLOAD) && DATABASE_URL="$$TEST_DATABASE_URL" $(BIN)/alembic upgrade head
+migrate:
+	@$(DO) migrate
 
-revision: ## Autogenerate a migration. Usage: make revision m="add programs table"
-	@test -n "$(m)" || { echo 'usage: make revision m="message"'; exit 2; }
-	$(API) $(BIN)/alembic revision --autogenerate -m "$(m)"
+# Usage: make revision m="add programs table"
+revision:
+	@$(DO) revision "$(m)"
 
-seed: ## Load the curated program catalog into the database
-	$(API) $(BIN)/python -m scripts.seed
+seed:
+	@$(DO) seed $(ARGS)
 
 # ---------------------------------------------------------------- quality
 
-lint: ## ruff check + format check (backend), eslint (frontend)
-	$(API) $(BIN)/ruff check .
-	$(API) $(BIN)/ruff format --check .
-	@if $(HAS_WEB); then $(NODE) && npm run lint; \
-	else echo "skip: frontend not scaffolded yet"; fi
+lint:
+	@$(DO) lint
 
-fmt: ## Autoformat and autofix
-	$(API) $(BIN)/ruff format .
-	$(API) $(BIN)/ruff check --fix .
-	@if $(HAS_WEB); then $(NODE) && npx --yes prettier --write .; \
-	else echo "skip: frontend not scaffolded yet"; fi
+fmt:
+	@$(DO) fmt
 
-typecheck: ## mypy --strict (backend), tsc --noEmit (frontend)
-	$(API) $(BIN)/mypy app
-	@if [ -f $(WEB)/tsconfig.json ]; then $(NODE) && npx --yes tsc --noEmit; \
-	else echo "skip: frontend not scaffolded yet"; fi
+typecheck:
+	@$(DO) typecheck
 
-test: ## Full backend test suite with coverage
-	$(MAKE) db-up
-	$(API) $(BIN)/pytest --cov=app --cov-report=term-missing
+test:
+	@$(DO) test $(ARGS)
 
-test-unit: ## Unit tests only, no database and no live Gemini
-	$(API) $(BIN)/pytest -m "not db and not live"
+test-unit:
+	@$(DO) test-unit $(ARGS)
 
-test-int: ## Integration tests that require Postgres
-	$(MAKE) db-up
-	$(API) $(BIN)/pytest -m db
+test-int:
+	@$(DO) test-int $(ARGS)
 
-e2e: ## Playwright end to end run against a live api and web
-	@if $(HAS_WEB); then $(NODE) && npx --yes playwright test; \
-	else echo "skip: frontend not scaffolded yet"; fi
+e2e:
+	@$(DO) e2e $(ARGS)
 
-smoke: ## Drive the core flow against a running API and assert it responds
-	$(API) $(BIN)/python -m scripts.smoke
+e2e-web:
+	@$(DO) e2e-web $(ARGS)
 
-bench: ## Latency and cost benchmark over the golden scenarios
-	$(API) $(BIN)/python -m benchmarks.run
+smoke:
+	@$(DO) smoke $(ARGS)
 
-types: ## Regenerate frontend TypeScript types from the backend OpenAPI schema
-	$(API) $(BIN)/python -m scripts.export_openapi > $(WEB)/openapi.json
-	@if $(HAS_WEB); then \
-		$(NODE) && npx --yes openapi-typescript ./openapi.json -o ./src/lib/api-types.ts; \
-	else echo "skip: frontend not scaffolded yet"; fi
+bench:
+	@$(DO) bench $(ARGS)
+
+types:
+	@$(DO) types
 
 # ---------------------------------------------------------------- run
 
-dev-api: ## Run the API with autoreload on :8000
-	$(API) $(BIN)/uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+dev-api:
+	@$(DO) dev-api $(ARGS)
 
-dev-web: ## Run the Next.js dev server on :3000
-	$(NODE) && npm run dev
+dev-web:
+	@$(DO) dev-web $(ARGS)
 
-build-web: ## Production build of the frontend
-	$(NODE) && npm run build
+build-web:
+	@$(DO) build-web $(ARGS)
 
-verify: lint typecheck test ## Everything CI runs
-	@echo "verify: OK"
+verify:
+	@$(DO) verify

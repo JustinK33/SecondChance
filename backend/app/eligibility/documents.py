@@ -130,8 +130,7 @@ _COPY: Final[Mapping[str, tuple[str, str]]] = {
     ),
     "proof of enrollment": (
         "Get proof that you are enrolled",
-        "A class schedule, enrollment verification or student ID shows you are a current "
-        "student.",
+        "A class schedule, enrollment verification or student ID shows you are a current student.",
     ),
     "proof of household members": (
         "Make a list of everyone in your household",

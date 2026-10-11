@@ -37,7 +37,16 @@ class HealthResponse(BaseModel):
 
 
 class DependencyStatus(BaseModel):
-    """One dependency's reachability. Carries no error detail."""
+    """One dependency's reachability. Carries no error detail.
+
+    ``ok`` is evidence-based, not optimistic. It is ``True`` when the process
+    either reached the dependency during this check or has no evidence against
+    it, ``False`` when configuration or an observed failure says the dependency
+    is unusable. Because "no evidence either way" and "reached it" are not the
+    same claim, a probe that cannot afford a live call - see
+    :func:`app.api.v1.routes.system._check_model_access` - says so in ``note``
+    and reports what it does know in :attr:`degraded` and :attr:`failures`.
+    """
 
     model_config = ConfigDict(extra="forbid")
 
@@ -50,6 +59,22 @@ class DependencyStatus(BaseModel):
         description=(
             'Short operator-facing note, e.g. "model access not provisioned". '
             "Never an upstream exception message."
+        ),
+    )
+    degraded: bool | None = Field(
+        default=None,
+        description=(
+            "True when the application has latched this dependency off and is "
+            "serving its fallback path. Null when the dependency has no "
+            "degraded mode."
+        ),
+    )
+    failures: int | None = Field(
+        default=None,
+        ge=0,
+        description=(
+            "Calls to this dependency that have failed over the lifetime of "
+            "this process. A count, never an error message."
         ),
     )
 

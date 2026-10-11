@@ -37,6 +37,7 @@ from typing import Final
 from app.eligibility.engine import FIELD_PRIORITY, MAX_CLARIFICATION_QUESTIONS
 from app.schemas import (
     PROFILE_FIELD_NAMES,
+    ClarificationAnswer,
     ClarificationInputKind,
     ClarificationOption,
     ClarificationQuestion,
@@ -48,6 +49,7 @@ from app.schemas import (
 __all__ = [
     "MATERIAL_FIELDS",
     "SENSITIVE_TERMS",
+    "declines_for_unanswered",
     "intake_questions",
     "material_missing_fields",
     "not_already_declined",
@@ -210,16 +212,58 @@ def intake_questions(
     return questions
 
 
+def declines_for_unanswered(
+    questions: Sequence[ClarificationQuestion],
+    answers: Sequence[ClarificationAnswer],
+) -> list[ClarificationAnswer]:
+    """Turn "shown it, did not answer it" into the decline it already is.
+
+    Every clarification question carries ``is_required=False``, so a person who
+    submits two of the three answers has *used* that affordance: they looked at
+    the third question and moved on. The resume payload cannot express that on
+    its own - a question nobody touched is simply absent from it - so a gate
+    that re-derives its questions from the profile sees the field still missing
+    and asks the identical question again, with the identical deterministic
+    ``question_id``, in the very next round. From the user's seat, skipping did
+    not stick.
+
+    This closes that gap by writing the decline down in the one place that
+    already means it: a ``skipped`` answer, which
+    :func:`~app.workflows.profile_merge.assemble_profile` records in
+    ``UserProfile.unknown_fields`` and which :func:`not_already_declined` then
+    honours. Nothing is inferred about the *value* of the field - it stays
+    unknown, and the programs it blocks stay at ``MORE_INFO_NEEDED``.
+
+    An answer addresses a question when it carries that question's id or names
+    that question's field. The field is enough on its own because
+    :func:`~app.schemas.common.clarification_question_id` is a pure function of
+    ``(run_id, field)``, so a client that answers the right field with a stale
+    or hand-built id has still answered the question.
+
+    :returns: one skipped answer per unaddressed question, in the order the
+        questions were presented. Empty when every question was addressed.
+    """
+    addressed_ids = {answer.question_id for answer in answers}
+    addressed_fields = {answer.field for answer in answers}
+    return [
+        ClarificationAnswer(question_id=question.id, field=question.field, skipped=True)
+        for question in questions
+        if question.id not in addressed_ids and question.field not in addressed_fields
+    ]
+
+
 def not_already_declined(
     questions: Sequence[ClarificationQuestion], profile: UserProfile
 ) -> list[ClarificationQuestion]:
     """Drop questions about fields the user has already declined to answer.
 
     ``UserProfile.unknown_fields`` records a field the user was asked about and
-    skipped. Asking again is the behaviour that turns a two-question
-    clarification into an interrogation, and the user already gave their answer
-    - it was "I would rather not say". The affected programs stay at
-    ``MORE_INFO_NEEDED``, which is the honest outcome.
+    skipped - whether they said so explicitly or simply left an optional
+    question alone (see :func:`declines_for_unanswered`). Asking again is the
+    behaviour that turns a two-question clarification into an interrogation,
+    and the user already gave their answer - it was "I would rather not say".
+    The affected programs stay at ``MORE_INFO_NEEDED``, which is the honest
+    outcome.
     """
     declined = set(profile.unknown_fields)
     return [question for question in questions if question.field not in declined]

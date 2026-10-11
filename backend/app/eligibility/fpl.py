@@ -230,18 +230,14 @@ class FplTable:
             return None
         return entry.annual_cents(household_size)
 
-    def annual_threshold_cents(
-        self, *, household_size: int, pct: float, year: int
-    ) -> int | None:
+    def annual_threshold_cents(self, *, household_size: int, pct: float, year: int) -> int | None:
         """``pct``% of the annual guideline, rounded up, or ``None``."""
         annual = self.annual_cents(household_size=household_size, year=year)
         if annual is None:
             return None
         return math.ceil(_exact_pct(pct) * annual / _PERCENT)
 
-    def monthly_threshold_cents(
-        self, *, household_size: int, pct: float, year: int
-    ) -> int | None:
+    def monthly_threshold_cents(self, *, household_size: int, pct: float, year: int) -> int | None:
         """``pct``% of the guideline as a monthly figure, rounded up, or ``None``."""
         annual = self.annual_cents(household_size=household_size, year=year)
         if annual is None:
@@ -253,9 +249,7 @@ class FplTable:
     ) -> int | None:
         """Period-selecting wrapper, for callers that carry the period in data."""
         if period is IncomePeriod.MONTHLY:
-            return self.monthly_threshold_cents(
-                household_size=household_size, pct=pct, year=year
-            )
+            return self.monthly_threshold_cents(household_size=household_size, pct=pct, year=year)
         return self.annual_threshold_cents(household_size=household_size, pct=pct, year=year)
 
     def source_url(self, year: int) -> str | None:

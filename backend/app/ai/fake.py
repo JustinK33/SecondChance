@@ -9,12 +9,29 @@ responses, replayed through the *same* decoder, the same response schemas and
 the same projections as production - see :mod:`app.ai.base` for why that
 sharing is the whole point.
 
-This is not the deterministic product fallback. ``app.ai.fallback.DeterministicAi``
-(a sibling task) answers from templates and heuristics when the model is
-unreachable in a real run, and its ``usage.source`` is ``"fallback"``. This class
-replays a previously validated response, so its ``usage.source`` is ``"cache"``,
-which is exactly what that value means. Neither one may ever be presented as
-live model output.
+This is not the deterministic product fallback.
+:class:`app.ai.fallback.DeterministicAi` answers from templates and heuristics
+over the caller's own text when the model is unreachable in a real run, and its
+``usage.source`` is ``"fallback"``. This class replays a previously validated
+response, so its ``usage.source`` is ``"cache"``, which is exactly what that
+value means. Neither one may ever be presented as live model output.
+
+Tests only, enforced
+--------------------
+A replayed fixture is a description of whoever wrote the fixture. Served to a
+real user it is a fabricated profile, and that is exactly what happened once:
+this class was wired in as the degraded production port and
+``POST /api/v1/intake`` answered every narrative with the recorded one. It also
+cannot work in the container at all, because ``backend/Dockerfile`` copies
+``app/`` and not ``tests/``, so the fixture directory this class reads does not
+exist there.
+
+So construction is refused unless two things hold: ``APP_ENV`` is ``local``, and
+the fixture directory is actually present. Neither is true of a deployment, and
+:func:`app.services.ai_port._build_deterministic` selects
+:class:`~app.ai.fallback.DeterministicAi` instead - the guard exists so that
+re-wiring this class into a product path fails loudly on the first call rather
+than silently returning somebody else's household.
 
 Failure modes
 -------------
@@ -87,7 +104,13 @@ from app.ai.usage import UsageAccumulator
 from app.core.config import Settings
 from app.schemas.ai import ModelUsage
 
-__all__ = ["DEFAULT_FIXTURE_DIR", "FailureMode", "FakeGeminiClient", "FixtureNotFound"]
+__all__ = [
+    "DEFAULT_FIXTURE_DIR",
+    "FailureMode",
+    "FakeGeminiClient",
+    "FixtureNotFound",
+    "FixtureReplayNotPermittedError",
+]
 
 #: ``backend/tests/fixtures/gemini`` - this file is ``backend/app/ai/fake.py``.
 DEFAULT_FIXTURE_DIR: Final[Path] = (
@@ -132,6 +155,16 @@ class FixtureNotFound(LookupError):  # noqa: N818
     """
 
 
+class FixtureReplayNotPermittedError(RuntimeError):
+    """A fixture-replaying client was constructed where it must never run.
+
+    Raised at construction, which is the only place it can be raised usefully:
+    by the time a degraded request is being served, the alternative to a
+    fabricated answer is an error page, and that choice should have been made
+    at wiring time.
+    """
+
+
 class FakeGeminiClient(BaseGeminiPort):
     """Fixture-replaying :class:`GeminiPort` with switchable failure modes.
 
@@ -151,6 +184,7 @@ class FakeGeminiClient(BaseGeminiPort):
         latency_ms: int = _DEFAULT_LATENCY_MS,
         accumulator: UsageAccumulator | None = None,
     ) -> None:
+        _refuse_outside_tests(settings, fixture_dir or DEFAULT_FIXTURE_DIR)
         self._settings = settings
         self.failure_mode = failure_mode
         self.failure_modes: dict[GeminiTask, FailureMode] = dict(failure_modes or {})
@@ -316,6 +350,27 @@ class FakeGeminiClient(BaseGeminiPort):
             ),
             truncated=False,
         )
+
+
+def _refuse_outside_tests(settings: Settings, fixture_dir: Path) -> None:
+    """Refuse to build a fixture replayer anywhere it could reach a user.
+
+    Two independent conditions, because they fail in different places: the
+    environment check catches a deployment, and the directory check catches the
+    container (where ``tests/`` is not copied) and a stale fixture path.
+    """
+    if not settings.is_local:
+        msg = (
+            "FakeGeminiClient replays recorded fixtures and is a test double; "
+            f"APP_ENV={settings.app_env!r} must use app.ai.fallback.DeterministicAi"
+        )
+        raise FixtureReplayNotPermittedError(msg)
+    if not fixture_dir.is_dir():
+        msg = (
+            f"fixture directory {fixture_dir} does not exist, so FakeGeminiClient has "
+            "nothing to replay; app.ai.fallback.DeterministicAi is the non-model port"
+        )
+        raise FixtureReplayNotPermittedError(msg)
 
 
 def _body_of(case: Mapping[str, Any]) -> str | None:

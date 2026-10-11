@@ -339,20 +339,27 @@ Retry on `ServerError` and on `ClientError` with `e.code == 429`. Never retry ot
 
 ### Model availability - BLOCKING ISSUE
 
-The configured `GEMINI_MODEL=gemini-2.5-flash-lite` **does not work with the API key in
-`.env`**. `client.models.list()` succeeds, so the key itself is valid, but every
-`generateContent` attempt fails:
+**No live Gemini call can currently succeed with this project's key.**
+`client.models.list()` succeeds, so the key itself is valid, but every `generateContent`
+attempt fails. Re-probed 2026-10-10 against every model id the SDK lists:
 
 | Model | Result |
 | --- | --- |
 | `gemini-2.5-flash-lite` | `404 NOT_FOUND` - "no longer available to new users ... use models/gemini-3.5-flash-lite" |
-| `gemini-2.5-flash` | `404 NOT_FOUND` - same retirement message |
-| `gemini-3.5-flash-lite` | `403 PERMISSION_DENIED` - "Your project has been denied access" |
-| `gemini-3.5-flash`, `gemini-3.6-flash`, `gemini-3.1-flash-lite`, `gemini-3-flash-preview`, `gemini-flash-latest`, `gemini-flash-lite-latest` | `403 PERMISSION_DENIED` |
+| `gemini-2.5-flash` | `404 NOT_FOUND` - same retirement message, pointing at `models/gemini-3.8-flash` |
+| `gemini-3.5-flash-lite` | `403 PERMISSION_DENIED` - "Your project has been denied access. Please contact support." |
+| `gemini-3.8-flash`, `gemini-3.7-flash`, `gemini-3.6-flash`, `gemini-3.5-flash`, `gemini-3.1-flash-lite`, `gemini-3-flash-preview`, `gemini-flash-latest`, `gemini-flash-lite-latest`, `gemma-4-31b-it` | `403 PERMISSION_DENIED` - same message |
+| `gemini-3.1-pro-preview`, `gemini-pro-latest` | "You exceeded your current quota, please check your plan and billing details" |
 
-The 2.5 generation is retired for new projects and this project is not authorised for the
-3.x generation. **No live Gemini call can currently succeed.** This is an account-side
-problem, not a code problem.
+The 2.5 generation is retired for new projects and this project is authorised for nothing
+in the 3.x generation. This is an account-side problem, not a code problem: it is resolved
+in the Google Cloud / AI Studio project (access request or billing), and no code change
+can work around it. Until it is resolved the deterministic fallback is the only language
+path the product has.
+
+`GEMINI_MODEL` and the per-stage overrides default to `gemini-3.5-flash-lite`
+(`app/core/config.py`, `.env.example`); a local `backend/.env` still pinning a retired
+`2.5` id is why a live call answers `404` rather than `403`. Both are the same blocker.
 
 Consequences for the build:
 
@@ -361,6 +368,12 @@ Consequences for the build:
 - All Gemini tests must be marked `live` and skipped unless `RUN_LIVE_GEMINI=1`, exactly
   as `pyproject.toml` already declares.
 - `GEMINI_MODEL` must stay config-driven so it is a one-line change once access is granted.
+- **A readiness probe must not report model access as healthy on the strength of a key
+  string.** `GET /api/v1/ready` answered `{"name": "gemini", "ok": true, "note":
+  "configured"}` while 100% of model calls were failing, which is exactly the outage the
+  probe exists to surface. It now reports what the process has evidence for: unprobed,
+  or degraded with a failure count read off `DegradingGeminiPort`. See section 9 of
+  `docs/INTERFACES.md`.
 
 ### `.env` line endings
 

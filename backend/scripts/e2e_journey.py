@@ -14,8 +14,9 @@ rule engine and the fixture-replaying model port::
     them resolves to a real ``program_sources`` row -> account data deleted,
     leaving no user rows behind.
 
-Run it with ``make e2e`` (see the handoff note: that target currently runs
-Playwright) or directly::
+Run it with ``./do e2e`` (or ``make e2e``, which delegates to the same thing).
+That target brings Postgres up, migrates both databases and then runs this
+module. The browser journey is a separate target, ``./do e2e-web``. Directly::
 
     cd backend && .venv/bin/python -m scripts.e2e_journey
     cd backend && .venv/bin/python -m scripts.e2e_journey --app-database
@@ -51,8 +52,8 @@ import contextlib
 import sys
 import time
 import uuid
-from collections.abc import AsyncIterator, Iterator, Sequence
-from dataclasses import dataclass, field
+from collections.abc import AsyncIterator, Iterator, Mapping, Sequence
+from dataclasses import dataclass, field, fields
 from datetime import date
 from typing import Any, Final, TextIO
 
@@ -61,6 +62,7 @@ from sqlalchemy import delete, func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.ai.fake import FakeGeminiClient
+from app.ai.usage import UsageTotals
 from app.api.v1.deps import get_app_settings, provide_gemini, provide_runner
 from app.core.config import Settings, get_settings
 from app.db import models
@@ -87,6 +89,8 @@ from app.schemas import (
 )
 from app.services.workflow_runner import WorkflowRunner, reset_runner, set_runner
 from app.workflows.checkpointer import close_checkpointer
+from app.workflows.deps import WorkflowDeps
+from app.workflows.state import MAX_CLARIFICATION_ROUNDS
 from tests.conftest import make_program
 
 __all__ = ["JourneyFailed", "JourneyResult", "journey_settings", "main", "run_journey"]
@@ -100,6 +104,14 @@ NARRATIVE: Final[str] = (
     "Rutgers and I work part time at a store, and I make about $2,000 a month. I need "
     "help with groceries and my electric bill."
 )
+
+#: What the fictional person can say about themselves beyond the narrative,
+#: keyed by profile field. Only the age is here, because the age is the one
+#: thing the journey asserts end to end: step 4 proves the run paused for that
+#: exact field and the steps after this one prove the answer reached the stored
+#: profile and moved a program. Anything else a round asks about is *skipped*
+#: rather than answered - see :func:`_journey_answer`.
+JOURNEY_FACTS: Final[dict[str, Any]] = {"age": 34}
 
 GROCERY_SLUG: Final[str] = "example-grocery-help"
 UTILITY_SLUG: Final[str] = "example-utility-help"
@@ -148,6 +160,24 @@ QUOTED_SUBTREE_KEYS: Final[frozenset[str]] = frozenset(
 #: Monthly income limit on the fictional utility rule set. The extracted range
 #: is $1,900-$2,100, so this resolves ``TRUE`` and does not need a question.
 UTILITY_LIMIT_CENTS: Final[int] = 300_000
+
+
+def _explanation_cap() -> int:
+    """How many matches one run words in plain language.
+
+    Read off the graph's own dependency defaults rather than copied, so this
+    script cannot assert a cap the product does not actually apply.
+    """
+    default = next(
+        entry.default for entry in fields(WorkflowDeps) if entry.name == "max_explanations"
+    )
+    if not isinstance(default, int):
+        msg = "WorkflowDeps.max_explanations no longer carries an integer default"
+        raise AssertionError(msg)
+    return default
+
+
+MAX_EXPLANATIONS: Final[int] = _explanation_cap()
 
 _STATUS_VALUES: Final[frozenset[str]] = frozenset(status.value for status in MatchStatus)
 _RUNNING: Final[frozenset[str]] = frozenset(
@@ -248,6 +278,13 @@ class JourneyResult:
     receipt: dict[str, Any]
     remaining_rows: dict[str, int]
     model_sources: list[str]
+    #: What the model port recorded over the whole journey: calls, token counts
+    #: and estimated cost. With the fixture port these are the token counts
+    #: recorded in ``tests/fixtures/gemini/*.json`` priced at the configured
+    #: rate, which is what makes ``benchmarks/run.py`` able to report the cost
+    #: of a run without calling the live model. Defaulted so a caller that
+    #: only cares about the transitions does not have to supply it.
+    usage: UsageTotals = field(default_factory=UsageTotals)
 
 
 # ---------------------------------------------------------------------------
@@ -389,13 +426,23 @@ CHECKPOINT_TABLES: Final[tuple[str, ...]] = (
 
 
 async def _absent_checkpoint_tables(factory: async_sessionmaker[AsyncSession]) -> list[str]:
-    """Which checkpoint tables do not exist yet."""
+    """Which checkpoint tables do not exist yet, as an all-or-nothing set.
+
+    ``AsyncPostgresSaver.setup()`` decides whether to create anything by
+    reading ``checkpoint_migrations``, so a database that has that table but
+    not ``checkpoints`` is a database where every later run fails with
+    ``UndefinedTable`` and nothing repairs itself. If ``checkpoints`` is absent
+    the whole set is therefore reported, which is lossless - a database without
+    that table holds no run state to lose - and it keeps this script from
+    leaving that half-state behind.
+    """
     async with factory() as session:
-        return [
+        absent = [
             table
             for table in CHECKPOINT_TABLES
             if await session.scalar(select(func.to_regclass(f"public.{table}"))) is None
         ]
+    return list(CHECKPOINT_TABLES) if "checkpoints" in absent else absent
 
 
 async def _drop_checkpoint_tables(
@@ -559,6 +606,31 @@ async def _poll(
     raise AssertionError(f"run {run_id} never left {detail.get('status')!r} within {timeout_s}s")
 
 
+def _journey_answer(run_id: uuid.UUID, question: Mapping[str, Any]) -> dict[str, Any]:
+    """One answer to one asked question, drawn from :data:`JOURNEY_FACTS`.
+
+    A field the fictional person has no stated fact about is skipped, not
+    guessed. Skipping is a first-class answer in the contract - it records the
+    field as declined, which stops the product asking again and leaves the
+    affected programs at ``MORE_INFO_NEEDED`` - whereas inventing a fact (say,
+    claiming a benefit nobody mentioned) would quietly change what the rule
+    engine decides, and observing that honestly is the whole point of the run.
+
+    The id is asserted rather than trusted: a question id has to be the
+    deterministic one for this run and field, because that is what makes a
+    resubmitted answer map back to the same question instead of creating a
+    duplicate.
+    """
+    field = str(question["field"])
+    require(
+        question["id"] == clarification_question_id(run_id, field),
+        f"the question about {field} does not carry this run's deterministic id",
+    )
+    if field in JOURNEY_FACTS:
+        return {"question_id": question["id"], "field": field, "value": JOURNEY_FACTS[field]}
+    return {"question_id": question["id"], "field": field, "skipped": True}
+
+
 # ---------------------------------------------------------------------------
 # the journey
 # ---------------------------------------------------------------------------
@@ -579,6 +651,13 @@ async def _application(
 
     factory = get_session_factory(settings)
     created_tables = await _absent_checkpoint_tables(factory)
+    if created_tables:
+        # Clear whatever is left of a half-created checkpoint schema before
+        # ``setup()`` looks at it - see :func:`_absent_checkpoint_tables`. On a
+        # genuinely fresh database every drop is a no-op, and on a database
+        # left half-built by a killed run this is what makes the next run work
+        # instead of failing on a missing table nothing will recreate.
+        await _drop_checkpoint_tables(factory, created_tables)
     fake = FakeGeminiClient(settings)
     runner = WorkflowRunner(settings, session_factory=factory, gemini=fake)
     set_runner(runner)
@@ -771,32 +850,66 @@ async def _walk(
 
     # ------------------------------------------------------------ step 5
     with trace.step("Answering resumes the run from its checkpoint") as entry:
-        answer = {
-            "question_id": clarification_question_id(run_id, "age"),
-            "field": "age",
-            "value": 34,
-        }
-        resumed = _ok(
-            await client.post(
-                f"/api/v1/workflows/{run_id}/resume",
-                json={"answers": [answer]},
-                headers=headers,
-            ),
-            200,
-            "resume",
-        )
-        require(
-            resumed["status"] != WorkflowStatus.AWAITING_INPUT.value,
-            "a resumed run must stop telling the user it is waiting",
-        )
-        completed = await _poll(client, headers, run_id, trace=trace, entry=entry)
+        # How many times a run pauses is a property of the catalog it ran
+        # against, not of the journey: a richer catalog leaves more fields
+        # undetermined, so the evidence-driven gate can honestly ask a second
+        # round. What must hold on every catalog is that each pause is
+        # answerable and that the rounds are bounded, so this drains the rounds
+        # and asserts the ceiling rather than assuming one resume is enough.
+        pending = paused
+        pauses = 1  # step 4 watched the first one
+        answered: list[str] = []
+        while True:
+            replies = [
+                _journey_answer(run_id, question) for question in pending["clarification_questions"]
+            ]
+            require(replies, "a pause with nothing to answer cannot be resumed")
+            answered.extend(str(reply["field"]) for reply in replies)
+            resumed = _ok(
+                await client.post(
+                    f"/api/v1/workflows/{run_id}/resume",
+                    json={"answers": replies},
+                    headers=headers,
+                ),
+                200,
+                f"resume round {pauses}",
+            )
+            require(
+                resumed["status"] != WorkflowStatus.AWAITING_INPUT.value,
+                "a resumed run must stop telling the user it is waiting",
+            )
+            settled = await _poll(client, headers, run_id, trace=trace, entry=entry)
+            if settled["status"] != WorkflowStatus.AWAITING_INPUT.value:
+                break
+            pauses += 1
+            require(
+                pauses <= MAX_CLARIFICATION_ROUNDS,
+                f"the run asked for round {pauses}, past the bound of "
+                f"{MAX_CLARIFICATION_ROUNDS} clarification rounds",
+            )
+            pending = settled
+            follow_ups = pending["clarification_questions"]
+            require(follow_ups, "AWAITING_INPUT with nothing to ask is not an answerable state")
+            for question in follow_ups:
+                require(question["why_it_matters"], "a question must say what it would change")
+                require(question["is_required"] is False, "every question must be skippable")
+            _no_banned_language(follow_ups, f"the round {pauses} clarification questions")
+            trace.note(
+                entry,
+                f"round {pauses} asks about {[q['field'] for q in follow_ups]}",
+            )
+        completed = settled
         require(
             completed["status"] == WorkflowStatus.COMPLETED.value,
             f"the resumed run did not complete: {completed['status']} {completed.get('error')}",
         )
         require(completed["profile"]["age"] == 34, "the answer did not reach the stored profile")
         require(completed["progress_fraction"] == 1.0, "a finished run is 100% done")
-        trace.note(entry, "answer applied, run completed from the checkpoint")
+        trace.note(
+            entry,
+            f"{pauses} pause(s) within the bound of {MAX_CLARIFICATION_ROUNDS}, "
+            f"answered {answered}, run completed from the checkpoint",
+        )
 
     # ------------------------------------------------------------ step 6
     with trace.step("Matches come back with evidence, and only the three statuses") as entry:
@@ -836,9 +949,25 @@ async def _walk(
             by_slug[UTILITY_SLUG]["status"] == MatchStatus.POTENTIAL_MATCH.value,
             "the utility program resolves from the extracted income alone",
         )
-        for slug, match in by_slug.items():
-            require(match["explanation"], f"{slug} has no plain-language explanation")
-            require(match["explanation"]["headline"], f"{slug}'s explanation has no headline")
+        # Plain language is capped at MAX_EXPLANATIONS per run, so "every match
+        # is worded" is only true of a catalog smaller than the cap. What holds
+        # on any catalog is that the cap is spent in full and that the program
+        # this answer moved is one of the ones worded.
+        explained = [match for match in matches if match["explanation"]]
+        require(
+            len(explained) == min(len(matches), MAX_EXPLANATIONS),
+            f"{len(explained)} of {len(matches)} matches carry plain language, "
+            f"with a cap of {MAX_EXPLANATIONS}",
+        )
+        require(
+            by_slug[GROCERY_SLUG]["explanation"],
+            "the program the answer moved has no plain-language explanation",
+        )
+        for match in explained:
+            require(
+                match["explanation"]["headline"],
+                f"{match['program']['slug']}'s explanation has no headline",
+            )
         _no_banned_language(matches, "the match list")
         trace.note(
             entry,
@@ -878,14 +1007,33 @@ async def _walk(
             )
         address = [doc for doc in shared if doc["dedup_key"] == "document:proof-of-address"]
         require(address, f"proof of address should be shared: {[d['dedup_key'] for d in shared]}")
+        # A superset, not an equality: a curated catalog has other programs that
+        # also want proof of address, and collapsing those in is the behaviour
+        # under test. What matters is that both fictional programs are folded
+        # into the one step, which the loop above already proved is single.
+        wants_address = {uuid.UUID(pid) for pid in address[0]["program_ids"]}
         require(
-            {grocery_id, utility_id} == {uuid.UUID(pid) for pid in address[0]["program_ids"]},
+            {grocery_id, utility_id} <= wants_address,
             "both fictional programs ask for proof of address",
         )
+        # Every link in the plan has to be one the catalog itself published for
+        # a program in this run. Checking membership rather than a domain is
+        # what makes this assertion mean "nothing off-catalog reached the plan"
+        # on the curated catalog as well as on the fictional one.
+        catalog_links = {
+            url
+            for match in matches
+            for url in (
+                match["program"]["official_url"],
+                match["program"]["application_url"],
+                *(source["url"] for source in match["sources"]),
+            )
+            if url
+        }
         for item in plan["items"]:
             if item["url"]:
                 require(
-                    item["url"].startswith("https://example.org/"),
+                    item["url"] in catalog_links,
                     f"an off-catalog link reached the plan: {item['url']}",
                 )
         _no_banned_language(plan, "the action plan")
@@ -1188,6 +1336,7 @@ async def _walk(
         receipt=receipt,
         remaining_rows=remaining,
         model_sources=sorted(labels),
+        usage=fake.usage.totals,
     )
 
 

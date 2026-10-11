@@ -364,8 +364,7 @@ class TestQuestionShape:
             q.model_dump(mode="json")
             for q in engine.missing_field_questions(evaluations, run_id=RUN_ID)
         ] == [
-            q.model_dump(mode="json")
-            for q in missing_field_questions(evaluations, run_id=RUN_ID)
+            q.model_dump(mode="json") for q in missing_field_questions(evaluations, run_id=RUN_ID)
         ]
 
 
@@ -382,17 +381,13 @@ class TestDocumentDerivation:
     def test_income_rules_imply_proof_of_income(self) -> None:
         for root in (
             income_fpl(),
-            IncomeAbsoluteCondition(
-                description="Under $4,000 a month", max_monthly_cents=400_000
-            ),
+            IncomeAbsoluteCondition(description="Under $4,000 a month", max_monthly_cents=400_000),
         ):
             evaluations = evaluate([entry("nj-usf", root)], UserProfile(household_size=1))
-            assert [item.subject for item in required_documents(evaluations)] == [
-                "proof of income"
-            ]
+            assert [item.subject for item in required_documents(evaluations)] == ["proof of income"]
 
     def test_a_flag_with_no_paperwork_implies_no_document(self) -> None:
-        """"Do you have children" is answered on the form, not evidenced at a
+        """ "Do you have children" is answered on the form, not evidenced at a
         counter, so it must not create an errand."""
         root = FlagCondition(
             description="You have children under 18", flag=ProfileFlag.HAS_CHILDREN
@@ -574,12 +569,8 @@ class TestDocumentDeduplication:
         requirement found here and an item created there would not group."""
         evaluations = evaluate([entry("nj-snap", nj_geography())], UserProfile(state="NJ"))
         document = required_documents(evaluations)[0]
-        assert document.dedup_key == make_dedup_key(
-            ActionItemKind.DOCUMENT, document.subject
-        )
-        assert document.dedup_key == (
-            f"document:{DOCUMENT_SUBJECT_ALIASES['proof-of-address']}"
-        )
+        assert document.dedup_key == make_dedup_key(ActionItemKind.DOCUMENT, document.subject)
+        assert document.dedup_key == (f"document:{DOCUMENT_SUBJECT_ALIASES['proof-of-address']}")
 
     def test_keys_are_unique_per_requirement(self) -> None:
         evaluations = evaluate(

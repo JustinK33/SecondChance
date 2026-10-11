@@ -9,7 +9,7 @@ Loading rules
 * Values come from the process environment first, then ``backend/.env``.
 * Field names are case-insensitive, so ``APP_ENV`` populates ``app_env``.
 * Every incoming string is stripped. The repository-root ``.env`` is CRLF, and
-  an unstripped ``"gemini-2.5-flash-lite\\r"`` makes httpx raise
+  an unstripped ``"gemini-3.5-flash-lite\\r"`` makes httpx raise
   ``InvalidURL: Invalid non-printable ASCII character in URL``.
 * Unknown variables are ignored so one shared ``.env`` can serve several
   processes.
@@ -106,14 +106,25 @@ class Settings(BaseSettings):
 
     # ------------------------------------------------------------- gemini
     gemini_api_key: SecretStr = SecretStr("")
-    gemini_model: str = "gemini-2.5-flash-lite"
+    #: Default model for every task. ``gemini-2.5-flash-lite`` was the previous
+    #: default and is now retired: the API answers ``404 NOT_FOUND`` with "no
+    #: longer available to new users ... use models/gemini-3.5-flash-lite", so
+    #: the successor Google names in that message is the default here. A project
+    #: that is not entitled to the 3.x generation gets ``403 PERMISSION_DENIED``
+    #: instead; both are non-transient, so the AI port marks itself degraded and
+    #: the deterministic fallbacks take over. See ``docs/TOOLCHAIN.md``.
+    gemini_model: str = "gemini-3.5-flash-lite"
     gemini_model_extraction: str | None = None
     gemini_model_explanation: str | None = None
     gemini_model_chat: str | None = None
     gemini_timeout_s: Annotated[float, Field(gt=0, le=300)] = 30.0
     gemini_max_retries: Annotated[int, Field(ge=0, le=10)] = 3
-    gemini_price_input_per_mtok: Annotated[float, Field(ge=0)] = 0.10
-    gemini_price_output_per_mtok: Annotated[float, Field(ge=0)] = 0.40
+    #: Paid-tier list price of :attr:`gemini_model` in USD per 1M tokens
+    #: (gemini-3.5-flash-lite: $0.30 input, $2.50 output including thinking).
+    #: Telemetry only - nothing bills off these, but they must be re-checked
+    #: whenever the model changes or the cost figures silently lie.
+    gemini_price_input_per_mtok: Annotated[float, Field(ge=0)] = 0.30
+    gemini_price_output_per_mtok: Annotated[float, Field(ge=0)] = 2.50
 
     # ----------------------------------------------------------- workflow
     workflow_timeout_s: Annotated[float, Field(gt=0, le=3600)] = 120.0
