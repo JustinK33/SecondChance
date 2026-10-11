@@ -1,0 +1,307 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ---------------------------------------------------------------------------
+   SecondChance design foundation.
+
+   Everything visual is a CSS custom property, so the human doing the visual
+   design later can retheme the whole product by editing the two blocks below
+   without touching a component.
+
+   Three constraints are deliberate and should survive a redesign:
+
+   1. No government palette. No navy-and-red flag pairing, no seal-like marks,
+      no imagery that could read as an official agency. The palette is a calm
+      teal with warm neutrals, which reads as a helper rather than an authority.
+   2. AA contrast on every text token. `--muted-foreground` is the lightest text
+      in the system and still clears 4.5:1 against `--background`.
+   3. Colour is never the only carrier of meaning. The status tokens exist in
+      pairs (surface plus foreground) and every component using them also
+      renders a text label.
+--------------------------------------------------------------------------- */
+
+:root {
+  /* surfaces */
+  --background: oklch(0.994 0.003 140);
+  --foreground: oklch(0.215 0.015 220);
+  --card: oklch(1 0 0);
+  --card-foreground: var(--foreground);
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--foreground);
+
+  /* brand */
+  --primary: oklch(0.43 0.072 196);
+  --primary-foreground: oklch(0.99 0.004 196);
+  --secondary: oklch(0.962 0.012 196);
+  --secondary-foreground: oklch(0.3 0.05 200);
+  --accent: oklch(0.955 0.02 150);
+  --accent-foreground: oklch(0.3 0.05 160);
+
+  /* quiet text and surfaces. --muted-foreground is the AA floor. */
+  --muted: oklch(0.966 0.004 220);
+  --muted-foreground: oklch(0.455 0.014 225);
+
+  /* only ever used for a genuine error, never for a match status */
+  --destructive: oklch(0.49 0.16 27);
+  --destructive-foreground: oklch(0.99 0.005 27);
+
+  /* lines, fields, focus */
+  --border: oklch(0.905 0.006 220);
+  --input: oklch(0.885 0.008 220);
+  --ring: oklch(0.52 0.09 196);
+
+  /* match-status pairs. Calm, non-judgmental, and always paired with text. */
+  --status-positive: oklch(0.955 0.035 158);
+  --status-positive-foreground: oklch(0.345 0.065 158);
+  --status-positive-border: oklch(0.845 0.055 158);
+  --status-neutral: oklch(0.965 0.038 85);
+  --status-neutral-foreground: oklch(0.385 0.065 70);
+  --status-neutral-border: oklch(0.865 0.06 82);
+  --status-quiet: oklch(0.955 0.004 250);
+  --status-quiet-foreground: oklch(0.42 0.012 250);
+  --status-quiet-border: oklch(0.875 0.007 250);
+
+  /* informational notices: privacy notes, disclaimers, citations */
+  --notice: oklch(0.971 0.014 230);
+  --notice-foreground: oklch(0.355 0.035 232);
+  --notice-border: oklch(0.885 0.025 230);
+
+  --radius: 0.625rem;
+
+  /* charts, kept so shadcn's tokens resolve */
+  --chart-1: oklch(0.52 0.09 196);
+  --chart-2: oklch(0.62 0.09 158);
+  --chart-3: oklch(0.68 0.08 85);
+  --chart-4: oklch(0.56 0.07 260);
+  --chart-5: oklch(0.45 0.05 320);
+
+  /* sidebar tokens, kept for shadcn compatibility */
+  --sidebar: oklch(0.982 0.004 196);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+
+  /* the smallest comfortable tap target, per WCAG 2.5.5 */
+  --touch-target: 2.75rem;
+}
+
+.dark {
+  --background: oklch(0.175 0.012 225);
+  --foreground: oklch(0.965 0.005 220);
+  --card: oklch(0.215 0.014 225);
+  --card-foreground: var(--foreground);
+  --popover: oklch(0.225 0.014 225);
+  --popover-foreground: var(--foreground);
+
+  --primary: oklch(0.78 0.085 190);
+  --primary-foreground: oklch(0.2 0.03 200);
+  --secondary: oklch(0.275 0.02 215);
+  --secondary-foreground: oklch(0.95 0.006 210);
+  --accent: oklch(0.29 0.03 165);
+  --accent-foreground: oklch(0.94 0.02 160);
+
+  --muted: oklch(0.27 0.012 222);
+  --muted-foreground: oklch(0.755 0.012 220);
+
+  --destructive: oklch(0.7 0.16 25);
+  --destructive-foreground: oklch(0.18 0.03 25);
+
+  --border: oklch(1 0 0 / 14%);
+  --input: oklch(1 0 0 / 20%);
+  --ring: oklch(0.7 0.07 192);
+
+  --status-positive: oklch(0.3 0.05 158);
+  --status-positive-foreground: oklch(0.89 0.07 158);
+  --status-positive-border: oklch(0.42 0.06 158);
+  --status-neutral: oklch(0.305 0.045 80);
+  --status-neutral-foreground: oklch(0.9 0.07 85);
+  --status-neutral-border: oklch(0.43 0.055 80);
+  --status-quiet: oklch(0.27 0.006 250);
+  --status-quiet-foreground: oklch(0.82 0.008 250);
+  --status-quiet-border: oklch(0.4 0.008 250);
+
+  --notice: oklch(0.265 0.022 230);
+  --notice-foreground: oklch(0.88 0.03 230);
+  --notice-border: oklch(0.4 0.03 230);
+
+  --sidebar: oklch(0.2 0.013 225);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-status-positive: var(--status-positive);
+  --color-status-positive-foreground: var(--status-positive-foreground);
+  --color-status-positive-border: var(--status-positive-border);
+  --color-status-neutral: var(--status-neutral);
+  --color-status-neutral-foreground: var(--status-neutral-foreground);
+  --color-status-neutral-border: var(--status-neutral-border);
+  --color-status-quiet: var(--status-quiet);
+  --color-status-quiet-foreground: var(--status-quiet-foreground);
+  --color-status-quiet-border: var(--status-quiet-border);
+
+  --color-notice: var(--notice);
+  --color-notice-foreground: var(--notice-foreground);
+  --color-notice-border: var(--notice-border);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --font-sans: var(--font-app-sans);
+  --font-mono: var(--font-app-mono);
+  --font-heading: var(--font-app-sans);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply font-sans;
+    -webkit-text-size-adjust: 100%;
+    /* Anchor navigation must not hide the heading under the sticky header. */
+    scroll-padding-top: 5rem;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    /* Mobile-first: comfortable reading size, never below 16px on a phone,
+       because a smaller value makes iOS zoom on focus. */
+    font-size: 1rem;
+    line-height: 1.6;
+    text-wrap: pretty;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+    @apply font-semibold tracking-tight;
+  }
+
+  /* One visible focus treatment for the whole product. Keyboard users get a
+     ring everywhere; mouse users are not shown one on click. */
+  :focus-visible {
+    @apply outline-ring outline-2 outline-offset-2;
+    border-radius: calc(var(--radius) * 0.5);
+  }
+
+  /* Never remove a focus ring without replacing it. */
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  /* A link in body copy should be obviously a link without colour alone. */
+  .prose-body a,
+  a.link {
+    @apply text-primary underline decoration-from-font underline-offset-2;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer utilities {
+  /* WCAG 2.5.5 target size. Apply to anything tappable that is visually smaller
+     than it needs to be - an icon button, a checkbox row, a compact link. */
+  .touch-target {
+    min-height: var(--touch-target);
+    min-width: var(--touch-target);
+  }
+
+  /* Same guarantee without forcing the width, for a full-width list row. */
+  .touch-row {
+    min-height: var(--touch-target);
+  }
+
+  /* The standard page gutter. Mobile-first, widening on larger screens. */
+  .page-container {
+    width: 100%;
+    margin-inline: auto;
+    max-width: 72rem;
+    padding-inline: 1rem;
+  }
+
+  @media (min-width: 40rem) {
+    .page-container {
+      padding-inline: 1.5rem;
+    }
+  }
+
+  /* Measure for long-form reading. Narrower than the page, deliberately. */
+  .reading-width {
+    max-width: 42rem;
+  }
+
+  /* Visible only when focused. Used by the skip link. */
+  .skip-link {
+    @apply bg-background text-foreground ring-ring absolute left-4 z-50 -translate-y-20 rounded-md px-4 py-2 font-medium shadow-lg ring-2 transition-transform;
+    top: 0.5rem;
+  }
+
+  .skip-link:focus-visible {
+    @apply translate-y-0;
+  }
+}

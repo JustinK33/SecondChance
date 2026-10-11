@@ -1,0 +1,5 @@
+.next
+node_modules
+openapi.json
+lib/api-types.gen.ts
+package-lock.json

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="SecondChance">
+  <!-- Abstract open door. Deliberately not a seal, shield, flag or eagle: this
+       product must never look like a government agency's mark. -->
+  <rect width="64" height="64" rx="14" fill="#1d5b63" />
+  <path d="M22 16h16a4 4 0 0 1 4 4v24a4 4 0 0 1-4 4H22z" fill="#eef7f4" />
+  <circle cx="27" cy="32" r="2.6" fill="#1d5b63" />
+</svg>
