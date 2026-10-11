@@ -115,7 +115,9 @@ def _instrument(
     """
     gates = barriers or {}
 
-    def wrap(name: str, function: Callable[..., Awaitable[dict[str, Any]]]):
+    def wrap(
+        name: str, function: Callable[..., Awaitable[dict[str, Any]]]
+    ) -> Callable[..., Awaitable[dict[str, Any]]]:
         async def wrapped(state: dict[str, Any], *, deps: WorkflowDeps) -> dict[str, Any]:
             entered = time.perf_counter()
             gate = gates.get(name)
@@ -496,7 +498,7 @@ class _StatusClaimingGemini(FakeGeminiClient):
     tested without the others.
     """
 
-    async def explain_match(  # type: ignore[override]
+    async def explain_match(
         self,
         profile: UserProfile,
         program: AssistanceProgram,

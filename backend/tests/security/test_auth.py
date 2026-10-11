@@ -152,7 +152,7 @@ def envelope(response: httpx.Response) -> dict[str, Any]:
     """The error envelope, asserted to have the documented shape."""
     body = response.json()
     assert set(body) == {"error"}, f"non-standard error body: {body}"
-    error = body["error"]
+    error: dict[str, Any] = body["error"]
     assert set(error) >= {"code", "message", "request_id"}, error
     assert error["message"], "an error message must be renderable verbatim"
     return error
@@ -283,8 +283,10 @@ class TestRejectedTokens:
     async def test_an_unsigned_token_is_rejected(
         self, supabase_api: ApiHarness, signer: Signer, jwks_calls: list[str]
     ) -> None:
+        # ``alg: none`` takes no key. PyJWT's own stubs do not model that, so
+        # the empty string is passed and ignored by the "none" algorithm.
         token = jwt.encode(
-            claims_for(supabase_api.settings, str(uuid.uuid4())), key=None, algorithm="none"
+            claims_for(supabase_api.settings, str(uuid.uuid4())), key="", algorithm="none"
         )
         response = await supabase_api.client.get(
             "/api/v1/workflows", headers=supabase_api.bearer(token)
@@ -309,7 +311,11 @@ class TestAcceptedTokens:
     """The counterpart, so the rejections above are not vacuous."""
 
     async def test_a_valid_token_authenticates_its_subject(
-        self, supabase_api: ApiHarness, signer: Signer, jwks_calls: list[str], session
+        self,
+        supabase_api: ApiHarness,
+        signer: Signer,
+        jwks_calls: list[str],
+        session: AsyncSession,
     ) -> None:
         subject = str(uuid.uuid4())
         token = signer.sign(claims_for(supabase_api.settings, subject))
@@ -381,7 +387,11 @@ class TestTheDevelopmentHeader:
         assert envelope(response)["code"] == "unauthorized"
 
     async def test_it_cannot_override_the_token_it_arrives_with(
-        self, supabase_api: ApiHarness, signer: Signer, jwks_calls: list[str], session
+        self,
+        supabase_api: ApiHarness,
+        signer: Signer,
+        jwks_calls: list[str],
+        session: AsyncSession,
     ) -> None:
         subject = str(uuid.uuid4())
         other = str(uuid.uuid4())

@@ -15,7 +15,9 @@ from __future__ import annotations
 
 import inspect
 import json
+from collections.abc import Coroutine
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -34,6 +36,7 @@ from app.ai.fake import (
 )
 from app.ai.fallback import DeterministicAi
 from app.ai.gemini import GeminiClient
+from app.ai.prompts.base import PromptSpec
 from app.ai.schemas import MODEL_RESPONSE_SCHEMAS, GeminiTask
 from app.schemas import ChatRequest, GeminiResult, RetrievedProgram
 from app.schemas.contracts import GeminiPort
@@ -302,7 +305,7 @@ def test_fake_records_the_prompt_it_was_given_without_logging_it(fake):
 
 
 # --------------------------------------------------------------------- helpers
-def _any_prompt(task: GeminiTask):
+def _any_prompt(task: GeminiTask) -> PromptSpec:
     """A prompt of the right family for ``task``.
 
     The fake ignores the prompt body, but using the real builder keeps the
@@ -331,7 +334,7 @@ def _any_prompt(task: GeminiTask):
     return builders[task]()
 
 
-def await_sync(awaitable):
+def await_sync[T](awaitable: Coroutine[Any, Any, T]) -> T:
     """Run one coroutine from a synchronous test."""
     import asyncio
 

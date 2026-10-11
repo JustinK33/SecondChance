@@ -12,7 +12,9 @@ from __future__ import annotations
 
 from collections.abc import Iterator
 from contextlib import contextmanager
+from typing import Any
 
+import httpx
 import pytest
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -37,10 +39,11 @@ NARRATIVE = (
 )
 
 
-def error_of(response) -> dict:
+def error_of(response: httpx.Response) -> dict[str, Any]:
     body = response.json()
     assert set(body) == {"error"}, body
-    return body["error"]
+    error: dict[str, Any] = body["error"]
+    return error
 
 
 class TestTheHappyPath:
@@ -100,7 +103,7 @@ class TestTheHappyPath:
             .select_from(models.WorkflowRun)
             .where(models.WorkflowRun.user_id == user_a)
         )
-        assert profiles >= 1
+        assert profiles is not None and profiles >= 1
         assert runs == 0, "intake must not start a run"
         assert rolled_back_api.runner.scheduled == []
 
@@ -154,7 +157,7 @@ class TestValidation:
         ],
     )
     async def test_a_bad_body_is_a_validation_error_naming_only_the_field(
-        self, rolled_back_api: ApiHarness, user_a: str, body: dict, field: str
+        self, rolled_back_api: ApiHarness, user_a: str, body: dict[str, Any], field: str
     ) -> None:
         response = await rolled_back_api.client.post(
             "/api/v1/intake", json=body, headers=rolled_back_api.dev(user_a)

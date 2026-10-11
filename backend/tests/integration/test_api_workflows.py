@@ -23,7 +23,9 @@ from __future__ import annotations
 
 import asyncio
 import uuid
+from typing import Any
 
+import httpx
 import pytest
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -54,10 +56,11 @@ NARRATIVE = "I need help with groceries and my electric bill this month, things 
 OTHER_NARRATIVE = "I am about to lose my apartment and I do not know who to call about it."
 
 
-def error_of(response) -> dict:
+def error_of(response: httpx.Response) -> dict[str, Any]:
     body = response.json()
     assert set(body) == {"error"}, body
-    return body["error"]
+    error: dict[str, Any] = body["error"]
+    return error
 
 
 # ---------------------------------------------------------------------------
@@ -111,7 +114,7 @@ class TestCreatingARun:
         ],
     )
     async def test_validation_failures_use_the_standard_envelope(
-        self, rolled_back_api: ApiHarness, user_a: str, body: dict, field: str
+        self, rolled_back_api: ApiHarness, user_a: str, body: dict[str, Any], field: str
     ) -> None:
         response = await rolled_back_api.client.post(
             "/api/v1/workflows", json=body, headers=rolled_back_api.dev(user_a)

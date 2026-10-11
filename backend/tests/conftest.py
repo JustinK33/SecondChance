@@ -3,7 +3,7 @@
 Database isolation
 ------------------
 The suite runs against ``TEST_DATABASE_URL`` - a *separate* database from the
-one ``make dev-api`` uses, so running the tests can never truncate a developer's
+one ``./do dev-api`` uses, so running the tests can never truncate a developer's
 working data. Migrations are applied once per session, and each test then runs
 inside a transaction that is rolled back afterwards.
 
@@ -20,7 +20,7 @@ not exercise ``COMMIT`` at all.
 Migrations run in a subprocess rather than through ``alembic.command``. That
 keeps the test process free of the ``DATABASE_URL`` override (so nothing in the
 application accidentally picks up the test database through ``get_settings()``)
-and it exercises migrations the same way ``make migrate`` does.
+and it exercises migrations the same way ``./do migrate`` does.
 
 Everything the factories build is **fictional**. The product rule is that a
 program, a requirement or a citation is never fabricated, so the fixtures use
@@ -119,7 +119,7 @@ def migrated_database(settings: Settings) -> str:
     """Apply every migration to the test database, once per test session.
 
     Runs in a subprocess with ``DATABASE_URL`` pointed at the test database,
-    which is exactly how ``make migrate`` migrates it. A failure here is
+    which is exactly how ``./do migrate`` migrates it. A failure here is
     re-raised with alembic's own output attached, because "the tests cannot
     connect" and "the migration is broken" need to be distinguishable at a
     glance.

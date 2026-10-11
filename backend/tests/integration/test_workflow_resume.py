@@ -49,6 +49,7 @@ from app.schemas import (
     RangeValue,
     ReviewStatus,
     RuleSet,
+    UserProfile,
     WorkflowPhase,
     WorkflowStatus,
     clarification_question_id,
@@ -57,6 +58,7 @@ from app.schemas import (
 from app.workflows.checkpointer import checkpointer_scope, thread_config
 from app.workflows.deps import WorkflowDeps
 from app.workflows.graph import (
+    WorkflowOutcome,
     build_graph,
     build_initial_state,
     resume_workflow,
@@ -67,6 +69,19 @@ from app.workflows.state import MAX_CLARIFICATION_ROUNDS
 from tests.conftest import make_program
 
 pytestmark = pytest.mark.db
+
+
+def profile_of(outcome: WorkflowOutcome) -> UserProfile:
+    """The profile a finished run assembled.
+
+    ``NavigatorState["profile"]`` is optional because it is empty before
+    extraction runs, so every read after a run has to say so once rather than
+    at each use.
+    """
+    profile = outcome.state["profile"]
+    assert profile is not None, "the run produced no profile"
+    return profile
+
 
 #: A narrative that says what is wrong and almost nothing else, which is the
 #: common case. The ``sparse`` extraction fixture is the model's honest reading
@@ -244,7 +259,7 @@ class TestTheFirstPause:
             run_id=run_id, user_id=user_a, request_id="req-pure", narrative=SPARSE_NARRATIVE
         )
         first = await run_workflow(state, graph=graph)
-        profile = first.state["profile"]
+        profile = profile_of(first)
 
         again = intake_questions(profile, list(MATERIAL_FIELDS), run_id=run_id)
         assert [question.id for question in again] == [
@@ -290,7 +305,7 @@ class TestResuming:
 
         assert resumed.status is WorkflowStatus.COMPLETED
         assert resumed.phase is WorkflowPhase.DONE
-        profile = resumed.state["profile"]
+        profile = profile_of(resumed)
         assert profile.state == "NJ"
         assert profile.household_size == 3
         assert profile.income_period is IncomePeriod.MONTHLY
@@ -336,7 +351,7 @@ class TestResuming:
         )
 
         assert resumed.status is WorkflowStatus.COMPLETED
-        assert "income" in resumed.state["profile"].unknown_fields
+        assert "income" in profile_of(resumed).unknown_fields
         # The income requirement cannot be resolved, so the program stays at
         # MORE_INFO_NEEDED - never at UNLIKELY_MATCH, because not knowing is
         # not the same as not qualifying.
@@ -517,7 +532,7 @@ class TestPostgresCheckpoint:
                 )
 
             assert resumed.status is WorkflowStatus.COMPLETED
-            assert resumed.state["profile"].household_size == 4
+            assert profile_of(resumed).household_size == 4
             assert resumed.matches
         finally:
             async with checkpointer_scope(settings_pg) as cleanup:

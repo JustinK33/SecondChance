@@ -12,7 +12,9 @@ un-ticks their errands is a plan they stop trusting.
 from __future__ import annotations
 
 import uuid
+from typing import Any
 
+import httpx
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -28,14 +30,15 @@ pytestmark = pytest.mark.db
 NARRATIVE = "I need help with groceries and my electric bill this month, things are tight."
 
 
-def error_of(response) -> dict:
+def error_of(response: httpx.Response) -> dict[str, Any]:
     body = response.json()
     assert set(body) == {"error"}, body
-    return body["error"]
+    error: dict[str, Any] = body["error"]
+    return error
 
 
 @pytest.fixture
-async def planned(session: AsyncSession, user_a: str) -> dict:
+async def planned(session: AsyncSession, user_a: str) -> dict[str, Any]:
     """A completed run for user A with one match and a two-step plan."""
     program = make_program()
     await seed_catalog(session, [program], [make_ruleset(program.slug)])
@@ -51,7 +54,7 @@ async def planned(session: AsyncSession, user_a: str) -> dict:
 
 class TestReading:
     async def test_the_list_shape_matches_the_declared_model(
-        self, rolled_back_api: ApiHarness, planned: dict, user_a: str
+        self, rolled_back_api: ApiHarness, planned: dict[str, Any], user_a: str
     ) -> None:
         response = await rolled_back_api.client.get(
             "/api/v1/plans", headers=rolled_back_api.dev(user_a)
@@ -63,7 +66,7 @@ class TestReading:
         assert len(page.items[0].items) == 2
 
     async def test_the_detail_shape_matches_the_declared_model(
-        self, rolled_back_api: ApiHarness, planned: dict, user_a: str
+        self, rolled_back_api: ApiHarness, planned: dict[str, Any], user_a: str
     ) -> None:
         response = await rolled_back_api.client.get(
             f"/api/v1/plans/{planned['plan'].id}", headers=rolled_back_api.dev(user_a)
@@ -99,7 +102,7 @@ class TestReading:
 
 class TestTickingAStep:
     async def test_ticking_and_unticking_both_work(
-        self, rolled_back_api: ApiHarness, planned: dict, user_a: str
+        self, rolled_back_api: ApiHarness, planned: dict[str, Any], user_a: str
     ) -> None:
         item_id = planned["plan"].items[0].id
         headers = rolled_back_api.dev(user_a)
@@ -121,7 +124,7 @@ class TestTickingAStep:
         assert undone.completed_at is None
 
     async def test_ticking_twice_leaves_the_same_state(
-        self, rolled_back_api: ApiHarness, planned: dict, user_a: str
+        self, rolled_back_api: ApiHarness, planned: dict[str, Any], user_a: str
     ) -> None:
         """A double tap - the normal consequence of a slow connection.
 
@@ -144,7 +147,7 @@ class TestTickingAStep:
         assert first.json()["id"] == second.json()["id"]
 
     async def test_only_completion_is_editable(
-        self, rolled_back_api: ApiHarness, planned: dict, user_a: str
+        self, rolled_back_api: ApiHarness, planned: dict[str, Any], user_a: str
     ) -> None:
         """A user must not be able to rewrite a step into a link elsewhere."""
         item = planned["plan"].items[0]
@@ -163,7 +166,11 @@ class TestTickingAStep:
 
     @pytest.mark.parametrize("body", [{}, {"is_complete": "yes please"}, {"is_complete": None}])
     async def test_a_bad_body_is_a_validation_error(
-        self, rolled_back_api: ApiHarness, planned: dict, user_a: str, body: dict
+        self,
+        rolled_back_api: ApiHarness,
+        planned: dict[str, Any],
+        user_a: str,
+        body: dict[str, Any],
     ) -> None:
         response = await rolled_back_api.client.patch(
             f"/api/v1/action-items/{planned['plan'].items[0].id}",
@@ -187,7 +194,11 @@ class TestTickingAStep:
 
 class TestRegeneration:
     async def test_a_new_version_does_not_untick_a_completed_step(
-        self, rolled_back_api: ApiHarness, session: AsyncSession, planned: dict, user_a: str
+        self,
+        rolled_back_api: ApiHarness,
+        session: AsyncSession,
+        planned: dict[str, Any],
+        user_a: str,
     ) -> None:
         """The whole reason action item ids are derived rather than random."""
         item_id = planned["plan"].items[0].id
@@ -215,7 +226,11 @@ class TestRegeneration:
         assert kept.completed_at is not None
 
     async def test_both_versions_remain_readable(
-        self, rolled_back_api: ApiHarness, session: AsyncSession, planned: dict, user_a: str
+        self,
+        rolled_back_api: ApiHarness,
+        session: AsyncSession,
+        planned: dict[str, Any],
+        user_a: str,
     ) -> None:
         """ "What did you tell me last Tuesday" has to stay answerable."""
         regenerated = make_plan(planned["run_id"], planned["program"], version=2)

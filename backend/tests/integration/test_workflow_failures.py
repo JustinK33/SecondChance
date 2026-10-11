@@ -358,7 +358,8 @@ class TestCancellation:
         async def hangs(state: dict[str, Any], *, deps: WorkflowDeps) -> dict[str, Any]:
             entered.set()
             await asyncio.sleep(30)
-            return await real(state, deps=deps)
+            returned: dict[str, Any] = await real(state, deps=deps)
+            return returned
 
         monkeypatch.setitem(graph_module.NODE_FUNCTIONS, "retrieve_programs", hangs)
         stalled = build_graph(deps).compile(saver, name="stalled")
@@ -400,7 +401,8 @@ class TestCancellation:
 
         async def slow(state: dict[str, Any], *, deps: WorkflowDeps) -> dict[str, Any]:
             await asyncio.sleep(30)
-            return await real(state, deps=deps)
+            returned: dict[str, Any] = await real(state, deps=deps)
+            return returned
 
         monkeypatch.setitem(graph_module.NODE_FUNCTIONS, "retrieve_programs", slow)
         stalled = build_graph(deps).compile(saver, name="slow")

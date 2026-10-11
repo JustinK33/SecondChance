@@ -190,20 +190,37 @@ class TestUserBCannotRead:
     async def test_a_run_id_of_anothers_scopes_nothing_in_the_assistant(
         self, rolled_back_api: ApiHarness, owned: OwnedData, user_b: str
     ) -> None:
-        """Ignored rather than rejected: refusing would confirm the id exists."""
-        response = await rolled_back_api.client.post(
+        """Ignored rather than rejected: refusing would confirm the id exists.
+
+        "Ignored" is asserted by comparison rather than by inspection. The same
+        question asked with and without A's ``run_id`` has to come back with the
+        same answer and the same citations; anything A's run contributed would
+        show up as a difference.
+        """
+        question = "What documents does this program ask for?"
+        borrowed = await rolled_back_api.client.post(
             "/api/v1/assistant/chat",
-            json={
-                "message": "What documents does this program ask for?",
-                "run_id": str(owned.run_id),
-            },
+            json={"message": question, "run_id": str(owned.run_id)},
             headers=rolled_back_api.dev(user_b),
         )
-        assert response.status_code == 200, response.text
-        body = response.json()
-        assert str(owned.run_id) not in response.text
-        for citation in body["citations"]:
-            assert citation["source_id"].startswith(owned.program.slug) or citation["source_id"]
+        unscoped = await rolled_back_api.client.post(
+            "/api/v1/assistant/chat",
+            json={"message": question},
+            headers=rolled_back_api.dev(user_b),
+        )
+
+        assert borrowed.status_code == unscoped.status_code == 200, borrowed.text
+        assert str(owned.run_id) not in borrowed.text
+
+        def grounding(response: Any) -> tuple[str, list[str], list[str]]:
+            body = response.json()
+            return (
+                body["answer"],
+                sorted(citation["source_id"] for citation in body["citations"]),
+                sorted(fact["text"] for fact in body["facts"]),
+            )
+
+        assert grounding(borrowed) == grounding(unscoped), "A's run changed the answer B received"
 
 
 # ---------------------------------------------------------------------------
@@ -432,3 +449,121 @@ async def test_the_fixture_really_created_data(
     assert snapshot["status"] == WorkflowStatus.COMPLETED.value
     assert snapshot["phase"] == WorkflowPhase.DONE.value
     assert snapshot["match_statuses"] == [MatchStatus.POTENTIAL_MATCH.value]
+
+
+# ---------------------------------------------------------------------------
+# the blanket rule, enumerated from the app itself
+# ---------------------------------------------------------------------------
+#: Every operation that takes a user-owned resource id in its path, with the
+#: body it needs. Checked against the live OpenAPI document below, so a new
+#: route cannot be added without either covering it here or failing the suite.
+OWNED_ID_OPERATIONS: tuple[tuple[str, str, dict[str, Any] | None], ...] = (
+    ("GET", "/api/v1/workflows/{run_id}", None),
+    ("POST", "/api/v1/workflows/{run_id}/resume", {"answers": []}),
+    ("POST", "/api/v1/workflows/{run_id}/cancel", None),
+    ("GET", "/api/v1/plans/{plan_id}", None),
+    ("PATCH", "/api/v1/action-items/{item_id}", {"is_complete": True}),
+)
+
+#: Path parameters that name something a user owns. ``program_id`` is
+#: deliberately absent: the catalog is public and shared.
+OWNED_ID_PARAMS: frozenset[str] = frozenset({"run_id", "plan_id", "item_id"})
+
+
+def _declared_owned_id_operations(app: Any) -> set[tuple[str, str]]:
+    """Read the operations that take a user-owned id out of the OpenAPI spec."""
+    found: set[tuple[str, str]] = set()
+    for path, operations in app.openapi()["paths"].items():
+        if not any(f"{{{name}}}" in path for name in OWNED_ID_PARAMS):
+            continue
+        for method in operations:
+            if method.upper() in {"GET", "POST", "PATCH", "PUT", "DELETE"}:
+                found.add((method.upper(), path))
+    return found
+
+
+class TestEveryOwnedIdRouteAnswers404:
+    """The rule as a property of the whole API, not of the routes we remembered."""
+
+    async def test_the_enumeration_matches_the_application(
+        self, rolled_back_api: ApiHarness
+    ) -> None:
+        """A route added later must be covered here or this test fails.
+
+        Without this, the 404-not-403 guarantee quietly becomes "the five
+        routes somebody thought of in October".
+        """
+        declared = _declared_owned_id_operations(rolled_back_api.app)
+        covered = {(method, path) for method, path, _body in OWNED_ID_OPERATIONS}
+        assert covered == declared, (
+            f"uncovered owned-id routes: {sorted(declared - covered)}; "
+            f"routes that no longer exist: {sorted(covered - declared)}"
+        )
+
+    @pytest.mark.parametrize(
+        ("method", "template", "body"),
+        OWNED_ID_OPERATIONS,
+        ids=[f"{method}-{path}" for method, path, _body in OWNED_ID_OPERATIONS],
+    )
+    async def test_anothers_id_is_not_found_and_never_forbidden(
+        self,
+        rolled_back_api: ApiHarness,
+        owned: OwnedData,
+        session: AsyncSession,
+        user_a: str,
+        user_b: str,
+        method: str,
+        template: str,
+        body: dict[str, Any] | None,
+    ) -> None:
+        ids = {
+            "run_id": str(owned.run_id),
+            "plan_id": str(owned.plan_id),
+            "item_id": str(owned.item_id),
+        }
+        path = template
+        for name, value in ids.items():
+            path = path.replace(f"{{{name}}}", value)
+        assert "{" not in path, f"unsubstituted path parameter in {path}"
+
+        before = await _snapshot(session, owned, user_a)
+        response = await rolled_back_api.client.request(
+            method, path, json=body, headers=rolled_back_api.dev(user_b)
+        )
+
+        assert response.status_code != 403, (
+            f"{method} {template} answered 403, which confirms the id exists"
+        )
+        assert response.status_code == 404, f"{method} {template} answered {response.status_code}"
+        assert response.json()["error"]["code"] == "not_found"
+        for value in ids.values():
+            assert value not in response.text, "the response echoed an id B does not own"
+        assert await _snapshot(session, owned, user_a) == before, (
+            f"{method} {template} changed A's data before refusing"
+        )
+
+    @pytest.mark.parametrize(
+        ("method", "template", "body"),
+        OWNED_ID_OPERATIONS,
+        ids=[f"{method}-{path}" for method, path, _body in OWNED_ID_OPERATIONS],
+    )
+    async def test_an_id_nobody_owns_looks_exactly_the_same(
+        self,
+        rolled_back_api: ApiHarness,
+        owned: OwnedData,
+        user_b: str,
+        method: str,
+        template: str,
+        body: dict[str, Any] | None,
+    ) -> None:
+        """The indistinguishability half: A's id and a random id agree."""
+        unknown = str(uuid.uuid4())
+        path = template
+        for name in OWNED_ID_PARAMS:
+            path = path.replace(f"{{{name}}}", unknown)
+
+        response = await rolled_back_api.client.request(
+            method, path, json=body, headers=rolled_back_api.dev(user_b)
+        )
+        assert response.status_code == 404
+        assert response.json()["error"]["code"] == "not_found"

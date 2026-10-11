@@ -116,6 +116,7 @@ def _report_refusal(task: GeminiTask, client: GeminiClient, status: str, started
 async def run_once(client: GeminiClient, task: GeminiTask, spec: Any, schema: type) -> Any:
     """One real call, with account-side refusals turned into a skip."""
     started = time.monotonic()
+    result: Any
     try:
         result = await client.structured(task, spec, schema)
     except ModelUnavailable as error:

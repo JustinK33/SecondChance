@@ -16,6 +16,7 @@ The rest covers the projections, where all the defensive dropping happens.
 from __future__ import annotations
 
 import json
+from typing import Any
 
 import pytest
 from google import genai
@@ -41,11 +42,13 @@ from app.ai.schemas import (
 from app.schemas import (
     ActionItemKind,
     ClarificationInputKind,
+    ClarificationQuestionSet,
     ConfidenceLevel,
     IncomePeriod,
     MatchStatus,
     NeedCategory,
     ProfileFlag,
+    ProgramSource,
     SourceFreshness,
 )
 from app.schemas.profile import PROFILE_FIELD_NAMES
@@ -55,7 +58,7 @@ SCHEMAS = list(MODEL_RESPONSE_SCHEMAS.items())
 SCHEMA_IDS = [task.value for task, _ in SCHEMAS]
 
 
-def source():
+def source() -> ProgramSource:
     return make_program().sources[0]
 
 
@@ -190,8 +193,8 @@ def test_extraction_clamps_confidence_into_range():
 
 
 # ---------------------------------------------------------- clarification
-def question(**overrides) -> ClarificationQuestionOut:
-    base = {
+def question(**overrides: Any) -> ClarificationQuestionOut:
+    base: dict[str, Any] = {
         "field": "household_size",
         "question": "How many people live with you?",
         "input_kind": ClarificationInputKind.NUMBER,
@@ -202,8 +205,10 @@ def question(**overrides) -> ClarificationQuestionOut:
     return ClarificationQuestionOut(**base)
 
 
-def project(response: ClarificationResponse, **kwargs):
-    defaults = {
+def project(
+    response: ClarificationResponse, **kwargs: Any
+) -> tuple[ClarificationQuestionSet, list[str]]:
+    defaults: dict[str, Any] = {
         "id_for": lambda field: f"ask-{field}",
         "allowed_fields": ["household_size", "age"],
         "allowed_slugs": ["example-grocery-help"],
@@ -325,8 +330,8 @@ def test_explanation_without_a_headline_is_unusable():
 
 
 # ------------------------------------------------------------- action plan
-def item(**overrides) -> ActionItemDraftOut:
-    base = {
+def item(**overrides: Any) -> ActionItemDraftOut:
+    base: dict[str, Any] = {
         "program_slug": "example-grocery-help",
         "kind": ActionItemKind.DOCUMENT,
         "subject": "proof of address",

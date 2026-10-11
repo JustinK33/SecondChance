@@ -9,9 +9,10 @@ from __future__ import annotations
 
 import asyncio
 import json
+from typing import Any, cast
 
 import pytest
-from google.genai import types
+from google.genai import Client, types
 
 from app.ai import gemini
 from app.ai.errors import (
@@ -22,7 +23,9 @@ from app.ai.errors import (
     ModelUnavailable,
 )
 from app.ai.prompts import extraction
+from app.ai.prompts.base import PromptSpec
 from app.ai.schemas import ExtractionResponse, GeminiTask
+from app.core.config import Settings
 from app.schemas.contracts import GeminiPort
 from tests.ai.conftest import (
     SECRET_NARRATIVE,
@@ -46,15 +49,25 @@ VALID_EXTRACTION = {
 }
 
 
-def extraction_prompt() -> object:
+def extraction_prompt() -> PromptSpec:
     return extraction.build(SECRET_NARRATIVE)
+
+
+def make_client(settings: Settings, stub: StubGenaiClient, **kwargs: Any) -> gemini.GeminiClient:
+    """A real client with the scripted stub standing in for the SDK's.
+
+    The cast is the whole substitution: ``StubGenaiClient`` implements only
+    ``aio.models.generate_content``, which is all the production code touches,
+    and declaring that as a ``genai.Client`` keeps the call sites readable.
+    """
+    return gemini.GeminiClient(settings, cast(Client, stub), **kwargs)
 
 
 async def test_structured_output_validates_and_returns_usage(settings, sleeper):
     stub = StubGenaiClient(
         make_response(json.dumps(VALID_EXTRACTION), model_version="gemini-test-cheap-001")
     )
-    client = gemini.GeminiClient(settings, stub, sleep=sleeper)
+    client = make_client(settings, stub, sleep=sleeper)
 
     result = await client.structured(
         GeminiTask.EXTRACT_PROFILE, extraction_prompt(), ExtractionResponse
@@ -84,7 +97,7 @@ async def test_structured_prefers_sdk_parsed_object(settings):
     """``response.parsed`` is already validated, so it is used as-is."""
     parsed = ExtractionResponse(state="NJ", household_size=2)
     stub = StubGenaiClient(make_response("ignored, parsed wins", parsed=parsed))
-    client = gemini.GeminiClient(settings, stub)
+    client = make_client(settings, stub)
 
     result = await client.structured(
         GeminiTask.EXTRACT_PROFILE, extraction_prompt(), ExtractionResponse
@@ -96,7 +109,7 @@ async def test_structured_prefers_sdk_parsed_object(settings):
 
 async def test_rate_limited_then_success_retries_with_full_jitter(settings, sleeper):
     stub = StubGenaiClient(client_error(429), make_response(json.dumps(VALID_EXTRACTION)))
-    client = gemini.GeminiClient(settings, stub, sleep=sleeper)
+    client = make_client(settings, stub, sleep=sleeper)
 
     result = await client.structured(
         GeminiTask.EXTRACT_PROFILE, extraction_prompt(), ExtractionResponse
@@ -113,7 +126,7 @@ async def test_rate_limited_then_success_retries_with_full_jitter(settings, slee
 async def test_three_consecutive_rate_limits_raise_and_stop(sleeper):
     settings = make_settings(gemini_max_retries=2)
     stub = StubGenaiClient(client_error(429))
-    client = gemini.GeminiClient(settings, stub, sleep=sleeper)
+    client = make_client(settings, stub, sleep=sleeper)
 
     with pytest.raises(ModelRateLimited) as caught:
         await client.structured(GeminiTask.EXTRACT_PROFILE, extraction_prompt(), ExtractionResponse)
@@ -129,7 +142,7 @@ async def test_three_consecutive_rate_limits_raise_and_stop(sleeper):
 async def test_backoff_delays_grow_and_stay_within_bounds(sleeper):
     settings = make_settings(gemini_max_retries=3)
     stub = StubGenaiClient(client_error(503))
-    client = gemini.GeminiClient(settings, stub, sleep=sleeper)
+    client = make_client(settings, stub, sleep=sleeper)
 
     with pytest.raises(ModelUnavailable):
         await client.structured(GeminiTask.EXTRACT_PROFILE, extraction_prompt(), ExtractionResponse)
@@ -161,7 +174,7 @@ async def test_server_retry_delay_is_honoured(sleeper):
     stub = StubGenaiClient(
         client_error(429, retry_delay="3s"), make_response(json.dumps(VALID_EXTRACTION))
     )
-    client = gemini.GeminiClient(settings, stub, sleep=sleeper)
+    client = make_client(settings, stub, sleep=sleeper)
 
     await client.structured(GeminiTask.EXTRACT_PROFILE, extraction_prompt(), ExtractionResponse)
 
@@ -176,7 +189,7 @@ async def test_timeout_raises_model_timeout(sleeper):
         raise AssertionError("unreachable")
 
     stub = StubGenaiClient(never_answers)
-    client = gemini.GeminiClient(settings, stub, sleep=sleeper)
+    client = make_client(settings, stub, sleep=sleeper)
 
     with pytest.raises(ModelTimeout) as caught:
         await client.structured(GeminiTask.EXTRACT_PROFILE, extraction_prompt(), ExtractionResponse)
@@ -198,7 +211,7 @@ async def test_timeout_is_retried_when_budget_allows(sleeper):
         await asyncio.sleep(5)
 
     stub = StubGenaiClient(slow_then_fast, make_response(json.dumps(VALID_EXTRACTION)))
-    client = gemini.GeminiClient(settings, stub, sleep=sleeper)
+    client = make_client(settings, stub, sleep=sleeper)
 
     result = await client.structured(
         GeminiTask.EXTRACT_PROFILE, extraction_prompt(), ExtractionResponse
@@ -210,7 +223,7 @@ async def test_timeout_is_retried_when_budget_allows(sleeper):
 
 async def test_malformed_json_raises_invalid_output_and_is_not_retried(settings, sleeper):
     stub = StubGenaiClient(make_response("here you go: {state: NJ"))
-    client = gemini.GeminiClient(settings, stub, sleep=sleeper)
+    client = make_client(settings, stub, sleep=sleeper)
 
     with pytest.raises(ModelInvalidOutput) as caught:
         await client.structured(GeminiTask.EXTRACT_PROFILE, extraction_prompt(), ExtractionResponse)
@@ -224,7 +237,7 @@ async def test_malformed_json_raises_invalid_output_and_is_not_retried(settings,
 async def test_schema_violation_is_not_retried_and_logs_no_values(settings, sleeper):
     body = json.dumps({"state": "NJ", "household_size": "three people"})
     stub = StubGenaiClient(make_response(body))
-    client = gemini.GeminiClient(settings, stub, sleep=sleeper)
+    client = make_client(settings, stub, sleep=sleeper)
 
     with pytest.raises(ModelInvalidOutput) as caught:
         await client.structured(GeminiTask.EXTRACT_PROFILE, extraction_prompt(), ExtractionResponse)
@@ -237,7 +250,7 @@ async def test_schema_violation_is_not_retried_and_logs_no_values(settings, slee
 
 async def test_empty_body_raises_invalid_output(settings):
     stub = StubGenaiClient(make_response(None))
-    client = gemini.GeminiClient(settings, stub)
+    client = make_client(settings, stub)
 
     with pytest.raises(ModelInvalidOutput) as caught:
         await client.structured(GeminiTask.EXTRACT_PROFILE, extraction_prompt(), ExtractionResponse)
@@ -248,7 +261,7 @@ async def test_empty_body_raises_invalid_output(settings):
 async def test_fenced_json_is_recovered_with_a_note(settings):
     body = f"```json\n{json.dumps(VALID_EXTRACTION)}\n```"
     stub = StubGenaiClient(make_response(body))
-    client = gemini.GeminiClient(settings, stub)
+    client = make_client(settings, stub)
 
     result = await client.structured(
         GeminiTask.EXTRACT_PROFILE, extraction_prompt(), ExtractionResponse
@@ -262,7 +275,7 @@ async def test_truncated_response_is_refused(settings):
     stub = StubGenaiClient(
         make_response(json.dumps(VALID_EXTRACTION), finish_reason=types.FinishReason.MAX_TOKENS)
     )
-    client = gemini.GeminiClient(settings, stub)
+    client = make_client(settings, stub)
 
     with pytest.raises(ModelInvalidOutput) as caught:
         await client.structured(GeminiTask.EXTRACT_PROFILE, extraction_prompt(), ExtractionResponse)
@@ -274,7 +287,7 @@ async def test_safety_block_raises_model_blocked(settings):
     stub = StubGenaiClient(
         make_response(None, finish_reason=types.FinishReason.SAFETY, candidates=None)
     )
-    client = gemini.GeminiClient(settings, stub)
+    client = make_client(settings, stub)
 
     with pytest.raises(ModelBlocked) as caught:
         await client.structured(GeminiTask.EXTRACT_PROFILE, extraction_prompt(), ExtractionResponse)
@@ -285,7 +298,7 @@ async def test_safety_block_raises_model_blocked(settings):
 
 async def test_prompt_feedback_block_raises_model_blocked(settings):
     stub = StubGenaiClient(make_response(None, block_reason="PROHIBITED_CONTENT"))
-    client = gemini.GeminiClient(settings, stub)
+    client = make_client(settings, stub)
 
     with pytest.raises(ModelBlocked):
         await client.structured(GeminiTask.EXTRACT_PROFILE, extraction_prompt(), ExtractionResponse)
@@ -305,7 +318,7 @@ async def test_prompt_feedback_block_raises_model_blocked(settings):
 async def test_error_classification(status, expected, transient, sleeper):
     settings = make_settings(gemini_max_retries=0)
     stub = StubGenaiClient(client_error(status))
-    client = gemini.GeminiClient(settings, stub, sleep=sleeper)
+    client = make_client(settings, stub, sleep=sleeper)
 
     with pytest.raises(expected) as caught:
         await client.structured(GeminiTask.EXTRACT_PROFILE, extraction_prompt(), ExtractionResponse)
@@ -317,7 +330,7 @@ async def test_non_transient_refusal_is_never_retried(sleeper):
     """403 PERMISSION_DENIED is what this project's key returns today."""
     settings = make_settings(gemini_max_retries=3)
     stub = StubGenaiClient(client_error(403))
-    client = gemini.GeminiClient(settings, stub, sleep=sleeper)
+    client = make_client(settings, stub, sleep=sleeper)
 
     with pytest.raises(ModelUnavailable) as caught:
         await client.structured(GeminiTask.EXTRACT_PROFILE, extraction_prompt(), ExtractionResponse)
@@ -334,7 +347,7 @@ async def test_transport_error_is_retried(sleeper):
     stub = StubGenaiClient(
         httpx.ConnectError("connection refused"), make_response(json.dumps(VALID_EXTRACTION))
     )
-    client = gemini.GeminiClient(settings, stub, sleep=sleeper)
+    client = make_client(settings, stub, sleep=sleeper)
 
     result = await client.structured(
         GeminiTask.EXTRACT_PROFILE, extraction_prompt(), ExtractionResponse
@@ -349,7 +362,7 @@ async def test_httpx_timeout_is_classified_as_model_timeout(sleeper):
 
     settings = make_settings(gemini_max_retries=0)
     stub = StubGenaiClient(httpx.ReadTimeout("too slow"))
-    client = gemini.GeminiClient(settings, stub, sleep=sleeper)
+    client = make_client(settings, stub, sleep=sleeper)
 
     with pytest.raises(ModelTimeout):
         await client.structured(GeminiTask.EXTRACT_PROFILE, extraction_prompt(), ExtractionResponse)
@@ -362,7 +375,7 @@ async def test_cost_arithmetic_matches_configured_prices():
         prompt_tokens=1_000_000, output_tokens=500_000, thought_tokens=100_000
     )
     stub = StubGenaiClient(make_response(json.dumps(VALID_EXTRACTION), usage=usage))
-    client = gemini.GeminiClient(settings, stub)
+    client = make_client(settings, stub)
 
     result = await client.structured(
         GeminiTask.EXTRACT_PROFILE, extraction_prompt(), ExtractionResponse
@@ -380,7 +393,7 @@ async def test_cost_arithmetic_matches_configured_prices():
 
 async def test_usage_accumulator_sums_across_calls(settings):
     stub = StubGenaiClient(make_response(json.dumps(VALID_EXTRACTION)))
-    client = gemini.GeminiClient(settings, stub)
+    client = make_client(settings, stub)
 
     for _ in range(3):
         await client.structured(GeminiTask.EXTRACT_PROFILE, extraction_prompt(), ExtractionResponse)
@@ -397,7 +410,7 @@ async def test_usage_accumulator_sums_across_calls(settings):
 async def test_missing_total_token_count_is_derived(settings):
     usage = make_usage_metadata(prompt_tokens=10, output_tokens=5, total_tokens=0)
     stub = StubGenaiClient(make_response(json.dumps(VALID_EXTRACTION), usage=usage))
-    client = gemini.GeminiClient(settings, stub)
+    client = make_client(settings, stub)
 
     result = await client.structured(
         GeminiTask.EXTRACT_PROFILE, extraction_prompt(), ExtractionResponse
@@ -410,7 +423,7 @@ async def test_missing_total_token_count_is_derived(settings):
 async def test_logs_contain_telemetry_but_no_prompt_or_profile_content(settings, log_stream):
     """The privacy assertion, made against the real logging pipeline."""
     stub = StubGenaiClient(make_response(json.dumps(VALID_EXTRACTION)))
-    client = gemini.GeminiClient(settings, stub)
+    client = make_client(settings, stub)
     await client.extract_profile(SECRET_NARRATIVE)
 
     output = log_stream.getvalue()
@@ -437,7 +450,7 @@ async def test_logs_contain_telemetry_but_no_prompt_or_profile_content(settings,
 
 async def test_retry_and_failure_log_lines_carry_no_content(settings, sleeper, log_stream):
     stub = StubGenaiClient(client_error(429))
-    client = gemini.GeminiClient(settings, stub, sleep=sleeper)
+    client = make_client(settings, stub, sleep=sleeper)
     with pytest.raises(ModelRateLimited):
         await client.extract_profile(SECRET_NARRATIVE)
 
@@ -471,7 +484,7 @@ def test_per_task_models_fall_back_to_the_base_model():
 
 async def test_structured_sends_schema_timeout_and_system_instruction(settings):
     stub = StubGenaiClient(make_response(json.dumps(VALID_EXTRACTION)))
-    client = gemini.GeminiClient(settings, stub)
+    client = make_client(settings, stub)
 
     await client.structured(GeminiTask.EXTRACT_PROFILE, extraction_prompt(), ExtractionResponse)
 
@@ -486,7 +499,7 @@ async def test_structured_sends_schema_timeout_and_system_instruction(settings):
 
 async def test_text_primitive_returns_text_and_usage(settings):
     stub = StubGenaiClient(make_response("  a plain answer  "))
-    client = gemini.GeminiClient(settings, stub)
+    client = make_client(settings, stub)
 
     result = await client.text(GeminiTask.ANSWER_QUESTION, extraction_prompt())
 
@@ -497,7 +510,7 @@ async def test_text_primitive_returns_text_and_usage(settings):
 
 async def test_text_primitive_rejects_an_empty_answer(settings):
     stub = StubGenaiClient(make_response("   "))
-    client = gemini.GeminiClient(settings, stub)
+    client = make_client(settings, stub)
 
     with pytest.raises(ModelInvalidOutput):
         await client.text(GeminiTask.ANSWER_QUESTION, extraction_prompt())

@@ -19,8 +19,10 @@ from __future__ import annotations
 
 import json
 import uuid
+from collections.abc import Mapping
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
+from typing import Any, cast
 
 import pytest
 
@@ -1380,19 +1382,19 @@ class TestReevaluateAffected:
 # ---------------------------------------------------------------------------
 # the hand-labelled scenario suite
 # ---------------------------------------------------------------------------
-def load_fixture() -> dict[str, object]:
+def load_fixture() -> dict[str, Any]:
     with FIXTURE_PATH.open(encoding="utf-8") as handle:
-        data: dict[str, object] = json.load(handle)
+        data: dict[str, Any] = json.load(handle)
     return data
 
 
 FIXTURE = load_fixture()
-FIXTURE_RULESETS = [RuleSet.model_validate(item) for item in FIXTURE["rulesets"]]  # type: ignore[union-attr]
+FIXTURE_RULESETS = [RuleSet.model_validate(item) for item in FIXTURE["rulesets"]]
 FIXTURE_ENTRIES = [
     ProgramRuleset(program_uuid(ruleset.program_slug), ruleset.program_slug, ruleset)
     for ruleset in FIXTURE_RULESETS
 ]
-FIXTURE_SCENARIOS: list[dict[str, object]] = list(FIXTURE["scenarios"])  # type: ignore[arg-type]
+FIXTURE_SCENARIOS: list[dict[str, object]] = list(FIXTURE["scenarios"])
 FIXTURE_NOW = datetime.fromisoformat(str(FIXTURE["evaluated_on"]))
 
 
@@ -1429,7 +1431,7 @@ class TestLabelledScenarios:
     )
     def test_scenario_statuses(self, scenario: dict[str, object]) -> None:
         evaluations = evaluate_scenario(scenario)
-        expected: dict[str, str] = dict(scenario["expected"])  # type: ignore[arg-type]
+        expected: dict[str, str] = dict(cast(Mapping[str, str], scenario["expected"]))
         actual = {slug: evaluations[slug].status.value for slug in expected}
         assert actual == expected
 
@@ -1437,7 +1439,7 @@ class TestLabelledScenarios:
         "scenario", FIXTURE_SCENARIOS, ids=[str(item["id"]) for item in FIXTURE_SCENARIOS]
     )
     def test_every_program_is_labelled(self, scenario: dict[str, object]) -> None:
-        expected: dict[str, str] = dict(scenario["expected"])  # type: ignore[arg-type]
+        expected: dict[str, str] = dict(cast(Mapping[str, str], scenario["expected"]))
         assert set(expected) == {ruleset.program_slug for ruleset in FIXTURE_RULESETS}
 
     @pytest.mark.parametrize(

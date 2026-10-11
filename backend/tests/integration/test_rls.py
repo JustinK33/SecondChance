@@ -32,9 +32,10 @@ from __future__ import annotations
 
 import json
 import uuid
+from typing import Any, cast
 
 import pytest
-from sqlalchemy import text
+from sqlalchemy import CursorResult, text
 from sqlalchemy.exc import DBAPIError, ProgrammingError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -267,7 +268,7 @@ class TestWriteIsolation:
             else text(f"UPDATE {table} SET request_id = 'x' WHERE user_id = :victim"),  # noqa: S608
             {"victim": user_b},
         )
-        assert result.rowcount == 0, table
+        assert cast(CursorResult[Any], result).rowcount == 0, table
 
     @pytest.mark.parametrize("table", PROTECTED_TABLES)
     async def test_another_users_rows_cannot_be_deleted(
@@ -287,7 +288,7 @@ class TestWriteIsolation:
                 victim=user_b
             )
         )
-        assert result.rowcount == 0, table
+        assert cast(CursorResult[Any], result).rowcount == 0, table
 
         await _act_as(session, rls_role, user_b)
         after = await session.scalar(

@@ -14,7 +14,9 @@ rule engine and the fixture-replaying model port::
     them resolves to a real ``program_sources`` row -> account data deleted,
     leaving no user rows behind.
 
-Run it with ``./do e2e`` (or ``make e2e``, which delegates to the same thing).
+Run it with ``./do e2e``. ``make`` is not available on every machine this
+project has to run on, so ``./do`` is the entry point; the Makefile is only a
+thin wrapper around it where make does exist.
 That target brings Postgres up, migrates both databases and then runs this
 module. The browser journey is a separate target, ``./do e2e-web``. Directly::
 

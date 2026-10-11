@@ -22,6 +22,7 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.schemas import (
+    AssistanceProgram,
     MatchStatus,
     ProgramCategory,
     ProgramDetail,
@@ -33,11 +34,14 @@ from tests.security.harness import ApiHarness, rolled_back_api, seed_catalog
 
 __all__ = ["rolled_back_api"]
 
+#: The seeded catalog, keyed by slug, as the fixture below hands it over.
+type Catalog = dict[str, AssistanceProgram]
+
 pytestmark = pytest.mark.db
 
 
 @pytest.fixture
-async def catalog(session: AsyncSession) -> dict[str, object]:
+async def catalog(session: AsyncSession) -> Catalog:
     """Four fictional programs chosen to exercise every filter."""
     food = make_program("example-grocery-help", category=ProgramCategory.FOOD)
     statewide = make_program(
@@ -64,7 +68,7 @@ async def catalog(session: AsyncSession) -> dict[str, object]:
 
 class TestListing:
     async def test_the_shape_matches_the_declared_model(
-        self, rolled_back_api: ApiHarness, catalog: dict
+        self, rolled_back_api: ApiHarness, catalog: Catalog
     ) -> None:
         response = await rolled_back_api.client.get("/api/v1/programs")
         assert response.status_code == 200, response.text
@@ -76,12 +80,12 @@ class TestListing:
             assert item.official_url.startswith("https://")
 
     async def test_it_needs_no_authentication(
-        self, rolled_back_api: ApiHarness, catalog: dict
+        self, rolled_back_api: ApiHarness, catalog: Catalog
     ) -> None:
         assert (await rolled_back_api.client.get("/api/v1/programs")).status_code == 200
 
     async def test_no_status_language_appears_anywhere(
-        self, rolled_back_api: ApiHarness, catalog: dict
+        self, rolled_back_api: ApiHarness, catalog: Catalog
     ) -> None:
         response = await rolled_back_api.client.get("/api/v1/programs")
         text = response.text.lower()
@@ -89,7 +93,9 @@ class TestListing:
             assert status.value.lower() not in text
         assert "eligible" not in text
 
-    async def test_filtering_by_category(self, rolled_back_api: ApiHarness, catalog: dict) -> None:
+    async def test_filtering_by_category(
+        self, rolled_back_api: ApiHarness, catalog: Catalog
+    ) -> None:
         response = await rolled_back_api.client.get("/api/v1/programs?category=FOOD")
         page = ProgramPage.model_validate(response.json())
         assert {item.slug for item in page.items} == {
@@ -98,7 +104,7 @@ class TestListing:
         }
 
     async def test_the_category_filter_is_repeatable(
-        self, rolled_back_api: ApiHarness, catalog: dict
+        self, rolled_back_api: ApiHarness, catalog: Catalog
     ) -> None:
         response = await rolled_back_api.client.get(
             "/api/v1/programs?category=FOOD&category=UTILITIES"
@@ -116,7 +122,7 @@ class TestListing:
         assert error["detail"]["fields"] == ["category.0"]
         assert "CRYPTO" not in response.text, "the rejected value must not be echoed"
 
-    async def test_filtering_by_state(self, rolled_back_api: ApiHarness, catalog: dict) -> None:
+    async def test_filtering_by_state(self, rolled_back_api: ApiHarness, catalog: Catalog) -> None:
         assert (
             ProgramPage.model_validate(
                 (await rolled_back_api.client.get("/api/v1/programs?state=NJ")).json()
@@ -131,7 +137,7 @@ class TestListing:
         )
 
     async def test_a_county_filter_does_not_hide_a_statewide_program(
-        self, rolled_back_api: ApiHarness, catalog: dict
+        self, rolled_back_api: ApiHarness, catalog: Catalog
     ) -> None:
         response = await rolled_back_api.client.get("/api/v1/programs?county=Middlesex")
         slugs = {item["slug"] for item in response.json()["items"]}
@@ -140,13 +146,13 @@ class TestListing:
             "a program with no counties covers every county, so it must still appear"
         )
 
-    async def test_full_text_search(self, rolled_back_api: ApiHarness, catalog: dict) -> None:
+    async def test_full_text_search(self, rolled_back_api: ApiHarness, catalog: Catalog) -> None:
         response = await rolled_back_api.client.get("/api/v1/programs?q=electric")
         page = ProgramPage.model_validate(response.json())
         assert {item.slug for item in page.items} == {"example-utility-help"}
 
     async def test_filtering_by_verification_status(
-        self, rolled_back_api: ApiHarness, catalog: dict
+        self, rolled_back_api: ApiHarness, catalog: Catalog
     ) -> None:
         response = await rolled_back_api.client.get(
             "/api/v1/programs?verification_status=UNVERIFIED"
@@ -167,7 +173,7 @@ class TestListing:
         assert response.json()["error"]["code"] == "validation_error"
 
     async def test_the_window_is_applied_and_does_not_overlap(
-        self, rolled_back_api: ApiHarness, catalog: dict
+        self, rolled_back_api: ApiHarness, catalog: Catalog
     ) -> None:
         first = ProgramPage.model_validate(
             (await rolled_back_api.client.get("/api/v1/programs?limit=2&offset=0")).json()
@@ -182,7 +188,7 @@ class TestListing:
 
 class TestDetail:
     async def test_the_shape_matches_the_declared_model(
-        self, rolled_back_api: ApiHarness, catalog: dict
+        self, rolled_back_api: ApiHarness, catalog: Catalog
     ) -> None:
         program = catalog["example-grocery-help"]
         response = await rolled_back_api.client.get(f"/api/v1/programs/{program.id}")
@@ -195,7 +201,7 @@ class TestDetail:
         assert detail.rule_version == "2026.1"
 
     async def test_a_slug_resolves_to_the_same_record(
-        self, rolled_back_api: ApiHarness, catalog: dict
+        self, rolled_back_api: ApiHarness, catalog: Catalog
     ) -> None:
         """A shareable link should read ``/programs/nj-snap``, not a UUID."""
         program = catalog["example-grocery-help"]
@@ -205,7 +211,7 @@ class TestDetail:
         assert by_slug.json() == by_id.json()
 
     async def test_requirements_are_author_written_prose_with_a_source(
-        self, rolled_back_api: ApiHarness, catalog: dict
+        self, rolled_back_api: ApiHarness, catalog: Catalog
     ) -> None:
         response = await rolled_back_api.client.get("/api/v1/programs/example-grocery-help")
         detail = ProgramDetail.model_validate(response.json())
@@ -214,7 +220,7 @@ class TestDetail:
             assert "eligible" not in bullet.text.lower()
 
     async def test_a_program_with_no_approved_rules_renders_no_requirements(
-        self, rolled_back_api: ApiHarness, catalog: dict
+        self, rolled_back_api: ApiHarness, catalog: Catalog
     ) -> None:
         """Rather than inventing a requirement list it does not have."""
         response = await rolled_back_api.client.get("/api/v1/programs/example-unverified-help")
@@ -225,7 +231,7 @@ class TestDetail:
 
     @pytest.mark.parametrize("key", ["no-such-program", "00000000-0000-0000-0000-000000000000"])
     async def test_an_unknown_program_is_not_found(
-        self, rolled_back_api: ApiHarness, catalog: dict, key: str
+        self, rolled_back_api: ApiHarness, catalog: Catalog, key: str
     ) -> None:
         response = await rolled_back_api.client.get(f"/api/v1/programs/{key}")
         assert response.status_code == 404

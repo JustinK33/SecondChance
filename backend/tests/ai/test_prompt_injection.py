@@ -34,6 +34,7 @@ from app.ai.prompts import action_plan, chat, clarification, explanation, extrac
 from app.ai.prompts.base import BLOCK_CLOSE, BLOCK_OPEN, data_block, sanitise_untrusted
 from app.ai.schemas import ChatAnswerResponse, ExplanationResponse, GeminiTask
 from app.schemas import (
+    AssistanceProgram,
     ChatRequest,
     MatchStatus,
     ProgramMatch,
@@ -68,7 +69,7 @@ def poisoned_source() -> ProgramSource:
     )
 
 
-def poisoned_program():
+def poisoned_program() -> AssistanceProgram:
     program = make_program()
     return program.model_copy(
         update={

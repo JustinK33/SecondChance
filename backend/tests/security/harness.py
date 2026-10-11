@@ -246,7 +246,7 @@ async def api_harness(
     else:
         assert session_factory is not None
 
-        async def session_dep() -> AsyncIterator[AsyncSession]:  # type: ignore[misc]
+        async def session_dep() -> AsyncIterator[AsyncSession]:
             async with session_factory() as per_request:
                 yield per_request
 
@@ -310,7 +310,9 @@ async def seed_catalog(
     await session.commit()
 
 
-def answer_for(run_id: uuid.UUID, field_name: str, value: Any, *, skipped: bool = False):
+def answer_for(
+    run_id: uuid.UUID, field_name: str, value: Any, *, skipped: bool = False
+) -> ClarificationAnswer:
     """A clarification answer keyed the way the client keys it."""
     return ClarificationAnswer(
         question_id=clarification_question_id(run_id, field_name),

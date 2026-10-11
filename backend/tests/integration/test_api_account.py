@@ -13,6 +13,8 @@ loop) and ``/readyz`` must check one.
 
 from __future__ import annotations
 
+from typing import Any
+
 import pytest
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -39,7 +41,9 @@ USER_TABLES = (
 
 
 @pytest.fixture
-async def populated(session: AsyncSession, rolled_back_api: ApiHarness, user_a: str) -> dict:
+async def populated(
+    session: AsyncSession, rolled_back_api: ApiHarness, user_a: str
+) -> dict[str, Any]:
     """A user with a profile, a run, a match and a plan, made through the API
     where the API can make it."""
     program = make_program()
@@ -73,7 +77,7 @@ async def _counts(session: AsyncSession, user_id: str) -> dict[str, int]:
 
 class TestDeletion:
     async def test_the_receipt_shape_matches_the_declared_model(
-        self, rolled_back_api: ApiHarness, populated: dict, user_a: str
+        self, rolled_back_api: ApiHarness, populated: dict[str, Any], user_a: str
     ) -> None:
         response = await rolled_back_api.client.delete(
             "/api/v1/account/data", headers=rolled_back_api.dev(user_a)
@@ -85,7 +89,11 @@ class TestDeletion:
         assert all(count >= 0 for count in receipt.deleted_counts.values())
 
     async def test_the_counts_match_what_actually_went(
-        self, rolled_back_api: ApiHarness, session: AsyncSession, populated: dict, user_a: str
+        self,
+        rolled_back_api: ApiHarness,
+        session: AsyncSession,
+        populated: dict[str, Any],
+        user_a: str,
     ) -> None:
         before = await _counts(session, user_a)
         assert all(value > 0 for value in before.values()), before
@@ -102,7 +110,7 @@ class TestDeletion:
         assert await _counts(session, user_a) == dict.fromkeys(before, 0)
 
     async def test_the_checkpoint_tables_are_included_in_the_receipt(
-        self, rolled_back_api: ApiHarness, populated: dict, user_a: str
+        self, rolled_back_api: ApiHarness, populated: dict[str, Any], user_a: str
     ) -> None:
         """They hold the narrative and the extracted profile, and no cascade
         reaches them, so a receipt that omitted them would be the worst kind of
@@ -115,7 +123,11 @@ class TestDeletion:
             assert table in counts, f"{table} is not accounted for in the receipt"
 
     async def test_a_second_deletion_removes_nothing_but_the_first_receipt(
-        self, rolled_back_api: ApiHarness, session: AsyncSession, populated: dict, user_a: str
+        self,
+        rolled_back_api: ApiHarness,
+        session: AsyncSession,
+        populated: dict[str, Any],
+        user_a: str,
     ) -> None:
         """Repeating it must be safe, and must not resurrect a count.
 
@@ -152,7 +164,7 @@ class TestDeletion:
         assert sum(response.json()["deleted_counts"].values()) == 0
 
     async def test_the_run_is_gone_from_the_api_too(
-        self, rolled_back_api: ApiHarness, populated: dict, user_a: str
+        self, rolled_back_api: ApiHarness, populated: dict[str, Any], user_a: str
     ) -> None:
         headers = rolled_back_api.dev(user_a)
         assert (
@@ -172,7 +184,11 @@ class TestDeletion:
         ] == 0
 
     async def test_the_catalog_is_not_touched(
-        self, rolled_back_api: ApiHarness, session: AsyncSession, populated: dict, user_a: str
+        self,
+        rolled_back_api: ApiHarness,
+        session: AsyncSession,
+        populated: dict[str, Any],
+        user_a: str,
     ) -> None:
         """A user deleting their data must not delete public program records."""
         before = await session.scalar(select(func.count()).select_from(models.AssistanceProgram))

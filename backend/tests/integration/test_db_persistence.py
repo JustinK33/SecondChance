@@ -24,7 +24,9 @@ from __future__ import annotations
 
 import re
 import uuid
+from collections.abc import AsyncGenerator
 from datetime import date, timedelta
+from typing import cast
 
 import pytest
 from pydantic import ValidationError
@@ -1136,7 +1138,11 @@ class TestSessionManagement:
         monkeypatch.setattr(session_module, "_session_factory", create_session_factory(engine))
         monkeypatch.setattr(session_module, "_engine", engine)
 
-        generator = session_module.get_session()
+        # ``get_session`` is declared as an ``AsyncIterator`` because that is
+        # what FastAPI consumes; ``athrow`` is the generator protocol
+        # underneath it, and raising into the dependency is the only way to
+        # reproduce a handler that blew up mid-request.
+        generator = cast(AsyncGenerator[AsyncSession, None], session_module.get_session())
         request_session = await anext(generator)
         await AuditRepository(request_session).record(user_a, AuditAction.PLAN_VIEWED)
         with pytest.raises(RuntimeError, match="handler blew up"):

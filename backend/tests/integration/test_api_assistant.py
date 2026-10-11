@@ -10,7 +10,9 @@ retrieval without ever being treated as authorisation.
 from __future__ import annotations
 
 import uuid
+from typing import Any
 
+import httpx
 import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -18,7 +20,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.ai.fake import FailureMode
 from app.ai.schemas import GeminiTask
 from app.db import models
-from app.schemas import UNGROUNDED_NOTICE, ChatResponse, ConfidenceLevel
+from app.schemas import (
+    UNGROUNDED_NOTICE,
+    AssistanceProgram,
+    ChatResponse,
+    ConfidenceLevel,
+)
 from tests.conftest import make_program, make_ruleset
 from tests.security.harness import ApiHarness, rolled_back_api, seed_catalog
 
@@ -29,14 +36,15 @@ pytestmark = pytest.mark.db
 QUESTION = "What does the official source say about this program?"
 
 
-def error_of(response) -> dict:
+def error_of(response: httpx.Response) -> dict[str, Any]:
     body = response.json()
     assert set(body) == {"error"}, body
-    return body["error"]
+    error: dict[str, Any] = body["error"]
+    return error
 
 
 @pytest.fixture
-async def catalog(session: AsyncSession):
+async def catalog(session: AsyncSession) -> AssistanceProgram:
     program = make_program()
     await seed_catalog(session, [program], [make_ruleset(program.slug)])
     return program
@@ -44,7 +52,7 @@ async def catalog(session: AsyncSession):
 
 class TestTheGroundedPath:
     async def test_the_shape_matches_the_declared_model(
-        self, rolled_back_api: ApiHarness, catalog, user_a: str
+        self, rolled_back_api: ApiHarness, catalog: AssistanceProgram, user_a: str
     ) -> None:
         response = await rolled_back_api.client.post(
             "/api/v1/assistant/chat",
@@ -60,7 +68,11 @@ class TestTheGroundedPath:
         assert answer.confidence is not ConfidenceLevel.UNKNOWN
 
     async def test_every_citation_resolves_to_a_stored_source(
-        self, rolled_back_api: ApiHarness, catalog, session: AsyncSession, user_a: str
+        self,
+        rolled_back_api: ApiHarness,
+        catalog: AssistanceProgram,
+        session: AsyncSession,
+        user_a: str,
     ) -> None:
         response = await rolled_back_api.client.post(
             "/api/v1/assistant/chat",
@@ -85,7 +97,7 @@ class TestTheGroundedPath:
             assert citation.excerpt in source.excerpt, "a quote must be a real quote"
 
     async def test_every_fact_carries_a_verified_source_id(
-        self, rolled_back_api: ApiHarness, catalog, user_a: str
+        self, rolled_back_api: ApiHarness, catalog: AssistanceProgram, user_a: str
     ) -> None:
         response = await rolled_back_api.client.post(
             "/api/v1/assistant/chat",
@@ -99,7 +111,7 @@ class TestTheGroundedPath:
             assert set(fact.source_ids) <= verified
 
     async def test_interpretation_is_separated_from_fact(
-        self, rolled_back_api: ApiHarness, catalog, user_a: str
+        self, rolled_back_api: ApiHarness, catalog: AssistanceProgram, user_a: str
     ) -> None:
         """So the interface cannot render a reading as if it were sourced."""
         response = await rolled_back_api.client.post(
@@ -133,7 +145,7 @@ class TestTheUngroundedPath:
         assert "could not confirm" in answer.answer.lower()
 
     async def test_a_model_that_cannot_answer_is_relayed_honestly(
-        self, rolled_back_api: ApiHarness, catalog, user_a: str
+        self, rolled_back_api: ApiHarness, catalog: AssistanceProgram, user_a: str
     ) -> None:
         rolled_back_api.gemini.cases[GeminiTask.ANSWER_QUESTION] = "cannot_answer"
         response = await rolled_back_api.client.post(
@@ -166,7 +178,7 @@ class TestScoping:
             assert citation.source_id.startswith(wanted.slug)
 
     async def test_an_unknown_program_id_is_not_an_error(
-        self, rolled_back_api: ApiHarness, catalog, user_a: str
+        self, rolled_back_api: ApiHarness, catalog: AssistanceProgram, user_a: str
     ) -> None:
         """The question stands on its own; refusing would confirm nothing useful."""
         response = await rolled_back_api.client.post(
@@ -195,7 +207,7 @@ class TestValidation:
         ],
     )
     async def test_a_bad_body_is_a_validation_error(
-        self, rolled_back_api: ApiHarness, user_a: str, body: dict, field: str
+        self, rolled_back_api: ApiHarness, user_a: str, body: dict[str, Any], field: str
     ) -> None:
         response = await rolled_back_api.client.post(
             "/api/v1/assistant/chat", json=body, headers=rolled_back_api.dev(user_a)
@@ -231,7 +243,7 @@ class TestModelFailures:
     async def test_a_failure_maps_to_the_documented_status(
         self,
         rolled_back_api: ApiHarness,
-        catalog,
+        catalog: AssistanceProgram,
         user_a: str,
         mode: FailureMode,
         status: int,
@@ -249,7 +261,7 @@ class TestModelFailures:
         assert QUESTION not in response.text, "the prompt must not come back in an error"
 
     async def test_a_half_generated_answer_is_never_returned(
-        self, rolled_back_api: ApiHarness, catalog, user_a: str
+        self, rolled_back_api: ApiHarness, catalog: AssistanceProgram, user_a: str
     ) -> None:
         """There is nothing honest to say from a partial answer."""
         rolled_back_api.gemini.failure_mode = FailureMode.SCHEMA_VIOLATION
