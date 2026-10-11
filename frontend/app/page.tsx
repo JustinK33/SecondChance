@@ -1,36 +1,41 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 
-import { Button } from "@/components/ui/button";
-import { PrivacyNote } from "@/components/ui/privacy-note";
+import { HowItWorks } from "@/components/features/intake/how-it-works";
+import { LandingHero } from "@/components/features/intake/landing-hero";
+import { PreliminaryNotice } from "@/components/features/intake/preliminary-notice";
+import { WhatWeCollect } from "@/components/features/intake/what-we-collect";
 import { ROUTES } from "@/components/layout/routes";
+import { Button } from "@/components/ui/button";
 
 /**
- * PLACEHOLDER - owned by the landing-screen agent, not by the foundation.
+ * The landing screen.
  *
- * It exists so the route tree builds and so the shell can be seen working. The
- * copy is deliberately plain; replace the whole file.
+ * Order is the argument: what this is, how it works, what we collect, what it
+ * is not, then the action again for anyone who scrolled to the bottom before
+ * deciding. A server component - there is no state here, so there is no reason
+ * to ship it as JavaScript.
  */
-export default function HomePage() {
+export default function HomePage(): ReactNode {
   return (
-    <div className="page-container py-12 sm:py-16">
-      <div className="reading-width space-y-6">
-        <h1 className="text-3xl font-semibold sm:text-4xl">
-          Tell us what is going on, in your own words
-        </h1>
-        <p className="text-muted-foreground text-lg">
-          SecondChance reads your description, finds New Jersey and Rutgers assistance programs that
-          may be worth exploring, and gives you the official link and the steps for each one.
+    <div className="page-container space-y-12 py-10 sm:py-14">
+      <LandingHero />
+      <HowItWorks className="reading-width sm:max-w-none" />
+      <WhatWeCollect className="reading-width" />
+      <PreliminaryNotice className="reading-width" />
+
+      <section aria-labelledby="start-again-heading" className="reading-width space-y-4">
+        <h2 id="start-again-heading" className="text-xl font-semibold">
+          Ready when you are
+        </h2>
+        <p className="text-muted-foreground">
+          You can stop part way through and come back. Your answers stay on your own device until
+          you send them.
         </p>
-        <div className="flex flex-wrap gap-3">
-          <Button asChild size="lg" className="touch-row">
-            <Link href={ROUTES.start}>Start</Link>
-          </Button>
-          <Button asChild size="lg" variant="outline" className="touch-row">
-            <Link href={ROUTES.programs}>Browse programs first</Link>
-          </Button>
-        </div>
-        <PrivacyNote />
-      </div>
+        <Button asChild size="lg" className="touch-row w-full px-6 text-base sm:w-auto">
+          <Link href={ROUTES.start}>Start</Link>
+        </Button>
+      </section>
     </div>
   );
 }
