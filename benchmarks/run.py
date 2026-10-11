@@ -4,8 +4,6 @@
     ./do bench --suite engine    the rule engine only, no database needed
     ./do bench --journey-runs 5  five full journeys instead of three
 
-(``make bench ARGS="--suite engine"`` is the same thing through make.)
-
 What is measured, and what is not
 ---------------------------------
 Two suites, because "how fast is this product" has two honest answers.

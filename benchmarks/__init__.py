@@ -1,8 +1,8 @@
 """Reproducible benchmarks for SecondChance.
 
-``benchmarks.run`` is the entry point - ``./do bench``, or
-``make bench``. It lives at the repository root rather than under ``backend/``
-because it benchmarks the product, not the backend package: it imports ``app``
+``benchmarks.run`` is the entry point, run as ``./do bench``. It lives at the
+repository root rather than under ``backend/`` because it benchmarks the
+product, not the backend package: it imports ``app``
 with ``backend/`` on ``PYTHONPATH`` (which the ``bench`` target sets) and keeps
 its own fixtures and results next to it.
 
