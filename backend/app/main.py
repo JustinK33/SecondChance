@@ -36,12 +36,14 @@ import contextlib
 from collections.abc import AsyncIterator
 from typing import Final
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware import Middleware
 
 from app.api.errors import install_exception_handlers
+from app.api.v1.deps import DbSession
 from app.api.v1.router import api_router, internal_router
+from app.api.v1.routes.system import ready
 from app.core.config import Settings, get_settings
 from app.core.logging import configure_logging, get_logger
 from app.core.middleware import (
@@ -52,7 +54,7 @@ from app.core.middleware import (
 )
 from app.core.security import assert_auth_mode_allowed
 from app.db.session import dispose_engine, get_engine, get_session_factory
-from app.schemas import HealthResponse
+from app.schemas import HealthResponse, ReadinessResponse
 from app.services.workflow_runner import WorkflowRunner, get_runner, set_runner
 from app.workflows.checkpointer import close_checkpointer, get_checkpointer
 
@@ -157,6 +159,26 @@ def _build_app(settings: Settings) -> FastAPI:
     )
     async def healthz() -> HealthResponse:
         return HealthResponse(status="ok", app_env=settings.app_env)
+
+    @application.get(
+        "/readyz",
+        response_model=ReadinessResponse,
+        tags=["system"],
+        summary="Readiness probe (root path)",
+        description=(
+            "Alias of `GET /api/v1/ready`, at the root path platforms probe by "
+            "default. Checks the database and the configuration, and answers "
+            "503 with `ready: false` when a required dependency is down."
+        ),
+        responses={
+            503: {"model": ReadinessResponse, "description": "A dependency is unavailable."}
+        },
+    )
+    async def readyz(session: DbSession, response: Response) -> ReadinessResponse:
+        # Delegates rather than duplicating the probe: one definition of what
+        # "ready" means, so the root alias and the versioned route can never
+        # disagree about whether this instance should take traffic.
+        return await ready(session, settings, response)
 
     return application
 
