@@ -292,6 +292,11 @@ def _eval_student_status(
 
 def _bounds_label(noun: str, minimum: int | None, maximum: int | None) -> str:
     if minimum is not None and maximum is not None:
+        # A tiered table encodes each tier as its own one-wide band, so the
+        # degenerate case is the common one. "between 8 and 8" is not English
+        # and it reaches the results screen verbatim.
+        if minimum == maximum:
+            return f"{noun} of {minimum}"
         return f"{noun} between {minimum} and {maximum}"
     if minimum is not None:
         return f"{noun} of at least {minimum}"
