@@ -20,7 +20,7 @@ process was given, and asserts that the core flow responds::
     answered from cited sources -> the data is deleted and the deletion is
     verified
 
-Run it with ``./do smoke`` (or ``make smoke``), after ``./do dev-api``::
+Run it with ``./do smoke``, after ``./do dev-api``::
 
     ./do smoke
     ./do smoke --base-url https://api.example.invalid --token "$ACCESS_TOKEN"

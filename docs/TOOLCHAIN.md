@@ -55,9 +55,9 @@ postgresql://secondchance:secondchance@localhost:5433/secondchance_test   # pyte
 ```
 
 `docker-compose.yml` only creates `secondchance`. The `secondchance_test` database is
-created idempotently by `make db-up`, which every db-dependent target depends on, so
-`make test-int` and `make db-reset` both guarantee it exists. If you bring the container
-up with a bare `docker compose up -d`, run `make db-up` once afterwards.
+created idempotently by `./do db-up`, which every db-dependent target depends on, so
+`./do test-int` and `./do db-reset` both guarantee it exists. If you bring the container
+up with a bare `docker compose up -d`, run `./do db-up` once afterwards.
 
 Verified with asyncpg:
 

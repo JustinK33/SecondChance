@@ -1,12 +1,12 @@
 """Print the API's OpenAPI document, byte for byte as the server serves it.
 
-Run it with ``make types``, or directly::
+Run it with ``./do types``, or directly::
 
     python -m scripts.export_openapi                      # to stdout
     python -m scripts.export_openapi -o ../frontend/openapi.json
 
 The document this prints is the contract the frontend compiles against:
-``make types`` writes it to ``frontend/openapi.json`` and ``npm run types``
+``./do types`` writes it to ``frontend/openapi.json`` and ``npm run types``
 turns that file into ``frontend/lib/api-types.gen.ts``. Both of those files are
 committed, so every byte here lands in a reviewable diff, and three properties
 matter more than brevity.
@@ -33,7 +33,7 @@ reading - nor a CI job's exported variables can reach the document. That is not
 only hygiene: the document really does depend on configuration, because
 ``info.contact.url`` is ``frontend_url``. A developer whose ``.env`` points at a
 deployed frontend would otherwise rewrite the committed artifact on every
-``make types`` run, and the diff would read as an API change. Exporting from
+``./do types`` run, and the diff would read as an API change. Exporting from
 the field defaults means the artifact tracks the code and only the code.
 
 **The bytes match the live endpoint.** Serialisation mirrors FastAPI's
@@ -46,7 +46,7 @@ Writing with ``--output`` is atomic: the document is rendered in full, written
 to a temporary file beside the target and then renamed over it. A plain shell
 redirect truncates the committed artifact to zero bytes *before* finding out
 whether the export works, which turns an import error into a lost contract
-file. That is not hypothetical - it is what the previous ``make types`` did.
+file. That is not hypothetical - it is what the previous ``./do types`` did.
 """
 
 from __future__ import annotations

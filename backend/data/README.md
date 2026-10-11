@@ -54,7 +54,7 @@ Conventions that the loader and the tests both enforce:
 ## Loading it
 
 ```bash
-make seed                                 # validate, then upsert into Postgres
+./do seed                                 # validate, then upsert into Postgres
 python -m scripts.seed --validate-only    # parse and cross-check, do not open the database
 python -m scripts.seed --dry-run          # do the writes inside a rolled-back transaction
 ```

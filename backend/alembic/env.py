@@ -4,7 +4,7 @@ Three things are deliberate here.
 
 **The URL is never in a file.** ``alembic.ini`` has no ``sqlalchemy.url``; it is
 read from :class:`app.core.config.Settings`, which is the only module allowed to
-touch the environment. So ``make migrate`` migrates the app database, and
+touch the environment. So ``./do migrate`` migrates the app database, and
 ``DATABASE_URL=... alembic upgrade head`` migrates whichever database that
 variable names - which is exactly how the test database is migrated - and no
 connection string, and therefore no password, ever lands in a committed file.

@@ -1,6 +1,6 @@
 """Load the curated program catalog into Postgres, idempotently.
 
-Run it with ``make seed``, or directly::
+Run it with ``./do seed``, or directly::
 
     python -m scripts.seed                 # validate, then upsert
     python -m scripts.seed --validate-only # validate the JSON, touch nothing
@@ -548,7 +548,7 @@ async def seed(records: Sequence[CatalogRecord], *, dry_run: bool = False) -> Se
             metadata = await connection.run_sync(_reflect)
             missing = [name for name in CATALOG_TABLES if name not in metadata.tables]
             if missing:
-                msg = f"catalog tables {missing} do not exist; run `make migrate` first"
+                msg = f"catalog tables {missing} do not exist; run `./do migrate` first"
                 raise RuntimeError(msg)
             programs = metadata.tables["assistance_programs"]
             sources = metadata.tables["program_sources"]
