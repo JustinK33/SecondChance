@@ -184,22 +184,45 @@ NEED_QUERY_TERMS: Final[dict[NeedCategory, tuple[str, ...]]] = {
     NeedCategory.UNKNOWN: (),
 }
 
-#: Plain-language label for a need, used only in ``retrieval_reasons``.
+#: Official-sounding label for a need, used only in ``retrieval_reasons``.
+#:
+#: These are the words a user reads back in "You said you need help with ...",
+#: so they are the product's own voice and have to sound like a benefits office
+#: rather than a chat window: "transportation", not "getting around";
+#: "education expenses", not "school costs". They are written out by hand for
+#: the same reason the frontend's labels are - a lowercased enum member reads
+#: as a database value - and the two lists are deliberately the same words, so
+#: the category a user picked on the intake form is the category they see
+#: quoted back to them.
 _NEED_LABELS: Final[dict[NeedCategory, str]] = {
-    NeedCategory.FOOD: "food and groceries",
-    NeedCategory.HEALTHCARE: "health care",
-    NeedCategory.UTILITIES: "utility bills",
-    NeedCategory.HOUSING: "housing or rent",
-    NeedCategory.CHILDCARE: "child care",
-    NeedCategory.TRANSPORTATION: "getting around",
-    NeedCategory.EDUCATION_COSTS: "school costs",
+    NeedCategory.FOOD: "food assistance",
+    NeedCategory.HEALTHCARE: "health coverage and care",
+    NeedCategory.UTILITIES: "utility assistance",
+    NeedCategory.HOUSING: "housing assistance",
+    NeedCategory.CHILDCARE: "child care assistance",
+    NeedCategory.TRANSPORTATION: "transportation",
+    NeedCategory.EDUCATION_COSTS: "education expenses",
     NeedCategory.INCOME_SUPPORT: "income support",
-    NeedCategory.INTERNET_PHONE: "internet or phone",
-    NeedCategory.LEGAL_HELP: "legal help",
-    NeedCategory.MENTAL_HEALTH: "mental health",
-    NeedCategory.EMERGENCY_EXPENSE: "an emergency expense",
-    NeedCategory.OTHER: "something else",
-    NeedCategory.UNKNOWN: "help",
+    NeedCategory.INTERNET_PHONE: "internet and phone service",
+    NeedCategory.LEGAL_HELP: "legal assistance",
+    NeedCategory.MENTAL_HEALTH: "mental health services",
+    NeedCategory.EMERGENCY_EXPENSE: "emergency expenses",
+    NeedCategory.OTHER: "other needs",
+    NeedCategory.UNKNOWN: "assistance",
+}
+
+#: Official display name for a program category, for the same reason.
+#: ``ProgramCategory.CASH_TAX_CREDITS.value.replace("_", " ").lower()`` renders
+#: as "cash tax credits", which is the enum member showing through.
+_CATEGORY_LABELS: Final[dict[ProgramCategory, str]] = {
+    ProgramCategory.FOOD: "Food assistance",
+    ProgramCategory.HEALTHCARE: "Health coverage and care",
+    ProgramCategory.UTILITIES: "Utility assistance",
+    ProgramCategory.HOUSING: "Housing assistance",
+    ProgramCategory.CHILDCARE: "Child care assistance",
+    ProgramCategory.CASH_TAX_CREDITS: "Cash and tax credits",
+    ProgramCategory.UNIVERSITY_EMERGENCY_AID: "University emergency aid",
+    ProgramCategory.COMMUNITY_SERVICES: "Community services",
 }
 
 #: Dropped from a query before it is handed to ``plainto_tsquery``.
@@ -518,6 +541,16 @@ def score_program(
     )
 
 
+def _category_label(category: ProgramCategory) -> str:
+    """Display name for a category, degrading to a readable form.
+
+    A ``KeyError`` here would fail a whole retrieval response over a label, so
+    a category added to the enum before this map renders as title case rather
+    than as a 500.
+    """
+    return _CATEGORY_LABELS.get(category, category.value.replace("_", " ").capitalize())
+
+
 def _reasons(
     program: AssistanceProgram,
     *,
@@ -540,7 +573,7 @@ def _reasons(
             reasons.append(f"You said you need help with {_NEED_LABELS[need]}.")
             break
     if not reasons and program.category in (primary | secondary):
-        reasons.append(f"It is in the {program.category.value.replace('_', ' ').lower()} category.")
+        reasons.append(f"It is listed under {_category_label(program.category)}.")
     if matched:
         quoted = ", ".join(f'"{term}"' for term in matched[:3])
         reasons.append(f"It matches what you wrote: {quoted}.")

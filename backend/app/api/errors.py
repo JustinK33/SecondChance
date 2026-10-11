@@ -195,11 +195,22 @@ def error_responses(*status_codes: int) -> dict[int | str, dict[str, Any]]:
     Declaring them is what makes the generated TypeScript useful: without it
     the client's error type is ``unknown`` and every call site invents its own
     guess at the envelope.
+
+    Response *headers* are declared here too, for the one status where a header
+    is the actionable part of the answer: a 429 without ``Retry-After`` tells a
+    client to back off without telling it how far, so the client guesses.
     """
-    return {
-        status: {"model": ErrorResponse, "description": _OPENAPI_DESCRIPTIONS.get(status, "Error")}
-        for status in sorted(set(status_codes))
-    }
+    responses: dict[int | str, dict[str, Any]] = {}
+    for status in sorted(set(status_codes)):
+        entry: dict[str, Any] = {
+            "model": ErrorResponse,
+            "description": _OPENAPI_DESCRIPTIONS.get(status, "Error"),
+        }
+        headers = _OPENAPI_HEADERS.get(status)
+        if headers:
+            entry["headers"] = headers
+        responses[status] = entry
+    return responses
 
 
 _OPENAPI_DESCRIPTIONS: dict[int, str] = {
@@ -207,10 +218,23 @@ _OPENAPI_DESCRIPTIONS: dict[int, str] = {
     403: "Authenticated, but not allowed to do this.",
     404: "No such resource, or it belongs to someone else.",
     409: "Conflicts with the current state of the resource.",
+    413: "The request body was larger than this API accepts.",
     422: "The request body or query string failed validation.",
     429: "Rate limited. Retry after the interval in the Retry-After header.",
     500: "Unexpected server-side failure.",
     502: "A model answered, but the answer failed schema or grounding validation.",
     503: "A dependency is unavailable.",
     504: "A dependency did not answer in time.",
+}
+
+
+#: Declared response headers, by status. Kept next to the descriptions so a
+#: route cannot document the status and forget the header that makes it usable.
+_OPENAPI_HEADERS: dict[int, dict[str, Any]] = {
+    429: {
+        "Retry-After": {
+            "description": "Seconds to wait before retrying.",
+            "schema": {"type": "integer", "minimum": 0},
+        }
+    },
 }

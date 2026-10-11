@@ -16,7 +16,7 @@ on how expensive it was to produce.
 from __future__ import annotations
 
 import uuid
-from typing import Annotated
+from typing import Annotated, Any, Final
 
 from fastapi import APIRouter, Path, Response, status
 
@@ -39,6 +39,42 @@ router = APIRouter(tags=["workflows"])
 
 _RUN_ID = Annotated[uuid.UUID, Path(description="The run id returned by POST /workflows.")]
 
+#: ``Location`` points at the poll URL for the run, so a client that follows
+#: headers never has to assemble the path itself.
+_LOCATION_HEADER: Final[dict[str, Any]] = {
+    "Location": {
+        "description": "The poll URL for the run: `/api/v1/workflows/{run_id}`.",
+        "schema": {"type": "string"},
+    }
+}
+
+
+def _accepted_or_deduplicated(accepted_description: str) -> dict[int | str, dict[str, Any]]:
+    """The two success statuses a run-creating endpoint can answer with.
+
+    Both carry a :class:`~app.schemas.WorkflowCreateResponse`, but the status
+    is the part a client branches on, and only one of them means work was
+    started. FastAPI declares the ``status_code`` of the route and nothing
+    else, so without this the generated TypeScript would type the replay as a
+    204-shaped absence of a body - the generated client would be wrong about
+    precisely the case idempotency exists to produce.
+    """
+    return {
+        status.HTTP_202_ACCEPTED: {
+            "model": WorkflowCreateResponse,
+            "description": accepted_description,
+            "headers": _LOCATION_HEADER,
+        },
+        status.HTTP_200_OK: {
+            "model": WorkflowCreateResponse,
+            "description": (
+                "An `idempotency_key` that had already been used by this user: "
+                "the original run, with `deduplicated: true`. Nothing was started."
+            ),
+            "headers": _LOCATION_HEADER,
+        },
+    }
+
 
 @router.post(
     "/workflows",
@@ -55,7 +91,10 @@ _RUN_ID = Annotated[uuid.UUID, Path(description="The run id returned by POST /wo
         "Reusing a key with a different description is a 409 - returning the "
         "first run's results would answer a question the user did not ask."
     ),
-    responses=error_responses(401, 409, 422, 429),
+    responses={
+        **_accepted_or_deduplicated("The run was created and is executing in the background."),
+        **error_responses(401, 409, 422, 429),
+    },
 )
 async def create_workflow(
     body: WorkflowCreateRequest,
@@ -182,7 +221,12 @@ async def cancel_workflow(
         "re-bills twenty explanations nor changes twenty sentences underneath "
         "them."
     ),
-    responses=error_responses(401, 404, 409, 422),
+    responses={
+        **_accepted_or_deduplicated(
+            "The re-evaluation ran synchronously; the run is already complete."
+        ),
+        **error_responses(401, 404, 409, 422),
+    },
 )
 async def create_matches(
     body: MatchRequest,

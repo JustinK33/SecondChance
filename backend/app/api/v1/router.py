@@ -19,8 +19,11 @@ __all__ = ["api_router", "internal_router"]
 #: advertises its own ``HTTPValidationError`` for any route with a parameter -
 #: a body shape this API never returns, which would make the generated
 #: TypeScript client wrong about the one case it most needs to be right about.
-#: 500 is here because the catch-all handler can produce it anywhere.
-_COMMON_RESPONSES = error_responses(422, 500)
+#: 413 and 500 are here because they are produced outside any one route -
+#: :class:`~app.core.middleware.RequestBodySizeLimitMiddleware` can answer 413
+#: before routing, and the catch-all handler can produce 500 anywhere - so
+#: declaring them per route would mean declaring them on all of them.
+_COMMON_RESPONSES = error_responses(413, 422, 500)
 
 api_router = APIRouter(prefix="/api/v1", responses=_COMMON_RESPONSES)
 api_router.include_router(intake.router)

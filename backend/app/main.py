@@ -26,8 +26,8 @@ cannot create its checkpoint tables must not report itself ready; it should
 crash and let the platform restart or roll back.
 
 Middleware, outermost first: CORS, request context (id, logging, access log,
-metrics), request timeout, router. The reasoning for that order is in
-:mod:`app.core.middleware`.
+metrics), request body size limit, request timeout, router. The reasoning for
+that order is in :mod:`app.core.middleware`.
 """
 
 from __future__ import annotations
@@ -40,7 +40,7 @@ from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware import Middleware
 
-from app.api.errors import install_exception_handlers
+from app.api.errors import error_responses, install_exception_handlers
 from app.api.v1.deps import DbSession
 from app.api.v1.router import api_router, internal_router
 from app.api.v1.routes.system import ready
@@ -48,6 +48,7 @@ from app.core.config import Settings, get_settings
 from app.core.logging import configure_logging, get_logger
 from app.core.middleware import (
     DEFAULT_REQUEST_TIMEOUT_S,
+    RequestBodySizeLimitMiddleware,
     RequestContextMiddleware,
     RequestTimeoutMiddleware,
     cors_kwargs,
@@ -127,6 +128,7 @@ def _build_app(settings: Settings) -> FastAPI:
     middleware = [
         Middleware(CORSMiddleware, **cors_kwargs(settings)),
         Middleware(RequestContextMiddleware),
+        Middleware(RequestBodySizeLimitMiddleware),
         Middleware(RequestTimeoutMiddleware, timeout_s=DEFAULT_REQUEST_TIMEOUT_S),
     ]
     application = FastAPI(
@@ -156,6 +158,7 @@ def _build_app(settings: Settings) -> FastAPI:
             "Alias of `GET /api/v1/health`, at the root path platforms probe by "
             "default. Consults no dependency."
         ),
+        responses=error_responses(500),
     )
     async def healthz() -> HealthResponse:
         return HealthResponse(status="ok", app_env=settings.app_env)
@@ -171,7 +174,8 @@ def _build_app(settings: Settings) -> FastAPI:
             "503 with `ready: false` when a required dependency is down."
         ),
         responses={
-            503: {"model": ReadinessResponse, "description": "A dependency is unavailable."}
+            **error_responses(500),
+            503: {"model": ReadinessResponse, "description": "A dependency is unavailable."},
         },
     )
     async def readyz(session: DbSession, response: Response) -> ReadinessResponse:
@@ -222,7 +226,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     A factory rather than a module-level object so a test can construct one
     with different settings, and so ``uvicorn --factory`` works. The
-    module-level :data:`app` exists because that is what ``make dev-api`` and
+    module-level :data:`app` exists because that is what ``./do dev-api`` and
     the deployment command point at.
     """
     return _build_app(settings or get_settings())

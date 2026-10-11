@@ -301,7 +301,7 @@ describe() {
 
 describe_help="List available targets"
 target_help() {
-	echo "SecondChance targets (./do <target>, or make <target> where make exists):"
+	echo "SecondChance targets - run them as ./do <target>:"
 	local name
 	for name in "${TARGETS[@]}"; do
 		printf '  \033[36m%-11s\033[0m %s\n' "$name" "$(describe "$name")"

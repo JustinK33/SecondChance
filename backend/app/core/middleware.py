@@ -16,8 +16,12 @@ Ordering, outermost first, as built by ``app.main.create_app``:
    the structlog context, writes the access log and records the request metric.
    Outside the timeout so that a timed-out request is still logged and still
    carries ``X-Request-ID``.
-3. :class:`RequestTimeoutMiddleware` - bounds the handler in wall-clock time.
-4. The router.
+3. :class:`RequestBodySizeLimitMiddleware` - refuses an oversized body before
+   anything buffers it. Inside the context middleware so its 413 is logged and
+   correlated like any other response, and outside the timeout because
+   rejecting a body is not work that can time out.
+4. :class:`RequestTimeoutMiddleware` - bounds the handler in wall-clock time.
+5. The router.
 
 Privacy rules this module enforces:
 
@@ -45,8 +49,10 @@ from app.core.metrics import MetricsRegistry, get_metrics
 
 __all__ = [
     "DEFAULT_REQUEST_TIMEOUT_S",
+    "MAX_REQUEST_BODY_BYTES",
     "REQUEST_ID_HEADER",
     "UNTIMED_PATHS",
+    "RequestBodySizeLimitMiddleware",
     "RequestContextMiddleware",
     "RequestTimeoutMiddleware",
     "cors_kwargs",
@@ -64,11 +70,37 @@ REQUEST_ID_HEADER: Final[str] = "x-request-id"
 #: its own, much larger budget - so nothing legitimate needs more.
 DEFAULT_REQUEST_TIMEOUT_S: Final[float] = 30.0
 
+#: Largest request body this API will accept, in bytes.
+#:
+#: Every body here is a small JSON document: the largest field in the whole
+#: schema is a 4000-character narrative, and the largest realistic request -
+#: a narrative plus a full set of clarification answers - is a few kilobytes.
+#: 128 KiB is therefore around twenty times the biggest legitimate request and
+#: still small enough that a burst of them cannot matter.
+#:
+#: Without a cap, ``json.loads`` on a body the client chose the size of is a
+#: denial-of-service primitive available to anyone with ``curl``: a 20 MB body
+#: is read into memory in full, and then again as a decoded string, *before*
+#: Pydantic gets to reject the 4000-character limit. Measured against this
+#: process before the cap existed, a single 20 MB request was accepted and
+#: parsed in 117 ms.
+MAX_REQUEST_BODY_BYTES: Final[int] = 128 * 1024
+
+#: Methods whose body is read when no ``Content-Length`` is given. A body on
+#: any other method is not something this API has a use for, so those requests
+#: are passed through untouched rather than pre-read.
+_BODY_METHODS: Final[frozenset[str]] = frozenset({"POST", "PUT", "PATCH", "DELETE"})
+
 #: Paths exempt from the request timeout. The liveness probe must answer even
 #: when the process is saturated, and the metrics scrape is read by a collector
 #: with its own timeout.
 UNTIMED_PATHS: Final[frozenset[str]] = frozenset(
     {"/healthz", "/api/v1/health", "/internal/metrics"}
+)
+
+#: Copy for the 413. Plain language, and it says what to do about it.
+_BODY_TOO_LARGE_MESSAGE: Final[str] = (
+    "That request was too large to accept. Please shorten what you sent and try again."
 )
 
 #: Body of the 504 the timeout middleware emits. Pre-rendered because building
@@ -192,6 +224,141 @@ class RequestContextMiddleware:
             status=status_code,
             duration_ms=round(duration_s * 1000, 2),
         )
+
+
+class RequestBodySizeLimitMiddleware:
+    """Refuses a request body larger than :data:`MAX_REQUEST_BODY_BYTES`.
+
+    Two paths, because the two cases have different costs.
+
+    ``Content-Length`` present
+        The declared length is checked and an oversized request is answered
+        immediately, without reading a byte of the body. This is the case for
+        every ordinary client.
+
+    ``Content-Length`` absent (``Transfer-Encoding: chunked``)
+        A chunked sender does not say how much it intends to send, so the only
+        way to know is to count. The body is read here, up to the cap plus one
+        byte, and then *replayed* to the application from the buffer. Buffering
+        is bounded by the cap by construction, so this cannot be turned into
+        the thing it is preventing, and the application sees an ordinary
+        ``receive`` channel either way.
+
+    The answer is ``413`` with the standard error envelope and code
+    ``validation_error``: an oversized body is a request that failed
+    validation, and the frontend already has a branch for that code. It is
+    rendered here rather than raised, because raising would require the
+    exception to survive the application's own handler stack - and the whole
+    point of this layer is to answer before the application reads the body.
+    """
+
+    __slots__ = ("app", "max_bytes", "metrics")
+
+    def __init__(
+        self,
+        app: ASGIApp,
+        *,
+        max_bytes: int = MAX_REQUEST_BODY_BYTES,
+        metrics: MetricsRegistry | None = None,
+    ) -> None:
+        self.app = app
+        self.max_bytes = max_bytes
+        self.metrics = metrics if metrics is not None else get_metrics()
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+
+        declared = _declared_content_length(scope)
+        if declared is not None:
+            if declared > self.max_bytes:
+                await self._reject(scope, send, size=declared)
+                return
+            await self.app(scope, receive, send)
+            return
+
+        if str(scope.get("method", "")).upper() not in _BODY_METHODS:
+            await self.app(scope, receive, send)
+            return
+
+        buffered, measured = await self._read_bounded(receive)
+        if measured > self.max_bytes:
+            await self._reject(scope, send, size=measured)
+            return
+        await self.app(scope, _replaying(buffered, receive), send)
+
+    async def _read_bounded(self, receive: Receive) -> tuple[list[Message], int]:
+        """Read the body until it ends or exceeds the cap, whichever is first.
+
+        Returns the messages read and the bytes counted. The count stops one
+        message after the cap is passed, so it is "at least this big" rather
+        than the true length - which is all a rejection needs, and is what
+        keeps the buffer bounded.
+        """
+        buffered: list[Message] = []
+        total = 0
+        while True:
+            message = await receive()
+            buffered.append(message)
+            if message["type"] != "http.request":
+                # A disconnect ends the body as surely as ``more_body: False``.
+                return buffered, total
+            total += len(message.get("body") or b"")
+            if total > self.max_bytes or not message.get("more_body", False):
+                return buffered, total
+
+    async def _reject(self, scope: Scope, send: Send, *, size: int) -> None:
+        route = route_template(scope)
+        self.metrics.increment_error(code=ErrorCode.VALIDATION_ERROR.value, route=route)
+        # A byte count is a count, not content, so it is safe to log and it is
+        # the one number that makes the line actionable.
+        _log.warning(
+            "http.request.body_too_large",
+            route=route,
+            limit_bytes=self.max_bytes,
+            body_bytes=size,
+        )
+        request_id = scope.get("state", {}).get("request_id")
+        body = _json_bytes(
+            ErrorCode.VALIDATION_ERROR,
+            _BODY_TOO_LARGE_MESSAGE,
+            request_id if isinstance(request_id, str) else None,
+        )
+        await send(
+            {
+                "type": "http.response.start",
+                "status": 413,
+                "headers": [
+                    (b"content-type", b"application/json"),
+                    (b"content-length", str(len(body)).encode("ascii")),
+                ],
+            }
+        )
+        await send({"type": "http.response.body", "body": body})
+
+
+def _declared_content_length(scope: Scope) -> int | None:
+    """``Content-Length`` as an int, or ``None`` if absent or unparseable."""
+    raw = Headers(scope=scope).get("content-length")
+    if raw is None:
+        return None
+    try:
+        return int(raw)
+    except ValueError:
+        return None
+
+
+def _replaying(buffered: list[Message], receive: Receive) -> Receive:
+    """A ``receive`` that yields already-read messages, then the real channel."""
+    pending = list(buffered)
+
+    async def replay() -> Message:
+        if pending:
+            return pending.pop(0)
+        return await receive()
+
+    return replay
 
 
 class RequestTimeoutMiddleware:
