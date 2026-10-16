@@ -7,8 +7,10 @@
 secrets/
 
 # ---- local spec notes (not part of the product) ----
-prompts
-prompt2
+# Anchored to the repository root on purpose: an unanchored `prompts` also
+# matches backend/app/ai/prompts/, which is product code.
+/prompts
+/prompt2
 
 # ---- python ----
 .venv/
