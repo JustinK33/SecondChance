@@ -114,8 +114,7 @@ def candidates_payload(candidates: Sequence[RetrievedProgram]) -> list[dict[str,
     about it, and sending it would invite the model to evaluate it.
     """
     return [
-        program_payload(candidate.program, sources=candidate.sources)
-        for candidate in candidates
+        program_payload(candidate.program, sources=candidate.sources) for candidate in candidates
     ]
 
 
