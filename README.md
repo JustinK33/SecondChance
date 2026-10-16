@@ -1,5 +1,10 @@
 # SecondChance
 
+[![license: MIT](https://img.shields.io/badge/license-MIT-black)](LICENSE)
+![python 3.12](https://img.shields.io/badge/python-3.12-3776ab)
+![next.js 16](https://img.shields.io/badge/next.js-16.4-black)
+![postgres 16](https://img.shields.io/badge/postgres-16-336791)
+
 An AI benefits navigator for New Jersey and Rutgers assistance programs.
 
 ## What it does
@@ -19,9 +24,22 @@ Nothing in the UI ever says "eligible", because only the office running a progra
 
 It is an independent student project, not a government agency and not affiliated with one.
 
-![Landing page](docs/screenshots/landing-1440.png)
-![Results](docs/screenshots/results-1440.png)
-![Action plan](docs/screenshots/action-plan-1440.png)
+![The SecondChance landing page. A headline reads "Find help you may be able to get in New Jersey", above a paragraph inviting the visitor to describe their situation in their own words and a button labelled "Start - it takes about 5 minutes".](docs/screenshots/landing-1440.png)
+
+<details>
+<summary><b>The two screens behind it</b>: the results list and the action plan</summary>
+
+<br>
+
+![The results page, headed "What may be worth exploring". A card for the Payment Assistance for Gas and Electric (PAGE) Program carries a "Worth exploring" badge, a "Why this may fit" list of the requirements that were checked, a "What did not look met" list, and a "Worth knowing" list naming what could not be checked at all, including caseworker discretion and funding availability.](docs/screenshots/results-1440.png)
+
+Every card carries the evidence behind its status, down to a line admitting when the wording came from a template because the model could not be reached.
+
+![The action plan, headed "Your next steps". A "Gather these once" card collapses the documents that several programs ask for, each annotated with which programs need it, followed by per-program steps with checkboxes and a progress count reading "0 of 15 done".](docs/screenshots/action-plan-1440.png)
+
+The plan deduplicates documents across programs before it lists anything, so nobody goes looking for the same pay stub twice.
+
+</details>
 
 ## Tech stack
 
@@ -108,3 +126,7 @@ cp .env.example backend/.env   # then fill in GEMINI_API_KEY; the rest has worki
 ```
 
 `./do help` lists every target. The ones worth knowing are `./do e2e` to drive the whole product over HTTP, `./do test` for the full backend suite with coverage, `./do verify` for lint plus typecheck plus tests, and `./do types` to regenerate the frontend types from the OpenAPI schema.
+
+## License
+
+[MIT](LICENSE). The program catalog describes public assistance programs run by other organisations, and this project is not affiliated with any of them.
