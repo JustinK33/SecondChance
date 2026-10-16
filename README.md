@@ -98,13 +98,13 @@ There is no CI workflow in the repo, and nothing is deployed. It runs locally.
 You need Docker, Node 22, and [uv](https://docs.astral.sh/uv/). You do not need `make`: every recipe lives in the `./do` script, and the Makefile is a thin wrapper for machines that happen to have it.
 
 ```bash
-cp .env.example .env   # then fill in GEMINI_API_KEY; the rest has working local defaults
-./do install           # backend/.venv on CPython 3.12, plus frontend deps
-./do db-up             # Postgres 16 on localhost:5433
-./do migrate           # alembic to head, on the app and test databases
-./do seed              # load the curated program catalog, idempotent
-./do dev-api           # http://localhost:8000
-./do dev-web           # http://localhost:3000
+cp .env.example backend/.env   # then fill in GEMINI_API_KEY; the rest has working local defaults
+./do install                   # backend/.venv on CPython 3.12, plus frontend deps
+./do db-up                     # Postgres 16 on localhost:5433
+./do migrate                   # alembic to head, on the app and test databases
+./do seed                      # load the curated program catalog, idempotent
+./do dev-api                   # http://localhost:8000
+./do dev-web                   # http://localhost:3000
 ```
 
 `./do help` lists every target. The ones worth knowing are `./do e2e` to drive the whole product over HTTP, `./do test` for the full backend suite with coverage, `./do verify` for lint plus typecheck plus tests, and `./do types` to regenerate the frontend types from the OpenAPI schema.
