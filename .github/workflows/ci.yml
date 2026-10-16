@@ -1,0 +1,63 @@
+name: ci
+
+# Runs the same recipes a developer runs. There is deliberately no second copy
+# of the lint, typecheck or test commands here: every step shells out to ./do,
+# so CI cannot drift from the documented local workflow.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: lint, typecheck, test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Install Node
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      # Settings are read from backend/.env, and .env.example is a working
+      # local configuration: APP_ENV=local, AUTH_MODE=dev, and a placeholder
+      # Gemini key that is never spent because every test which would reach the
+      # real API is skipped unless RUN_LIVE_GEMINI=1. Copying it here means CI
+      # also fails if .env.example ever stops being a valid configuration.
+      - name: Configure the backend
+        run: cp .env.example backend/.env
+
+      - name: Install dependencies
+        run: ./do install
+
+      # Same Postgres 16 container as local development, on the same port, so a
+      # database failure shows up as its own step instead of a test error.
+      - name: Start Postgres
+        run: ./do db-up
+
+      - name: Verify
+        run: ./do verify
+
+      # Drives the product over HTTP against a fake model client, so it asserts
+      # every workflow transition without needing a Gemini key.
+      - name: End to end journey
+        run: ./do e2e

@@ -1,5 +1,6 @@
 # SecondChance
 
+[![ci](https://github.com/JustinK33/SecondChance/actions/workflows/ci.yml/badge.svg)](https://github.com/JustinK33/SecondChance/actions/workflows/ci.yml)
 [![license: MIT](https://img.shields.io/badge/license-MIT-black)](LICENSE)
 ![python 3.12](https://img.shields.io/badge/python-3.12-3776ab)
 ![next.js 16](https://img.shields.io/badge/next.js-16.4-black)
@@ -104,7 +105,7 @@ Results are preliminary in every case; the app cannot tell anyone whether they w
 
 Supabase auth is implemented and verified against a live project's JWKS, but the app currently runs in `AUTH_MODE=dev`, which trusts an `X-Dev-User` header and is not a security boundary.
 `./do e2e` covers the API journey and asserts 14 transitions in about 1.3 seconds; the UI has been driven by hand at desktop and mobile widths but has no Playwright suite yet, so `./do e2e-web` is wired up and waiting for one.
-There is no CI workflow in the repo, and nothing is deployed. It runs locally.
+CI runs `./do verify` and `./do e2e` on every push, which is the same pair of commands a developer runs, but nothing is deployed anywhere. It runs locally.
 
 ## Documentation
 

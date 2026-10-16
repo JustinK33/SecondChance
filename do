@@ -43,15 +43,30 @@ has_web() { [ -f "$WEB/package.json" ]; }
 
 # nvm.sh reads variables it has not set yet, so it cannot be sourced under
 # `set -u`. Relax nounset for the source itself and nothing else.
+#
+# Without nvm, fall back to the node already on PATH, but only when it is new
+# enough. CI runners install Node directly and have no ~/.nvm; the development
+# machine has nvm and a v14 default. Both need to work, and neither should be
+# able to start a build on a Node that breaks Next.js.
 use_node() {
-	if [ ! -s "$HOME/.nvm/nvm.sh" ]; then
-		die "nvm is not installed at ~/.nvm - Node 22 is required (the default node breaks Next.js)"
+	if [ -s "$HOME/.nvm/nvm.sh" ]; then
+		set +u
+		# shellcheck disable=SC1091
+		. "$HOME/.nvm/nvm.sh"
+		nvm use 22 >/dev/null
+		set -u
+		return
 	fi
-	set +u
-	# shellcheck disable=SC1091
-	. "$HOME/.nvm/nvm.sh"
-	nvm use 22 >/dev/null
-	set -u
+
+	local major=""
+	if command -v node >/dev/null 2>&1; then
+		major="$(node --version | sed 's/^v//; s/[^0-9].*//')"
+	fi
+	if [ -n "$major" ] && [ "$major" -ge 22 ]; then
+		return
+	fi
+
+	die "Node 22 is required (the default node breaks Next.js): no nvm at ~/.nvm, and node on PATH is ${major:-not installed}"
 }
 
 # Export backend/.env into this shell. Used where a command needs a variable
